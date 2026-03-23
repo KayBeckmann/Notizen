@@ -252,15 +252,15 @@
 - [x] 3.2.1 `main.dart` mit ProviderScope aufsetzen
 - [x] 3.2.2 `MyApp` Widget mit Theme-Integration
 - [x] 3.2.3 Router/Navigation konfigurieren (go_router oder Navigator 2.0)
-- [ ] 3.2.4 Responsive Breakpoints definieren (Mobile/Tablet/Desktop)
+- [x] 3.2.4 Responsive Breakpoints definieren (Mobile/Tablet/Desktop)
 
 ### 3.3 Home-Screen
 #### 3.3.1 Layout
 - [x] 3.3.1.1 Scaffold mit AppBar
 - [x] 3.3.1.2 NavigationDrawer für Ordner (Mobile)
-- [ ] 3.3.1.3 NavigationRail für Ordner (Tablet)
-- [ ] 3.3.1.4 Permanente Sidebar für Ordner (Desktop)
-- [ ] 3.3.1.5 Responsive Layout-Switching
+- [x] 3.3.1.3 NavigationRail für Ordner (Tablet)
+- [x] 3.3.1.4 Permanente Sidebar für Ordner (Desktop)
+- [x] 3.3.1.5 Responsive Layout-Switching
 
 #### 3.3.2 AppBar
 - [x] 3.3.2.1 App-Titel / Ordner-Name

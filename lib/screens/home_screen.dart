@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../constants/breakpoints.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
 import '../providers/notes_provider.dart';
+import '../widgets/adaptive_scaffold.dart';
 import '../widgets/folder_drawer.dart';
+import '../widgets/folder_rail.dart';
 import '../widgets/note_card.dart';
 import 'note_editor_screen.dart';
 import 'settings_screen.dart';
@@ -26,26 +29,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final currentFolderId = ref.watch(currentFolderProvider);
     final notesAsync = ref.watch(notesInCurrentFolderProvider);
     final foldersAsync = ref.watch(allFoldersProvider);
+    final layoutType = Breakpoints.getLayoutType(context);
 
     // Aktuellen Ordnernamen ermitteln
-    final currentFolderName = foldersAsync.when(
-      data: (folders) {
-        if (currentFolderId == null) return 'Alle Notizen';
-        final folder = folders.where((f) => f.id == currentFolderId).firstOrNull;
-        return folder?.name ?? 'Notizen';
-      },
-      loading: () => 'Notizen',
-      error: (_, __) => 'Notizen',
-    );
+    final currentFolderName = _getFolderName(currentFolderId, foldersAsync);
 
-    return Scaffold(
-      key: _scaffoldKey,
+    // Nur auf compact (Phone) zeigen wir das Menü-Icon
+    final showMenuButton = layoutType == LayoutType.compact;
+
+    // FAB nur auf Phone zeigen, da Rail/Sidebar eigene haben
+    final showFab = layoutType == LayoutType.compact;
+
+    return AdaptiveScaffold(
+      scaffoldKey: _scaffoldKey,
       appBar: AppBar(
         title: Text(currentFolderName),
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+        leading: showMenuButton
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+              )
+            : null,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -76,6 +81,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       drawer: const FolderDrawer(),
+      navigationRail: const FolderRail(),
+      permanentDrawer: const FolderDrawer(),
       body: notesAsync.when(
         data: (notes) => _buildNotesList(notes),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -83,11 +90,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Text('Fehler: $error'),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _createNewNote,
-        icon: const Icon(Icons.add),
-        label: const Text('Neue Notiz'),
-      ),
+      floatingActionButton: showFab
+          ? FloatingActionButton.extended(
+              onPressed: _createNewNote,
+              icon: const Icon(Icons.add),
+              label: const Text('Neue Notiz'),
+            )
+          : null,
+    );
+  }
+
+  String _getFolderName(String? folderId, AsyncValue<List<Folder>> foldersAsync) {
+    if (folderId == null) return 'Alle Notizen';
+    if (folderId == '_pinned') return 'Angepinnt';
+    if (folderId == '_archived') return 'Archiv';
+    if (folderId == '_trash') return 'Papierkorb';
+
+    return foldersAsync.when(
+      data: (folders) {
+        final folder = folders.where((f) => f.id == folderId).firstOrNull;
+        return folder?.name ?? 'Notizen';
+      },
+      loading: () => 'Notizen',
+      error: (_, __) => 'Notizen',
     );
   }
 

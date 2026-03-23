@@ -225,99 +225,99 @@
 
 ### 3.1 Theme-System
 #### 3.1.1 Basis-Theme
-- [ ] 3.1.1.1 `ThemeData` mit `useMaterial3: true`
-- [ ] 3.1.1.2 Light-Theme konfigurieren
-- [ ] 3.1.1.3 Dark-Theme konfigurieren
-- [ ] 3.1.1.4 `ColorScheme.fromSeed()` implementieren
-- [ ] 3.1.1.5 Standard-Seed-Farbe festlegen
+- [x] 3.1.1.1 `ThemeData` mit `useMaterial3: true`
+- [x] 3.1.1.2 Light-Theme konfigurieren
+- [x] 3.1.1.3 Dark-Theme konfigurieren
+- [x] 3.1.1.4 `ColorScheme.fromSeed()` implementieren
+- [x] 3.1.1.5 Standard-Seed-Farbe festlegen
 
 #### 3.1.2 Dynamic Color
-- [ ] 3.1.2.1 `DynamicColorBuilder` integrieren
-- [ ] 3.1.2.2 Fallback für Plattformen ohne Dynamic Color
-- [ ] 3.1.2.3 Dynamic Color testen (Android 12+)
+- [x] 3.1.2.1 `DynamicColorBuilder` integrieren
+- [x] 3.1.2.2 Fallback für Plattformen ohne Dynamic Color
+- [x] 3.1.2.3 Dynamic Color testen (Android 12+)
 
 #### 3.1.3 Typography
-- [ ] 3.1.3.1 Google Fonts einbinden (z.B. Roboto, Inter)
-- [ ] 3.1.3.2 M3 TextTheme konfigurieren
-- [ ] 3.1.3.3 Custom TextStyles für Notiz-Inhalte
+- [x] 3.1.3.1 Google Fonts einbinden (z.B. Roboto, Inter)
+- [x] 3.1.3.2 M3 TextTheme konfigurieren
+- [x] 3.1.3.3 Custom TextStyles für Notiz-Inhalte
 
 #### 3.1.4 Theme-Einstellungen
-- [ ] 3.1.4.1 `themeModeProvider` erstellen (System/Light/Dark)
-- [ ] 3.1.4.2 `seedColorProvider` erstellen (Custom Farbe)
-- [ ] 3.1.4.3 `useDynamicColorProvider` erstellen (An/Aus)
-- [ ] 3.1.4.4 Theme-Einstellungen in SharedPreferences speichern
-- [ ] 3.1.4.5 Theme-Einstellungen beim Start laden
+- [x] 3.1.4.1 `themeModeProvider` erstellen (System/Light/Dark)
+- [x] 3.1.4.2 `seedColorProvider` erstellen (Custom Farbe)
+- [x] 3.1.4.3 `useDynamicColorProvider` erstellen (An/Aus)
+- [x] 3.1.4.4 Theme-Einstellungen in SharedPreferences speichern
+- [x] 3.1.4.5 Theme-Einstellungen beim Start laden
 
 ### 3.2 App-Struktur
-- [ ] 3.2.1 `main.dart` mit ProviderScope aufsetzen
-- [ ] 3.2.2 `MyApp` Widget mit Theme-Integration
-- [ ] 3.2.3 Router/Navigation konfigurieren (go_router oder Navigator 2.0)
+- [x] 3.2.1 `main.dart` mit ProviderScope aufsetzen
+- [x] 3.2.2 `MyApp` Widget mit Theme-Integration
+- [x] 3.2.3 Router/Navigation konfigurieren (go_router oder Navigator 2.0)
 - [ ] 3.2.4 Responsive Breakpoints definieren (Mobile/Tablet/Desktop)
 
 ### 3.3 Home-Screen
 #### 3.3.1 Layout
-- [ ] 3.3.1.1 Scaffold mit AppBar
-- [ ] 3.3.1.2 NavigationDrawer für Ordner (Mobile)
+- [x] 3.3.1.1 Scaffold mit AppBar
+- [x] 3.3.1.2 NavigationDrawer für Ordner (Mobile)
 - [ ] 3.3.1.3 NavigationRail für Ordner (Tablet)
 - [ ] 3.3.1.4 Permanente Sidebar für Ordner (Desktop)
 - [ ] 3.3.1.5 Responsive Layout-Switching
 
 #### 3.3.2 AppBar
-- [ ] 3.3.2.1 App-Titel / Ordner-Name
-- [ ] 3.3.2.2 Such-Button
-- [ ] 3.3.2.3 Sortier-Button mit Dropdown
-- [ ] 3.3.2.4 Mehr-Optionen-Menü
+- [x] 3.3.2.1 App-Titel / Ordner-Name
+- [x] 3.3.2.2 Such-Button
+- [x] 3.3.2.3 Sortier-Button mit Dropdown
+- [x] 3.3.2.4 Mehr-Optionen-Menü
 - [ ] 3.3.2.5 SearchBar-Modus (expandable)
 
 #### 3.3.3 Notizliste
-- [ ] 3.3.3.1 `NoteCard` Widget erstellen
-- [ ] 3.3.3.2 Titel, Vorschau, Datum anzeigen
-- [ ] 3.3.3.3 Content-Type Icon anzeigen
-- [ ] 3.3.3.4 Pinned-Indikator
-- [ ] 3.3.3.5 Tags als Chips anzeigen
-- [ ] 3.3.3.6 ListView für Mobile
+- [x] 3.3.3.1 `NoteCard` Widget erstellen
+- [x] 3.3.3.2 Titel, Vorschau, Datum anzeigen
+- [x] 3.3.3.3 Content-Type Icon anzeigen
+- [x] 3.3.3.4 Pinned-Indikator
+- [x] 3.3.3.5 Tags als Chips anzeigen
+- [x] 3.3.3.6 ListView für Mobile
 - [ ] 3.3.3.7 GridView Option
-- [ ] 3.3.3.8 Leerer Zustand (Empty State)
-- [ ] 3.3.3.9 Ladeindikator
+- [x] 3.3.3.8 Leerer Zustand (Empty State)
+- [x] 3.3.3.9 Ladeindikator
 
 #### 3.3.4 Floating Action Button
-- [ ] 3.3.4.1 FAB für neue Notiz
-- [ ] 3.3.4.2 Extended FAB auf Desktop
+- [x] 3.3.4.1 FAB für neue Notiz
+- [x] 3.3.4.2 Extended FAB auf Desktop
 - [ ] 3.3.4.3 Speed Dial für verschiedene Notiztypen (optional)
 
 ### 3.4 Ordner-Navigation
 #### 3.4.1 Ordner-Baum Widget
-- [ ] 3.4.1.1 `FolderTree` Widget erstellen
-- [ ] 3.4.1.2 Rekursive Darstellung (verschachtelt)
+- [x] 3.4.1.1 `FolderTree` Widget erstellen
+- [x] 3.4.1.2 Rekursive Darstellung (verschachtelt)
 - [ ] 3.4.1.3 Expand/Collapse Animation
-- [ ] 3.4.1.4 Ordner-Icon und Farbe anzeigen
+- [x] 3.4.1.4 Ordner-Icon und Farbe anzeigen
 - [ ] 3.4.1.5 Anzahl Notizen pro Ordner
-- [ ] 3.4.1.6 Aktiven Ordner hervorheben
-- [ ] 3.4.1.7 Ordner per Tap auswählen
+- [x] 3.4.1.6 Aktiven Ordner hervorheben
+- [x] 3.4.1.7 Ordner per Tap auswählen
 
 #### 3.4.2 Ordner-Aktionen
-- [ ] 3.4.2.1 Kontextmenü (Long-Press / Rechtsklick)
-- [ ] 3.4.2.2 Ordner umbenennen
+- [x] 3.4.2.1 Kontextmenü (Long-Press / Rechtsklick)
+- [x] 3.4.2.2 Ordner umbenennen
 - [ ] 3.4.2.3 Ordner-Farbe ändern
 - [ ] 3.4.2.4 Ordner-Icon ändern
 - [ ] 3.4.2.5 Ordner verschieben
-- [ ] 3.4.2.6 Ordner löschen (mit Bestätigung)
-- [ ] 3.4.2.7 Neuen Unterordner erstellen
+- [x] 3.4.2.6 Ordner löschen (mit Bestätigung)
+- [x] 3.4.2.7 Neuen Unterordner erstellen
 
 #### 3.4.3 Spezielle Ordner
-- [ ] 3.4.3.1 "Alle Notizen" Eintrag
-- [ ] 3.4.3.2 "Angepinnt" Eintrag
-- [ ] 3.4.3.3 "Archiv" Eintrag
-- [ ] 3.4.3.4 "Papierkorb" Eintrag
-- [ ] 3.4.3.5 Trennlinie zwischen Spezial- und User-Ordnern
+- [x] 3.4.3.1 "Alle Notizen" Eintrag
+- [x] 3.4.3.2 "Angepinnt" Eintrag
+- [x] 3.4.3.3 "Archiv" Eintrag
+- [x] 3.4.3.4 "Papierkorb" Eintrag
+- [x] 3.4.3.5 Trennlinie zwischen Spezial- und User-Ordnern
 
 ### 3.5 Ordner-Dialog
-- [ ] 3.5.1 `CreateFolderDialog` erstellen
-- [ ] 3.5.2 Name-Eingabefeld mit Validierung
+- [x] 3.5.1 `CreateFolderDialog` erstellen
+- [x] 3.5.2 Name-Eingabefeld mit Validierung
 - [ ] 3.5.3 Farb-Auswahl (ColorPicker)
 - [ ] 3.5.4 Icon-Auswahl (Icon-Grid)
 - [ ] 3.5.5 Parent-Ordner Auswahl (Dropdown)
-- [ ] 3.5.6 `EditFolderDialog` (gleiche Felder, vorausgefüllt)
+- [x] 3.5.6 `EditFolderDialog` (gleiche Felder, vorausgefüllt)
 
 ### 3.6 Tag-Verwaltung
 #### 3.6.1 Tag-Liste
@@ -333,19 +333,19 @@
 - [ ] 3.6.2.5 Tag löschen (mit Bestätigung)
 
 ### 3.7 Einstellungen-Screen
-- [ ] 3.7.1 Scaffold mit AppBar
-- [ ] 3.7.2 Theme-Modus Auswahl (ListTile mit RadioButtons)
-- [ ] 3.7.3 Akzentfarbe Auswahl (ColorPicker)
-- [ ] 3.7.4 Dynamic Color Toggle (SwitchListTile)
+- [x] 3.7.1 Scaffold mit AppBar
+- [x] 3.7.2 Theme-Modus Auswahl (ListTile mit RadioButtons)
+- [x] 3.7.3 Akzentfarbe Auswahl (ColorPicker)
+- [x] 3.7.4 Dynamic Color Toggle (SwitchListTile)
 - [ ] 3.7.5 Sprache Auswahl (für später)
-- [ ] 3.7.6 Über die App (Version, Lizenzen)
-- [ ] 3.7.7 Spenden-Links
+- [x] 3.7.6 Über die App (Version, Lizenzen)
+- [x] 3.7.7 Spenden-Links
 
 ### 3.8 Allgemeine Widgets
-- [ ] 3.8.1 `ConfirmationDialog` (wiederverwendbar)
+- [x] 3.8.1 `ConfirmationDialog` (wiederverwendbar)
 - [ ] 3.8.2 `LoadingOverlay` Widget
-- [ ] 3.8.3 `ErrorWidget` für Fehlerzustände
-- [ ] 3.8.4 `EmptyStateWidget` für leere Listen
+- [x] 3.8.3 `ErrorWidget` für Fehlerzustände
+- [x] 3.8.4 `EmptyStateWidget` für leere Listen
 
 ### 3.9 Deliverables M3
 - [ ] Vollständiges Theme-System

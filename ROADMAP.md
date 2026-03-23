@@ -46,34 +46,34 @@
 
 ### 1.3 Abhängigkeiten konfigurieren
 #### 1.3.1 Datenbank-Packages
-- [ ] 1.3.1.1 `drift` hinzufügen
-- [ ] 1.3.1.2 `sqlite3_flutter_libs` hinzufügen
-- [ ] 1.3.1.3 `path_provider` hinzufügen
-- [ ] 1.3.1.4 `path` hinzufügen
+- [x] 1.3.1.1 `drift` hinzufügen
+- [x] 1.3.1.2 `sqlite3_flutter_libs` hinzufügen
+- [x] 1.3.1.3 `path_provider` hinzufügen
+- [x] 1.3.1.4 `path` hinzufügen
 
 #### 1.3.2 State Management
-- [ ] 1.3.2.1 `flutter_riverpod` hinzufügen
-- [ ] 1.3.2.2 `riverpod_annotation` hinzufügen
+- [x] 1.3.2.1 `flutter_riverpod` hinzufügen
+- [x] 1.3.2.2 `riverpod_annotation` hinzufügen
 
 #### 1.3.3 Code-Generierung (dev_dependencies)
-- [ ] 1.3.3.1 `build_runner` hinzufügen
-- [ ] 1.3.3.2 `drift_dev` hinzufügen
-- [ ] 1.3.3.3 `riverpod_generator` hinzufügen
+- [x] 1.3.3.1 `build_runner` hinzufügen
+- [x] 1.3.3.2 `drift_dev` hinzufügen
+- [x] 1.3.3.3 `riverpod_generator` hinzufügen
 
 #### 1.3.4 UI & Design
-- [ ] 1.3.4.1 `dynamic_color` hinzufügen
-- [ ] 1.3.4.2 `google_fonts` hinzufügen
-- [ ] 1.3.4.3 `flutter_colorpicker` hinzufügen
+- [x] 1.3.4.1 `dynamic_color` hinzufügen
+- [x] 1.3.4.2 `google_fonts` hinzufügen
+- [x] 1.3.4.3 `flutter_colorpicker` hinzufügen
 
 #### 1.3.5 Utilities
-- [ ] 1.3.5.1 `uuid` hinzufügen
-- [ ] 1.3.5.2 `shared_preferences` hinzufügen
-- [ ] 1.3.5.3 `intl` hinzufügen (Datumsformatierung)
+- [x] 1.3.5.1 `uuid` hinzufügen
+- [x] 1.3.5.2 `shared_preferences` hinzufügen
+- [x] 1.3.5.3 `intl` hinzufügen (Datumsformatierung)
 
 #### 1.3.6 Testing
-- [ ] 1.3.6.1 `flutter_test` konfigurieren
-- [ ] 1.3.6.2 `mocktail` hinzufügen
-- [ ] 1.3.6.3 `flutter_lints` konfigurieren
+- [x] 1.3.6.1 `flutter_test` konfigurieren
+- [x] 1.3.6.2 `mocktail` hinzufügen
+- [x] 1.3.6.3 `flutter_lints` konfigurieren
 
 ### 1.4 Basis-Konfiguration
 - [ ] 1.4.1 `analysis_options.yaml` anpassen (Lint-Regeln)

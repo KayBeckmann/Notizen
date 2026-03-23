@@ -321,16 +321,16 @@
 
 ### 3.6 Tag-Verwaltung
 #### 3.6.1 Tag-Liste
-- [ ] 3.6.1.1 Alle Tags anzeigen als Chips
-- [ ] 3.6.1.2 Tag antippen zum Filtern
+- [x] 3.6.1.1 Alle Tags anzeigen als Chips
+- [x] 3.6.1.2 Tag antippen zum Filtern
 - [ ] 3.6.1.3 Tag-Anzahl (Notizen mit diesem Tag)
 
 #### 3.6.2 Tag-Dialog
-- [ ] 3.6.2.1 `CreateTagDialog` erstellen
-- [ ] 3.6.2.2 Name-Eingabefeld
-- [ ] 3.6.2.3 Farb-Auswahl
-- [ ] 3.6.2.4 `EditTagDialog`
-- [ ] 3.6.2.5 Tag löschen (mit Bestätigung)
+- [x] 3.6.2.1 `CreateTagDialog` erstellen
+- [x] 3.6.2.2 Name-Eingabefeld
+- [x] 3.6.2.3 Farb-Auswahl
+- [x] 3.6.2.4 `EditTagDialog`
+- [x] 3.6.2.5 Tag löschen (mit Bestätigung)
 
 ### 3.7 Einstellungen-Screen
 - [x] 3.7.1 Scaffold mit AppBar

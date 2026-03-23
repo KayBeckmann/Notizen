@@ -5,6 +5,7 @@ import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
 import 'folder_dialog.dart';
+import 'tag_list.dart';
 
 /// Seitenleiste mit Ordner-Navigation
 class FolderDrawer extends ConsumerWidget {
@@ -80,6 +81,11 @@ class FolderDrawer extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Fehler: $e')),
         ),
+
+        const Divider(indent: 28, endIndent: 28),
+
+        // Tags
+        const TagDrawerSection(),
       ],
     );
   }

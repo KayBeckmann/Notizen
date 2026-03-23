@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../database/database.dart';
 import '../providers/folders_provider.dart';
+import 'folder_dialog.dart';
 
 /// NavigationRail für Tablet-Ansicht
 class FolderRail extends ConsumerWidget {
@@ -49,9 +50,13 @@ class FolderRail extends ConsumerWidget {
       ),
       // User-Ordner
       ...folders.where((f) => f.parentId == null).map((folder) {
+        final icon = getIconFromName(folder.icon);
         return NavigationRailDestination(
-          icon: Icon(Icons.folder_outlined, color: Color(folder.color)),
-          selectedIcon: Icon(Icons.folder, color: Color(folder.color)),
+          icon: Icon(
+            icon == Icons.folder ? Icons.folder_outlined : icon,
+            color: Color(folder.color),
+          ),
+          selectedIcon: Icon(icon, color: Color(folder.color)),
           label: Text(
             folder.name,
             overflow: TextOverflow.ellipsis,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
+import 'folder_dialog.dart';
 
 /// Seitenleiste mit Ordner-Navigation
 class FolderDrawer extends ConsumerWidget {
@@ -162,52 +162,10 @@ class FolderDrawer extends ConsumerWidget {
   }
 
   void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
-    final controller = TextEditingController();
-
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Neuer Ordner'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Ordnername',
-            hintText: 'z.B. Arbeit',
-          ),
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                _createFolder(ref, name);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Erstellen'),
-          ),
-        ],
-      ),
+      builder: (context) => const CreateFolderDialog(),
     );
-  }
-
-  void _createFolder(WidgetRef ref, String name) {
-    final now = DateTime.now();
-    ref.read(foldersDaoProvider).createFolder(
-          FoldersCompanion.insert(
-            id: const Uuid().v4(),
-            name: name,
-            color: 0xFF6750A4,
-            createdAt: now,
-            updatedAt: now,
-          ),
-        );
   }
 
   void _showFolderOptions(BuildContext context, WidgetRef ref, Folder folder) {
@@ -226,10 +184,18 @@ class FolderDrawer extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Umbenennen'),
+              title: const Text('Bearbeiten'),
               onTap: () {
                 Navigator.pop(context);
-                _showRenameFolderDialog(context, ref, folder);
+                _showEditFolderDialog(context, folder);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.create_new_folder_outlined),
+              title: const Text('Unterordner erstellen'),
+              onTap: () {
+                Navigator.pop(context);
+                _showCreateSubfolderDialog(context, folder.id);
               },
             ),
             ListTile(
@@ -246,46 +212,17 @@ class FolderDrawer extends ConsumerWidget {
     );
   }
 
-  void _showRenameFolderDialog(
-    BuildContext context,
-    WidgetRef ref,
-    Folder folder,
-  ) {
-    final controller = TextEditingController(text: folder.name);
-
+  void _showEditFolderDialog(BuildContext context, Folder folder) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ordner umbenennen'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Ordnername',
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                ref.read(foldersDaoProvider).updateFolder(
-                      folder.copyWith(
-                        name: name,
-                        updatedAt: DateTime.now(),
-                      ),
-                    );
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Speichern'),
-          ),
-        ],
-      ),
+      builder: (context) => EditFolderDialog(folder: folder),
+    );
+  }
+
+  void _showCreateSubfolderDialog(BuildContext context, String parentId) {
+    showDialog(
+      context: context,
+      builder: (context) => CreateFolderDialog(parentId: parentId),
     );
   }
 
@@ -338,16 +275,17 @@ class _FolderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final children = allFolders.where((f) => f.parentId == folder.id).toList();
     final hasChildren = children.isNotEmpty;
+    final icon = getIconFromName(folder.icon);
 
     return Column(
       children: [
         NavigationDrawerDestination(
           icon: Icon(
-            hasChildren ? Icons.folder_outlined : Icons.folder_outlined,
+            icon == Icons.folder ? Icons.folder_outlined : icon,
             color: Color(folder.color),
           ),
           selectedIcon: Icon(
-            Icons.folder,
+            icon,
             color: Color(folder.color),
           ),
           label: Text(folder.name),

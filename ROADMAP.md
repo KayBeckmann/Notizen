@@ -298,9 +298,9 @@
 #### 3.4.2 Ordner-Aktionen
 - [x] 3.4.2.1 Kontextmenü (Long-Press / Rechtsklick)
 - [x] 3.4.2.2 Ordner umbenennen
-- [ ] 3.4.2.3 Ordner-Farbe ändern
-- [ ] 3.4.2.4 Ordner-Icon ändern
-- [ ] 3.4.2.5 Ordner verschieben
+- [x] 3.4.2.3 Ordner-Farbe ändern
+- [x] 3.4.2.4 Ordner-Icon ändern
+- [x] 3.4.2.5 Ordner verschieben
 - [x] 3.4.2.6 Ordner löschen (mit Bestätigung)
 - [x] 3.4.2.7 Neuen Unterordner erstellen
 
@@ -314,9 +314,9 @@
 ### 3.5 Ordner-Dialog
 - [x] 3.5.1 `CreateFolderDialog` erstellen
 - [x] 3.5.2 Name-Eingabefeld mit Validierung
-- [ ] 3.5.3 Farb-Auswahl (ColorPicker)
-- [ ] 3.5.4 Icon-Auswahl (Icon-Grid)
-- [ ] 3.5.5 Parent-Ordner Auswahl (Dropdown)
+- [x] 3.5.3 Farb-Auswahl (ColorPicker)
+- [x] 3.5.4 Icon-Auswahl (Icon-Grid)
+- [x] 3.5.5 Parent-Ordner Auswahl (Dropdown)
 - [x] 3.5.6 `EditFolderDialog` (gleiche Felder, vorausgefüllt)
 
 ### 3.6 Tag-Verwaltung

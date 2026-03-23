@@ -76,11 +76,11 @@
 - [x] 1.3.6.3 `flutter_lints` konfigurieren
 
 ### 1.4 Basis-Konfiguration
-- [ ] 1.4.1 `analysis_options.yaml` anpassen (Lint-Regeln)
-- [ ] 1.4.2 `build.yaml` für Code-Generierung erstellen
+- [x] 1.4.1 `analysis_options.yaml` anpassen (Lint-Regeln)
+- [x] 1.4.2 `build.yaml` für Code-Generierung erstellen
 - [ ] 1.4.3 App-Icons vorbereiten (Platzhalter)
 - [ ] 1.4.4 Splash-Screen konfigurieren
-- [ ] 1.4.5 `flutter pub get` ausführen
+- [x] 1.4.5 `flutter pub get` ausführen
 - [ ] 1.4.6 Initiales `dart run build_runner build` testen
 
 ### 1.5 Deliverables M1

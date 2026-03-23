@@ -10,7 +10,7 @@
 |-------------|--------------|--------|
 | M1 | Projektsetup & Grundstruktur | Erledigt |
 | M2 | Datenmodelle & Datenbank | Erledigt |
-| M3 | Basis-UI & Design-System | Ausstehend |
+| M3 | Basis-UI & Design-System | Erledigt |
 | M4 | Markdown-Editor | Ausstehend |
 | M5 | Medien-Integration | Ausstehend |
 | M6 | Zeichenfunktion | Ausstehend |
@@ -348,11 +348,11 @@
 - [x] 3.8.4 `EmptyStateWidget` für leere Listen
 
 ### 3.9 Deliverables M3
-- [ ] Vollständiges Theme-System
-- [ ] Home-Screen mit Notizliste
-- [ ] Ordner-Navigation funktionsfähig
-- [ ] Einstellungen-Screen
-- [ ] Responsive Layout (Mobile/Tablet/Desktop)
+- [x] Vollständiges Theme-System
+- [x] Home-Screen mit Notizliste
+- [x] Ordner-Navigation funktionsfähig
+- [x] Einstellungen-Screen
+- [x] Responsive Layout (Mobile/Tablet/Desktop)
 
 ---
 

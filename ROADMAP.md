@@ -8,7 +8,7 @@
 
 | Meilenstein | Beschreibung | Status |
 |-------------|--------------|--------|
-| M1 | Projektsetup & Grundstruktur | Ausstehend |
+| M1 | Projektsetup & Grundstruktur | Erledigt |
 | M2 | Datenmodelle & Datenbank | Ausstehend |
 | M3 | Basis-UI & Design-System | Ausstehend |
 | M4 | Markdown-Editor | Ausstehend |
@@ -78,16 +78,16 @@
 ### 1.4 Basis-Konfiguration
 - [x] 1.4.1 `analysis_options.yaml` anpassen (Lint-Regeln)
 - [x] 1.4.2 `build.yaml` für Code-Generierung erstellen
-- [ ] 1.4.3 App-Icons vorbereiten (Platzhalter)
-- [ ] 1.4.4 Splash-Screen konfigurieren
+- [x] 1.4.3 App-Icons vorbereiten (Platzhalter)
+- [x] 1.4.4 Splash-Screen konfigurieren
 - [x] 1.4.5 `flutter pub get` ausführen
-- [ ] 1.4.6 Initiales `dart run build_runner build` testen
+- [x] 1.4.6 Initiales `dart run build_runner build` testen
 
 ### 1.5 Deliverables M1
-- [ ] Lauffähige App auf allen Zielplattformen
-- [ ] Vollständige Ordnerstruktur
-- [ ] Alle Dependencies installiert
-- [ ] Build-Runner funktioniert
+- [x] Lauffähige App auf allen Zielplattformen
+- [x] Vollständige Ordnerstruktur
+- [x] Alle Dependencies installiert
+- [x] Build-Runner funktioniert
 
 ---
 

@@ -43,3 +43,17 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment and secrets
+.env
+.env.*
+*.keystore
+*.jks
+key.properties
+
+# Generated files (optional - can be committed)
+# *.g.dart
+# *.freezed.dart
+
+# Local configuration
+local.properties

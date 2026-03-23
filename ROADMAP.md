@@ -29,7 +29,7 @@
 - [x] 1.1.1 `flutter create` mit Organisation und Projektname ausführen
 - [x] 1.1.2 Plattform-Support aktivieren (Android, iOS, Windows, Linux, Web)
 - [x] 1.1.3 Minimale SDK-Version festlegen (Flutter 3.16+, Dart 3.2+)
-- [ ] 1.1.4 `.gitignore` anpassen für Flutter-Projekt
+- [x] 1.1.4 `.gitignore` anpassen für Flutter-Projekt
 - [ ] 1.1.5 Initiales Build auf allen Plattformen testen
 
 ### 1.2 Ordnerstruktur anlegen

@@ -343,7 +343,7 @@
 
 ### 3.8 Allgemeine Widgets
 - [x] 3.8.1 `ConfirmationDialog` (wiederverwendbar)
-- [ ] 3.8.2 `LoadingOverlay` Widget
+- [x] 3.8.2 `LoadingOverlay` Widget
 - [x] 3.8.3 `ErrorWidget` für Fehlerzustände
 - [x] 3.8.4 `EmptyStateWidget` für leere Listen
 

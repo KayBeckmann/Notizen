@@ -1848,7 +1848,6 @@ class NoteTagsCompanion extends UpdateCompanion<NoteTag> {
 
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
-  _$AppDatabase.connect(DatabaseConnection c) : super.connect(c);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $FoldersTable folders = $FoldersTable(this);
   late final $NotesTable notes = $NotesTable(this);

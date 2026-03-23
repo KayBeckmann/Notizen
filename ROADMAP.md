@@ -149,47 +149,47 @@
 
 ### 2.4 Data Access Objects (DAOs)
 #### 2.4.1 FoldersDao
-- [ ] 2.4.1.1 `watchAllFolders()` - Stream aller Ordner
-- [ ] 2.4.1.2 `watchRootFolders()` - Stream der Root-Ordner
-- [ ] 2.4.1.3 `watchChildFolders(parentId)` - Stream der Kind-Ordner
-- [ ] 2.4.1.4 `getFolderById(id)` - Einzelner Ordner
-- [ ] 2.4.1.5 `getFolderPath(id)` - Pfad vom Root zum Ordner
-- [ ] 2.4.1.6 `createFolder(folder)` - Ordner erstellen
-- [ ] 2.4.1.7 `updateFolder(folder)` - Ordner aktualisieren
-- [ ] 2.4.1.8 `deleteFolder(id)` - Ordner löschen (kaskadierend)
-- [ ] 2.4.1.9 `moveFolder(id, newParentId)` - Ordner verschieben
-- [ ] 2.4.1.10 `reorderFolders(ids)` - Reihenfolge ändern
-- [ ] 2.4.1.11 `createDefaultFolder()` - "Neu"-Ordner erstellen
+- [x] 2.4.1.1 `watchAllFolders()` - Stream aller Ordner
+- [x] 2.4.1.2 `watchRootFolders()` - Stream der Root-Ordner
+- [x] 2.4.1.3 `watchChildFolders(parentId)` - Stream der Kind-Ordner
+- [x] 2.4.1.4 `getFolderById(id)` - Einzelner Ordner
+- [x] 2.4.1.5 `getFolderPath(id)` - Pfad vom Root zum Ordner
+- [x] 2.4.1.6 `createFolder(folder)` - Ordner erstellen
+- [x] 2.4.1.7 `updateFolder(folder)` - Ordner aktualisieren
+- [x] 2.4.1.8 `deleteFolder(id)` - Ordner löschen (kaskadierend)
+- [x] 2.4.1.9 `moveFolder(id, newParentId)` - Ordner verschieben
+- [x] 2.4.1.10 `reorderFolders(ids)` - Reihenfolge ändern
+- [x] 2.4.1.11 `createDefaultFolder()` - "Neu"-Ordner erstellen
 
 #### 2.4.2 NotesDao
-- [ ] 2.4.2.1 `watchAllNotes()` - Stream aller Notizen
-- [ ] 2.4.2.2 `watchNotesByFolder(folderId)` - Stream nach Ordner
-- [ ] 2.4.2.3 `watchNotesByTag(tagId)` - Stream nach Tag
-- [ ] 2.4.2.4 `watchPinnedNotes()` - Stream der gepinnten Notizen
-- [ ] 2.4.2.5 `watchArchivedNotes()` - Stream des Archivs
-- [ ] 2.4.2.6 `watchTrashedNotes()` - Stream des Papierkorbs
-- [ ] 2.4.2.7 `getNoteById(id)` - Einzelne Notiz
-- [ ] 2.4.2.8 `searchNotes(query)` - Volltextsuche
-- [ ] 2.4.2.9 `createNote(note)` - Notiz erstellen
-- [ ] 2.4.2.10 `updateNote(note)` - Notiz aktualisieren
-- [ ] 2.4.2.11 `deleteNote(id)` - Notiz endgültig löschen
-- [ ] 2.4.2.12 `moveToTrash(id)` - In Papierkorb verschieben
-- [ ] 2.4.2.13 `restoreFromTrash(id)` - Aus Papierkorb wiederherstellen
-- [ ] 2.4.2.14 `emptyTrash()` - Papierkorb leeren
-- [ ] 2.4.2.15 `moveNote(id, folderId)` - Notiz verschieben
-- [ ] 2.4.2.16 `togglePin(id)` - Anpinnen umschalten
-- [ ] 2.4.2.17 `toggleArchive(id)` - Archivieren umschalten
+- [x] 2.4.2.1 `watchAllNotes()` - Stream aller Notizen
+- [x] 2.4.2.2 `watchNotesByFolder(folderId)` - Stream nach Ordner
+- [x] 2.4.2.3 `watchNotesByTag(tagId)` - Stream nach Tag
+- [x] 2.4.2.4 `watchPinnedNotes()` - Stream der gepinnten Notizen
+- [x] 2.4.2.5 `watchArchivedNotes()` - Stream des Archivs
+- [x] 2.4.2.6 `watchTrashedNotes()` - Stream des Papierkorbs
+- [x] 2.4.2.7 `getNoteById(id)` - Einzelne Notiz
+- [x] 2.4.2.8 `searchNotes(query)` - Volltextsuche
+- [x] 2.4.2.9 `createNote(note)` - Notiz erstellen
+- [x] 2.4.2.10 `updateNote(note)` - Notiz aktualisieren
+- [x] 2.4.2.11 `deleteNote(id)` - Notiz endgültig löschen
+- [x] 2.4.2.12 `moveToTrash(id)` - In Papierkorb verschieben
+- [x] 2.4.2.13 `restoreFromTrash(id)` - Aus Papierkorb wiederherstellen
+- [x] 2.4.2.14 `emptyTrash()` - Papierkorb leeren
+- [x] 2.4.2.15 `moveNote(id, folderId)` - Notiz verschieben
+- [x] 2.4.2.16 `togglePin(id)` - Anpinnen umschalten
+- [x] 2.4.2.17 `toggleArchive(id)` - Archivieren umschalten
 
 #### 2.4.3 TagsDao
-- [ ] 2.4.3.1 `watchAllTags()` - Stream aller Tags
-- [ ] 2.4.3.2 `watchTagsForNote(noteId)` - Tags einer Notiz
-- [ ] 2.4.3.3 `getTagById(id)` - Einzelner Tag
-- [ ] 2.4.3.4 `createTag(tag)` - Tag erstellen
-- [ ] 2.4.3.5 `updateTag(tag)` - Tag aktualisieren
-- [ ] 2.4.3.6 `deleteTag(id)` - Tag löschen
-- [ ] 2.4.3.7 `addTagToNote(noteId, tagId)` - Tag zuweisen
-- [ ] 2.4.3.8 `removeTagFromNote(noteId, tagId)` - Tag entfernen
-- [ ] 2.4.3.9 `setTagsForNote(noteId, tagIds)` - Tags setzen
+- [x] 2.4.3.1 `watchAllTags()` - Stream aller Tags
+- [x] 2.4.3.2 `watchTagsForNote(noteId)` - Tags einer Notiz
+- [x] 2.4.3.3 `getTagById(id)` - Einzelner Tag
+- [x] 2.4.3.4 `createTag(tag)` - Tag erstellen
+- [x] 2.4.3.5 `updateTag(tag)` - Tag aktualisieren
+- [x] 2.4.3.6 `deleteTag(id)` - Tag löschen
+- [x] 2.4.3.7 `addTagToNote(noteId, tagId)` - Tag zuweisen
+- [x] 2.4.3.8 `removeTagFromNote(noteId, tagId)` - Tag entfernen
+- [x] 2.4.3.9 `setTagsForNote(noteId, tagIds)` - Tags setzen
 
 ### 2.5 Riverpod Provider
 - [ ] 2.5.1 `databaseProvider` - Singleton Database-Instanz

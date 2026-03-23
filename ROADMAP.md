@@ -96,11 +96,11 @@
 **Ziel:** Vollständige Datenbankschicht mit Drift und Riverpod-Integration
 
 ### 2.1 Enums & Konstanten definieren
-- [ ] 2.1.1 `ContentType` Enum erstellen (text, audio, image, drawing)
-- [ ] 2.1.2 `SortOrder` Enum erstellen (name, created, modified)
-- [ ] 2.1.3 `SortDirection` Enum erstellen (asc, desc)
-- [ ] 2.1.4 Standard-Ordner-Farben definieren
-- [ ] 2.1.5 Standard-Tag-Farben definieren
+- [x] 2.1.1 `ContentType` Enum erstellen (text, audio, image, drawing)
+- [x] 2.1.2 `SortOrder` Enum erstellen (name, created, modified)
+- [x] 2.1.3 `SortDirection` Enum erstellen (asc, desc)
+- [x] 2.1.4 Standard-Ordner-Farben definieren
+- [x] 2.1.5 Standard-Tag-Farben definieren
 
 ### 2.2 Drift Tables erstellen
 #### 2.2.1 Folders Table

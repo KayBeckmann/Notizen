@@ -192,18 +192,18 @@
 - [x] 2.4.3.9 `setTagsForNote(noteId, tagIds)` - Tags setzen
 
 ### 2.5 Riverpod Provider
-- [ ] 2.5.1 `databaseProvider` - Singleton Database-Instanz
-- [ ] 2.5.2 `foldersDaoProvider` - FoldersDao Instanz
-- [ ] 2.5.3 `notesDaoProvider` - NotesDao Instanz
-- [ ] 2.5.4 `tagsDaoProvider` - TagsDao Instanz
-- [ ] 2.5.5 `allFoldersProvider` - Stream-Provider für Ordner
-- [ ] 2.5.6 `folderTreeProvider` - Hierarchische Ordner-Struktur
-- [ ] 2.5.7 `currentFolderProvider` - Aktuell ausgewählter Ordner
-- [ ] 2.5.8 `notesInFolderProvider` - Notizen im aktuellen Ordner
-- [ ] 2.5.9 `selectedNoteProvider` - Aktuell ausgewählte Notiz
-- [ ] 2.5.10 `allTagsProvider` - Stream-Provider für Tags
-- [ ] 2.5.11 `searchQueryProvider` - Suchbegriff State
-- [ ] 2.5.12 `searchResultsProvider` - Suchergebnisse
+- [x] 2.5.1 `databaseProvider` - Singleton Database-Instanz
+- [x] 2.5.2 `foldersDaoProvider` - FoldersDao Instanz
+- [x] 2.5.3 `notesDaoProvider` - NotesDao Instanz
+- [x] 2.5.4 `tagsDaoProvider` - TagsDao Instanz
+- [x] 2.5.5 `allFoldersProvider` - Stream-Provider für Ordner
+- [x] 2.5.6 `folderTreeProvider` - Hierarchische Ordner-Struktur
+- [x] 2.5.7 `currentFolderProvider` - Aktuell ausgewählter Ordner
+- [x] 2.5.8 `notesInFolderProvider` - Notizen im aktuellen Ordner
+- [x] 2.5.9 `selectedNoteProvider` - Aktuell ausgewählte Notiz
+- [x] 2.5.10 `allTagsProvider` - Stream-Provider für Tags
+- [x] 2.5.11 `searchQueryProvider` - Suchbegriff State
+- [x] 2.5.12 `searchResultsProvider` - Suchergebnisse
 
 ### 2.6 Unit Tests
 - [ ] 2.6.1 FoldersDao Tests schreiben

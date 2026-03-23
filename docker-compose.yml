@@ -1,0 +1,30 @@
+services:
+  notizen-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Development mit Live-Reload
+  notizen-dev:
+    image: ghcr.io/cirruslabs/flutter:latest
+    working_dir: /app
+    volumes:
+      - .:/app
+      - flutter_pub_cache:/root/.pub-cache
+    ports:
+      - "8081:8080"
+    command: flutter run -d web-server --web-port=8080 --web-hostname=0.0.0.0
+    profiles:
+      - dev
+
+volumes:
+  flutter_pub_cache:

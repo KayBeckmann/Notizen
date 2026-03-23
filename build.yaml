@@ -3,7 +3,6 @@ targets:
     builders:
       drift_dev:
         options:
-          generate_connect_constructor: true
           scoped_dart_components: true
 
       riverpod_generator:

@@ -140,11 +140,11 @@
 - [x] 2.2.4.3 Composite Primary Key (noteId, tagId)
 
 ### 2.3 Drift Database-Klasse
-- [ ] 2.3.1 `AppDatabase` Klasse erstellen
-- [ ] 2.3.2 Alle Tables registrieren
-- [ ] 2.3.3 Schema-Version definieren
-- [ ] 2.3.4 Migration-Strategie implementieren
-- [ ] 2.3.5 Datenbank-Pfad konfigurieren (plattformspezifisch)
+- [x] 2.3.1 `AppDatabase` Klasse erstellen
+- [x] 2.3.2 Alle Tables registrieren
+- [x] 2.3.3 Schema-Version definieren
+- [x] 2.3.4 Migration-Strategie implementieren
+- [x] 2.3.5 Datenbank-Pfad konfigurieren (plattformspezifisch)
 - [ ] 2.3.6 Web-Support mit `drift_dev` konfigurieren
 
 ### 2.4 Data Access Objects (DAOs)

@@ -33,16 +33,16 @@
 - [x] 1.1.5 Initiales Build auf allen Plattformen testen
 
 ### 1.2 Ordnerstruktur anlegen
-- [ ] 1.2.1 `lib/database/` erstellen (Drift Database)
-- [ ] 1.2.2 `lib/database/tables/` erstellen (Drift Tables)
-- [ ] 1.2.3 `lib/database/daos/` erstellen (Data Access Objects)
-- [ ] 1.2.4 `lib/models/` erstellen (Enums, DTOs)
-- [ ] 1.2.5 `lib/providers/` erstellen (Riverpod Provider)
-- [ ] 1.2.6 `lib/services/` erstellen (Business Logic)
-- [ ] 1.2.7 `lib/screens/` erstellen (Seiten/Views)
-- [ ] 1.2.8 `lib/widgets/` erstellen (Wiederverwendbare Widgets)
-- [ ] 1.2.9 `lib/utils/` erstellen (Hilfsfunktionen)
-- [ ] 1.2.10 `lib/constants/` erstellen (App-Konstanten)
+- [x] 1.2.1 `lib/database/` erstellen (Drift Database)
+- [x] 1.2.2 `lib/database/tables/` erstellen (Drift Tables)
+- [x] 1.2.3 `lib/database/daos/` erstellen (Data Access Objects)
+- [x] 1.2.4 `lib/models/` erstellen (Enums, DTOs)
+- [x] 1.2.5 `lib/providers/` erstellen (Riverpod Provider)
+- [x] 1.2.6 `lib/services/` erstellen (Business Logic)
+- [x] 1.2.7 `lib/screens/` erstellen (Seiten/Views)
+- [x] 1.2.8 `lib/widgets/` erstellen (Wiederverwendbare Widgets)
+- [x] 1.2.9 `lib/utils/` erstellen (Hilfsfunktionen)
+- [x] 1.2.10 `lib/constants/` erstellen (App-Konstanten)
 
 ### 1.3 Abhängigkeiten konfigurieren
 #### 1.3.1 Datenbank-Packages

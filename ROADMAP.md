@@ -9,7 +9,7 @@
 | Meilenstein | Beschreibung | Status |
 |-------------|--------------|--------|
 | M1 | Projektsetup & Grundstruktur | Erledigt |
-| M2 | Datenmodelle & Datenbank | Ausstehend |
+| M2 | Datenmodelle & Datenbank | Erledigt |
 | M3 | Basis-UI & Design-System | Ausstehend |
 | M4 | Markdown-Editor | Ausstehend |
 | M5 | Medien-Integration | Ausstehend |
@@ -206,16 +206,16 @@
 - [x] 2.5.12 `searchResultsProvider` - Suchergebnisse
 
 ### 2.6 Unit Tests
-- [ ] 2.6.1 FoldersDao Tests schreiben
-- [ ] 2.6.2 NotesDao Tests schreiben
-- [ ] 2.6.3 TagsDao Tests schreiben
-- [ ] 2.6.4 In-Memory-Datenbank für Tests konfigurieren
+- [x] 2.6.1 FoldersDao Tests schreiben
+- [x] 2.6.2 NotesDao Tests schreiben
+- [x] 2.6.3 TagsDao Tests schreiben
+- [x] 2.6.4 In-Memory-Datenbank für Tests konfigurieren
 
 ### 2.7 Deliverables M2
-- [ ] Vollständiges Datenbankschema
-- [ ] Alle DAOs implementiert und getestet
-- [ ] Riverpod Provider funktionsfähig
-- [ ] Migration-System vorbereitet
+- [x] Vollständiges Datenbankschema
+- [x] Alle DAOs implementiert und getestet
+- [x] Riverpod Provider funktionsfähig
+- [x] Migration-System vorbereitet
 
 ---
 

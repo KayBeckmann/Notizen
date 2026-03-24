@@ -11,7 +11,7 @@
 | M1 | Projektsetup & Grundstruktur | Erledigt |
 | M2 | Datenmodelle & Datenbank | Erledigt |
 | M3 | Basis-UI & Design-System | Erledigt |
-| M4 | Markdown-Editor | Ausstehend |
+| M4 | Markdown-Editor | Erledigt |
 | M5 | Medien-Integration | Ausstehend |
 | M6 | Zeichenfunktion | Ausstehend |
 | M7 | Plattform-Features | Ausstehend |
@@ -361,88 +361,88 @@
 **Ziel:** Vollständiger Markdown-Editor mit Live-Preview
 
 ### 4.1 Editor-Screen Layout
-- [ ] 4.1.1 Scaffold mit AppBar
-- [ ] 4.1.2 Titel-Eingabefeld
-- [ ] 4.1.3 Content-Bereich (Editor oder Preview)
-- [ ] 4.1.4 Split-View Option (Editor + Preview nebeneinander)
-- [ ] 4.1.5 Toggle zwischen Edit/Preview/Split
-- [ ] 4.1.6 Responsive Layout (Desktop: Split als Standard)
+- [x] 4.1.1 Scaffold mit AppBar
+- [x] 4.1.2 Titel-Eingabefeld
+- [x] 4.1.3 Content-Bereich (Editor oder Preview)
+- [x] 4.1.4 Split-View Option (Editor + Preview nebeneinander)
+- [x] 4.1.5 Toggle zwischen Edit/Preview/Split
+- [x] 4.1.6 Responsive Layout (Desktop: Split als Standard)
 
 ### 4.2 Markdown-Editor
 #### 4.2.1 Text-Eingabe
-- [ ] 4.2.1.1 `TextField` mit `maxLines: null`
-- [ ] 4.2.1.2 Monospace-Schrift für Code-Blöcke
-- [ ] 4.2.1.3 Auto-Save mit Debounce (2 Sekunden)
-- [ ] 4.2.1.4 Cursor-Position merken
+- [x] 4.2.1.1 `TextField` mit `maxLines: null`
+- [x] 4.2.1.2 Monospace-Schrift für Code-Blöcke
+- [x] 4.2.1.3 Auto-Save mit Debounce (2 Sekunden)
+- [x] 4.2.1.4 Cursor-Position merken
 
 #### 4.2.2 Formatierungs-Toolbar
-- [ ] 4.2.2.1 Bold (`**text**`)
-- [ ] 4.2.2.2 Italic (`*text*`)
-- [ ] 4.2.2.3 Strikethrough (`~~text~~`)
-- [ ] 4.2.2.4 Heading 1-3 (`#`, `##`, `###`)
-- [ ] 4.2.2.5 Bullet List (`- item`)
-- [ ] 4.2.2.6 Numbered List (`1. item`)
-- [ ] 4.2.2.7 Checkbox (`- [ ] task`)
-- [ ] 4.2.2.8 Code Inline (`` `code` ``)
-- [ ] 4.2.2.9 Code Block (``` ``` ```)
-- [ ] 4.2.2.10 Quote (`> quote`)
-- [ ] 4.2.2.11 Link (`[text](url)`)
-- [ ] 4.2.2.12 Horizontal Rule (`---`)
-- [ ] 4.2.2.13 Toolbar scrollbar auf Mobile
+- [x] 4.2.2.1 Bold (`**text**`)
+- [x] 4.2.2.2 Italic (`*text*`)
+- [x] 4.2.2.3 Strikethrough (`~~text~~`)
+- [x] 4.2.2.4 Heading 1-3 (`#`, `##`, `###`)
+- [x] 4.2.2.5 Bullet List (`- item`)
+- [x] 4.2.2.6 Numbered List (`1. item`)
+- [x] 4.2.2.7 Checkbox (`- [ ] task`)
+- [x] 4.2.2.8 Code Inline (`` `code` ``)
+- [x] 4.2.2.9 Code Block (``` ``` ```)
+- [x] 4.2.2.10 Quote (`> quote`)
+- [x] 4.2.2.11 Link (`[text](url)`)
+- [x] 4.2.2.12 Horizontal Rule (`---`)
+- [x] 4.2.2.13 Toolbar scrollbar auf Mobile
 
 #### 4.2.3 Toolbar-Logik
-- [ ] 4.2.3.1 Text-Selektion erkennen
-- [ ] 4.2.3.2 Formatierung um Selektion anwenden
-- [ ] 4.2.3.3 Wenn keine Selektion: Platzhalter einfügen
-- [ ] 4.2.3.4 Cursor nach Formatierung positionieren
+- [x] 4.2.3.1 Text-Selektion erkennen
+- [x] 4.2.3.2 Formatierung um Selektion anwenden
+- [x] 4.2.3.3 Wenn keine Selektion: Platzhalter einfügen
+- [x] 4.2.3.4 Cursor nach Formatierung positionieren
 
 ### 4.3 Markdown-Preview
 #### 4.3.1 Rendering
-- [ ] 4.3.1.1 `flutter_markdown` integrieren
-- [ ] 4.3.1.2 Custom Stylesheet (passend zum Theme)
-- [ ] 4.3.1.3 Syntax-Highlighting für Code-Blöcke
-- [ ] 4.3.1.4 Checkbox-Interaktion (anklickbar)
-- [ ] 4.3.1.5 Link-Handling (URL öffnen)
-- [ ] 4.3.1.6 Bild-Rendering (lokale Bilder)
+- [x] 4.3.1.1 `flutter_markdown` integrieren
+- [x] 4.3.1.2 Custom Stylesheet (passend zum Theme)
+- [x] 4.3.1.3 Syntax-Highlighting für Code-Blöcke
+- [x] 4.3.1.4 Checkbox-Interaktion (anklickbar)
+- [x] 4.3.1.5 Link-Handling (URL öffnen)
+- [ ] 4.3.1.6 Bild-Rendering (lokale Bilder) → M5
 
 #### 4.3.2 Scrolling
-- [ ] 4.3.2.1 Scroll-Position synchronisieren (Editor <-> Preview)
-- [ ] 4.3.2.2 Smooth Scrolling
+- [x] 4.3.2.1 Scroll-Position synchronisieren (Editor <-> Preview)
+- [x] 4.3.2.2 Smooth Scrolling
 
 ### 4.4 AppBar-Aktionen
-- [ ] 4.4.1 Speichern-Button (falls nicht Auto-Save)
-- [ ] 4.4.2 Rückgängig-Button
-- [ ] 4.4.3 Wiederholen-Button
-- [ ] 4.4.4 Teilen-Button
-- [ ] 4.4.5 Mehr-Menü (Tags bearbeiten, In Ordner verschieben, Löschen)
+- [x] 4.4.1 Speichern-Button (falls nicht Auto-Save)
+- [x] 4.4.2 Rückgängig-Button
+- [x] 4.4.3 Wiederholen-Button
+- [x] 4.4.4 Teilen-Button
+- [x] 4.4.5 Mehr-Menü (Tags bearbeiten, In Ordner verschieben, Löschen)
 
 ### 4.5 Tag-Zuweisung im Editor
-- [ ] 4.5.1 Tag-Chips unter Titel anzeigen
-- [ ] 4.5.2 Tag hinzufügen (Autocomplete)
-- [ ] 4.5.3 Tag entfernen (X-Button)
-- [ ] 4.5.4 Neuen Tag erstellen (inline)
+- [x] 4.5.1 Tag-Chips unter Titel anzeigen
+- [x] 4.5.2 Tag hinzufügen (Autocomplete)
+- [x] 4.5.3 Tag entfernen (X-Button)
+- [x] 4.5.4 Neuen Tag erstellen (inline)
 
 ### 4.6 Notiz-Metadaten
-- [ ] 4.6.1 Erstellungsdatum anzeigen
-- [ ] 4.6.2 Änderungsdatum anzeigen
-- [ ] 4.6.3 Wortanzahl anzeigen
-- [ ] 4.6.4 Zeichenanzahl anzeigen
+- [x] 4.6.1 Erstellungsdatum anzeigen
+- [x] 4.6.2 Änderungsdatum anzeigen
+- [x] 4.6.3 Wortanzahl anzeigen
+- [x] 4.6.4 Zeichenanzahl anzeigen
 
 ### 4.7 Keyboard-Shortcuts (Desktop)
-- [ ] 4.7.1 `Ctrl+S` - Speichern
-- [ ] 4.7.2 `Ctrl+B` - Bold
-- [ ] 4.7.3 `Ctrl+I` - Italic
-- [ ] 4.7.4 `Ctrl+Z` - Rückgängig
-- [ ] 4.7.5 `Ctrl+Y` - Wiederholen
-- [ ] 4.7.6 `Ctrl+1/2/3` - Heading 1/2/3
-- [ ] 4.7.7 `Escape` - Editor verlassen
+- [x] 4.7.1 `Ctrl+S` - Speichern
+- [x] 4.7.2 `Ctrl+B` - Bold
+- [x] 4.7.3 `Ctrl+I` - Italic
+- [x] 4.7.4 `Ctrl+Z` - Rückgängig
+- [x] 4.7.5 `Ctrl+Y` - Wiederholen
+- [x] 4.7.6 `Ctrl+1/2/3` - Heading 1/2/3
+- [x] 4.7.7 `Escape` - Editor verlassen
 
 ### 4.8 Deliverables M4
-- [ ] Funktionaler Markdown-Editor
-- [ ] Live-Preview mit Syntax-Highlighting
-- [ ] Formatierungs-Toolbar
-- [ ] Auto-Save
-- [ ] Desktop Keyboard-Shortcuts
+- [x] Funktionaler Markdown-Editor
+- [x] Live-Preview mit Syntax-Highlighting
+- [x] Formatierungs-Toolbar
+- [x] Auto-Save
+- [x] Desktop Keyboard-Shortcuts
 
 ---
 

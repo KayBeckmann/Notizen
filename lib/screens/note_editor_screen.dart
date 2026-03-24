@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
+
+import '../services/export_service.dart';
 
 import '../constants/breakpoints.dart';
 import '../database/database.dart';
@@ -353,6 +356,31 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 child: ListTile(
                   leading: Icon(Icons.info_outline),
                   title: Text('Informationen'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'export_md',
+                child: ListTile(
+                  leading: Icon(Icons.description_outlined),
+                  title: Text('Als Markdown exportieren'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'export_txt',
+                child: ListTile(
+                  leading: Icon(Icons.text_snippet_outlined),
+                  title: Text('Als Text exportieren'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'copy',
+                child: ListTile(
+                  leading: Icon(Icons.copy),
+                  title: Text('In Zwischenablage kopieren'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -755,6 +783,15 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       case 'info':
         _showInfoDialog();
         break;
+      case 'export_md':
+        _exportAsMarkdown();
+        break;
+      case 'export_txt':
+        _exportAsText();
+        break;
+      case 'copy':
+        _copyToClipboard();
+        break;
       case 'delete':
         _confirmDelete();
         break;
@@ -799,6 +836,60 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Verschieben wird implementiert...')),
     );
+  }
+
+  Future<void> _exportAsMarkdown() async {
+    if (_existingNote == null) {
+      // Erst speichern
+      await _saveNote(showMessage: false);
+    }
+
+    if (_existingNote != null) {
+      try {
+        await ExportService.instance.shareAsMarkdown(_existingNote!);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Fehler beim Export: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _exportAsText() async {
+    if (_existingNote == null) {
+      await _saveNote(showMessage: false);
+    }
+
+    if (_existingNote != null) {
+      try {
+        await ExportService.instance.shareAsText(_existingNote!);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Fehler beim Export: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _copyToClipboard() async {
+    final content = _contentController.text;
+    if (content.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nichts zu kopieren')),
+      );
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: content));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('In Zwischenablage kopiert')),
+      );
+    }
   }
 
   void _showInfoDialog() {

@@ -697,24 +697,24 @@
 
 ### 8.1 Suche
 #### 8.1.1 Suchfunktion
-- [ ] 8.1.1.1 Suchfeld in AppBar
-- [ ] 8.1.1.2 Volltextsuche in Titel und Inhalt
-- [ ] 8.1.1.3 Suche in Echtzeit (mit Debounce)
-- [ ] 8.1.1.4 Suchergebnisse als Liste
+- [x] 8.1.1.1 Suchfeld in AppBar
+- [x] 8.1.1.2 Volltextsuche in Titel und Inhalt
+- [x] 8.1.1.3 Suche in Echtzeit (mit Debounce)
+- [x] 8.1.1.4 Suchergebnisse als Liste
 - [ ] 8.1.1.5 Suchbegriff hervorheben
 
 #### 8.1.2 Filter
-- [ ] 8.1.2.1 Nach Ordner filtern
-- [ ] 8.1.2.2 Nach Tags filtern (Multi-Select)
-- [ ] 8.1.2.3 Nach Notiztyp filtern
+- [x] 8.1.2.1 Nach Ordner filtern
+- [x] 8.1.2.2 Nach Tags filtern (Multi-Select)
+- [x] 8.1.2.3 Nach Notiztyp filtern
 - [ ] 8.1.2.4 Nach Datum filtern (erstellt/geändert)
-- [ ] 8.1.2.5 Filter-Chips anzeigen
-- [ ] 8.1.2.6 Filter kombinieren (AND)
+- [x] 8.1.2.5 Filter-Chips anzeigen
+- [x] 8.1.2.6 Filter kombinieren (AND)
 
 #### 8.1.3 Sortierung
-- [ ] 8.1.3.1 Nach Name (A-Z, Z-A)
-- [ ] 8.1.3.2 Nach Erstellungsdatum
-- [ ] 8.1.3.3 Nach Änderungsdatum
+- [x] 8.1.3.1 Nach Name (A-Z, Z-A)
+- [x] 8.1.3.2 Nach Erstellungsdatum
+- [x] 8.1.3.3 Nach Änderungsdatum
 - [ ] 8.1.3.4 Sortierung merken (pro Ordner oder global)
 
 ### 8.2 Export

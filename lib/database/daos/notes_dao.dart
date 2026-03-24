@@ -63,22 +63,26 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   }
 
   /// Volltextsuche in Notizen (Stream)
+  /// Archivierte und gelöschte Notizen werden ausgeschlossen
   Stream<List<Note>> watchSearchNotes(String query) {
     final searchPattern = '%$query%';
     return (select(notes)
           ..where((t) =>
               t.isTrashed.equals(false) &
+              t.isArchived.equals(false) &
               (t.title.like(searchPattern) | t.content.like(searchPattern)))
           ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
         .watch();
   }
 
   /// Volltextsuche in Notizen (Future)
+  /// Archivierte und gelöschte Notizen werden ausgeschlossen
   Future<List<Note>> searchNotes(String query) {
     final searchPattern = '%$query%';
     return (select(notes)
           ..where((t) =>
               t.isTrashed.equals(false) &
+              t.isArchived.equals(false) &
               (t.title.like(searchPattern) | t.content.like(searchPattern)))
           ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
         .get();

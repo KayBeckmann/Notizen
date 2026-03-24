@@ -245,7 +245,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
                   : null,
               onTap: () {
-                ref.read(sortOrderProvider.notifier).state = SortOrder.modified;
+                ref.read(sortOrderProvider.notifier).setOrder(SortOrder.modified);
                 Navigator.pop(context);
               },
             ),
@@ -256,7 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
                   : null,
               onTap: () {
-                ref.read(sortOrderProvider.notifier).state = SortOrder.created;
+                ref.read(sortOrderProvider.notifier).setOrder(SortOrder.created);
                 Navigator.pop(context);
               },
             ),
@@ -267,7 +267,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
                   : null,
               onTap: () {
-                ref.read(sortOrderProvider.notifier).state = SortOrder.name;
+                ref.read(sortOrderProvider.notifier).setOrder(SortOrder.name);
                 Navigator.pop(context);
               },
             ),
@@ -284,10 +284,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     : 'Absteigend',
               ),
               onTap: () {
-                ref.read(sortDirectionProvider.notifier).state =
+                ref.read(sortDirectionProvider.notifier).setDirection(
                     currentDirection == SortDirection.ascending
                         ? SortDirection.descending
-                        : SortDirection.ascending;
+                        : SortDirection.ascending);
                 Navigator.pop(context);
               },
             ),

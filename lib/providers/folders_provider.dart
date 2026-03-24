@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../database/database.dart';
+import '../services/settings_service.dart';
 import 'database_provider.dart';
 
 part 'folders_provider.g.dart';
@@ -24,14 +25,20 @@ Stream<List<Folder>> childFolders(Ref ref, String parentId) {
   return ref.watch(foldersDaoProvider).watchChildFolders(parentId);
 }
 
-/// Aktuell ausgewählter Ordner
+/// Aktuell ausgewählter Ordner (persistiert)
 @riverpod
 class CurrentFolder extends _$CurrentFolder {
   @override
-  String? build() => 'default';
+  String? build() {
+    // Letzten Ordner aus Einstellungen laden
+    final lastFolder = SettingsService.instance.lastFolder;
+    return lastFolder ?? 'default';
+  }
 
   void select(String? folderId) {
     state = folderId;
+    // Ordner in Einstellungen speichern
+    SettingsService.instance.setLastFolder(folderId);
   }
 }
 

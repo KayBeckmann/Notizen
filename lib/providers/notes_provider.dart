@@ -3,14 +3,38 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../database/database.dart';
 import '../models/enums.dart';
+import '../services/settings_service.dart';
 import 'database_provider.dart';
 import 'folders_provider.dart';
 
 part 'notes_provider.g.dart';
 
-/// Sortiereinstellungen
-final sortOrderProvider = StateProvider<SortOrder>((ref) => SortOrder.modified);
-final sortDirectionProvider = StateProvider<SortDirection>((ref) => SortDirection.descending);
+/// Sortiereinstellungen (persistiert)
+final sortOrderProvider = StateNotifierProvider<SortOrderNotifier, SortOrder>((ref) {
+  return SortOrderNotifier();
+});
+
+class SortOrderNotifier extends StateNotifier<SortOrder> {
+  SortOrderNotifier() : super(SettingsService.instance.sortOrder);
+
+  void setOrder(SortOrder order) {
+    state = order;
+    SettingsService.instance.setSortOrder(order);
+  }
+}
+
+final sortDirectionProvider = StateNotifierProvider<SortDirectionNotifier, SortDirection>((ref) {
+  return SortDirectionNotifier();
+});
+
+class SortDirectionNotifier extends StateNotifier<SortDirection> {
+  SortDirectionNotifier() : super(SettingsService.instance.sortDirection);
+
+  void setDirection(SortDirection direction) {
+    state = direction;
+    SettingsService.instance.setSortDirection(direction);
+  }
+}
 
 /// Stream aller Notizen (nicht im Papierkorb)
 @riverpod

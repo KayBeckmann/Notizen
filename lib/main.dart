@@ -5,9 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'constants/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
+import 'services/settings_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Einstellungen initialisieren
+  await SettingsService.instance.init();
+
   runApp(
     const ProviderScope(
       child: NotizenApp(),

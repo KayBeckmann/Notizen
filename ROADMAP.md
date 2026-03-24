@@ -680,8 +680,8 @@
 #### 7.4.2 Web-spezifisch
 - [ ] 7.4.2.1 URL-Routing für Notizen
 - [ ] 7.4.2.2 Browser-Tab-Titel aktualisieren
-- [ ] 7.4.2.3 Keyboard-Shortcuts ohne Konflikte
-- [ ] 7.4.2.4 Responsive für alle Bildschirmgrößen
+- [x] 7.4.2.3 Keyboard-Shortcuts ohne Konflikte
+- [x] 7.4.2.4 Responsive für alle Bildschirmgrößen
 
 ### 7.5 Deliverables M7
 - [ ] Android Home-Widgets funktionsfähig

@@ -31,6 +31,19 @@
 
   <title>notizen</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- sql.js für drift Web-Datenbank -->
+  <script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js"></script>
+  <script>
+    // sql.js initialisieren
+    if (typeof initSqlJs !== 'undefined') {
+      initSqlJs({
+        locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}`
+      }).then(function(SQL) {
+        window.SQL = SQL;
+      });
+    }
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

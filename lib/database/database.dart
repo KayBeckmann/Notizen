@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
+import 'connection/connection.dart' as connection;
 import 'tables/folders.dart';
 import 'tables/note_tags.dart';
 import 'tables/notes.dart';
@@ -15,7 +11,7 @@ part 'database.g.dart';
 /// Hauptdatenbank der Notizen-App
 @DriftDatabase(tables: [Folders, Notes, Tags, NoteTags])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase() : super(connection.openConnection());
 
   /// Für Tests mit einer In-Memory-Datenbank
   AppDatabase.forTesting(super.executor);
@@ -54,13 +50,4 @@ class AppDatabase extends _$AppDatabase {
       ),
     );
   }
-}
-
-/// Öffnet die Datenbankverbindung
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'notizen.db'));
-    return NativeDatabase.createInBackground(file);
-  });
 }

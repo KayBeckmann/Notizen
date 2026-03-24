@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../constants/breakpoints.dart';
+import '../models/enums.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
@@ -10,7 +11,12 @@ import '../widgets/adaptive_scaffold.dart';
 import '../widgets/drag_and_drop.dart';
 import '../widgets/folder_drawer.dart';
 import '../widgets/folder_rail.dart';
+import '../widgets/keyboard_shortcuts_help.dart';
 import '../widgets/note_card.dart';
+import '../widgets/note_type_dialog.dart';
+import 'audio_note_screen.dart';
+import 'drawing_note_screen.dart';
+import 'image_note_screen.dart';
 import 'note_editor_screen.dart';
 import 'settings_screen.dart';
 
@@ -41,63 +47,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // FAB nur auf Phone zeigen, da Rail/Sidebar eigene haben
     final showFab = layoutType == LayoutType.compact;
 
-    return AdaptiveScaffold(
-      scaffoldKey: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(currentFolderName),
-        leading: showMenuButton
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+    return AppShortcuts(
+      onNewNote: _createNewNote,
+      onSearch: _openSearch,
+      onSettings: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+      ),
+      onHelp: () => showKeyboardShortcutsHelp(context),
+      child: AdaptiveScaffold(
+        scaffoldKey: _scaffoldKey,
+        appBar: AppBar(
+          title: Text(currentFolderName),
+          leading: showMenuButton
+              ? IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                )
+              : null,
+          automaticallyImplyLeading: false,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: _openSearch,
+              tooltip: 'Suchen (Ctrl+F)',
+            ),
+            PopupMenuButton<String>(
+              onSelected: _handleMenuAction,
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'sort',
+                  child: ListTile(
+                    leading: Icon(Icons.sort),
+                    title: Text('Sortieren'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'settings',
+                  child: ListTile(
+                    leading: Icon(Icons.settings),
+                    title: Text('Einstellungen'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'shortcuts',
+                  child: ListTile(
+                    leading: Icon(Icons.keyboard),
+                    title: Text('Tastenkürzel'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        drawer: const FolderDrawer(),
+        navigationRail: const FolderRail(),
+        permanentDrawer: const FolderDrawer(),
+        body: notesAsync.when(
+          data: (notes) => _buildNotesList(notes),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Text('Fehler: $error'),
+          ),
+        ),
+        floatingActionButton: showFab
+            ? FloatingActionButton.extended(
+                onPressed: _createNewNote,
+                icon: const Icon(Icons.add),
+                label: const Text('Neue Notiz'),
               )
             : null,
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: _openSearch,
-            tooltip: 'Suchen',
-          ),
-          PopupMenuButton<String>(
-            onSelected: _handleMenuAction,
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'sort',
-                child: ListTile(
-                  leading: Icon(Icons.sort),
-                  title: Text('Sortieren'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'settings',
-                child: ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text('Einstellungen'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
-      drawer: const FolderDrawer(),
-      navigationRail: const FolderRail(),
-      permanentDrawer: const FolderDrawer(),
-      body: notesAsync.when(
-        data: (notes) => _buildNotesList(notes),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text('Fehler: $error'),
-        ),
-      ),
-      floatingActionButton: showFab
-          ? FloatingActionButton.extended(
-              onPressed: _createNewNote,
-              icon: const Icon(Icons.add),
-              label: const Text('Neue Notiz'),
-            )
-          : null,
     );
   }
 
@@ -193,6 +215,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           MaterialPageRoute(builder: (context) => const SettingsScreen()),
         );
         break;
+      case 'shortcuts':
+        showKeyboardShortcutsHelp(context);
+        break;
     }
   }
 
@@ -231,14 +256,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  void _createNewNote() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => NoteEditorScreen(
-          folderId: ref.read(currentFolderProvider) ?? 'default',
-        ),
-      ),
-    );
+  void _createNewNote() async {
+    final folderId = ref.read(currentFolderProvider) ?? 'default';
+
+    // Zeige Notiz-Typ-Dialog auf Desktop, gehe direkt zu Text auf Mobile
+    final layoutType = Breakpoints.getLayoutType(context);
+
+    if (layoutType == LayoutType.compact) {
+      // Auf Mobile: Direkt Textnotiz erstellen
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => NoteEditorScreen(folderId: folderId),
+          ),
+        );
+      }
+    } else {
+      // Auf Tablet/Desktop: Notiz-Typ-Dialog zeigen
+      final type = await showNoteTypeDialog(context);
+      if (type == null || !mounted) return;
+
+      Widget screen;
+      switch (type) {
+        case ContentType.text:
+          screen = NoteEditorScreen(folderId: folderId);
+          break;
+        case ContentType.audio:
+          screen = AudioNoteScreen(folderId: folderId);
+          break;
+        case ContentType.image:
+          screen = ImageNoteScreen(folderId: folderId);
+          break;
+        case ContentType.drawing:
+          screen = DrawingNoteScreen(folderId: folderId);
+          break;
+      }
+
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => screen),
+      );
+    }
   }
 
   void _openNote(Note note) {

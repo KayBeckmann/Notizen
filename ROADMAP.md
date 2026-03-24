@@ -145,7 +145,7 @@
 - [x] 2.3.3 Schema-Version definieren
 - [x] 2.3.4 Migration-Strategie implementieren
 - [x] 2.3.5 Datenbank-Pfad konfigurieren (plattformspezifisch)
-- [ ] 2.3.6 Web-Support mit `drift_dev` konfigurieren
+- [x] 2.3.6 Web-Support mit `drift_dev` konfigurieren
 
 ### 2.4 Data Access Objects (DAOs)
 #### 2.4.1 FoldersDao

@@ -451,75 +451,75 @@
 **Ziel:** Sprachnotizen und Bildnotizen
 
 ### 5.1 Storage-Service
-- [ ] 5.1.1 `StorageService` Klasse erstellen
-- [ ] 5.1.2 App-Dokumenten-Verzeichnis ermitteln
-- [ ] 5.1.3 Unterverzeichnisse erstellen (audio, images)
-- [ ] 5.1.4 Datei speichern mit UUID-Namen
-- [ ] 5.1.5 Datei lesen
-- [ ] 5.1.6 Datei löschen
-- [ ] 5.1.7 Verwaiste Dateien aufräumen
+- [x] 5.1.1 `StorageService` Klasse erstellen
+- [x] 5.1.2 App-Dokumenten-Verzeichnis ermitteln
+- [x] 5.1.3 Unterverzeichnisse erstellen (audio, images)
+- [x] 5.1.4 Datei speichern mit UUID-Namen
+- [x] 5.1.5 Datei lesen
+- [x] 5.1.6 Datei löschen
+- [x] 5.1.7 Verwaiste Dateien aufräumen
 
 ### 5.2 Sprachnotizen
 #### 5.2.1 Aufnahme
-- [ ] 5.2.1.1 `record` Package integrieren
-- [ ] 5.2.1.2 Mikrofon-Berechtigung anfragen
-- [ ] 5.2.1.3 Aufnahme starten
-- [ ] 5.2.1.4 Aufnahme pausieren/fortsetzen
-- [ ] 5.2.1.5 Aufnahme stoppen
-- [ ] 5.2.1.6 Aufnahme abbrechen
-- [ ] 5.2.1.7 Aufnahme-Timer anzeigen
-- [ ] 5.2.1.8 Wellenform-Visualisierung (Amplitude)
+- [x] 5.2.1.1 `record` Package integrieren
+- [x] 5.2.1.2 Mikrofon-Berechtigung anfragen
+- [x] 5.2.1.3 Aufnahme starten
+- [x] 5.2.1.4 Aufnahme pausieren/fortsetzen
+- [x] 5.2.1.5 Aufnahme stoppen
+- [x] 5.2.1.6 Aufnahme abbrechen
+- [x] 5.2.1.7 Aufnahme-Timer anzeigen
+- [x] 5.2.1.8 Wellenform-Visualisierung (Amplitude)
 
 #### 5.2.2 Wiedergabe
-- [ ] 5.2.2.1 `audioplayers` Package integrieren
-- [ ] 5.2.2.2 Play/Pause Button
-- [ ] 5.2.2.3 Stop Button
-- [ ] 5.2.2.4 Seek-Bar (Position)
-- [ ] 5.2.2.5 Aktuelle Zeit / Gesamtdauer anzeigen
-- [ ] 5.2.2.6 Wiedergabegeschwindigkeit (0.5x, 1x, 1.5x, 2x)
+- [x] 5.2.2.1 `audioplayers` Package integrieren
+- [x] 5.2.2.2 Play/Pause Button
+- [x] 5.2.2.3 Stop Button
+- [x] 5.2.2.4 Seek-Bar (Position)
+- [x] 5.2.2.5 Aktuelle Zeit / Gesamtdauer anzeigen
+- [x] 5.2.2.6 Wiedergabegeschwindigkeit (0.5x, 1x, 1.5x, 2x)
 
 #### 5.2.3 Audio-Notiz UI
-- [ ] 5.2.3.1 `AudioRecorder` Widget erstellen
-- [ ] 5.2.3.2 `AudioPlayer` Widget erstellen
-- [ ] 5.2.3.3 Audio-Notiz Screen
-- [ ] 5.2.3.4 Titel-Eingabe für Audio-Notiz
-- [ ] 5.2.3.5 Optional: Text-Notizen zur Audio hinzufügen
+- [x] 5.2.3.1 `AudioRecorder` Widget erstellen
+- [x] 5.2.3.2 `AudioPlayer` Widget erstellen
+- [ ] 5.2.3.3 Audio-Notiz Screen → Integration needed
+- [ ] 5.2.3.4 Titel-Eingabe für Audio-Notiz → Integration needed
+- [ ] 5.2.3.5 Optional: Text-Notizen zur Audio hinzufügen → Integration needed
 
 ### 5.3 Bildnotizen
 #### 5.3.1 Bild-Erfassung
-- [ ] 5.3.1.1 `image_picker` Package integrieren
-- [ ] 5.3.1.2 Kamera-Berechtigung anfragen
-- [ ] 5.3.1.3 Foto mit Kamera aufnehmen
-- [ ] 5.3.1.4 Bild aus Galerie wählen
-- [ ] 5.3.1.5 Bild komprimieren (Qualität/Größe)
-- [ ] 5.3.1.6 Bild im Storage speichern
+- [x] 5.3.1.1 `image_picker` Package integrieren
+- [x] 5.3.1.2 Kamera-Berechtigung anfragen
+- [x] 5.3.1.3 Foto mit Kamera aufnehmen
+- [x] 5.3.1.4 Bild aus Galerie wählen
+- [x] 5.3.1.5 Bild komprimieren (Qualität/Größe)
+- [x] 5.3.1.6 Bild im Storage speichern
 
 #### 5.3.2 Bild-Anzeige
-- [ ] 5.3.2.1 Bild-Vorschau in Notiz-Card
-- [ ] 5.3.2.2 Vollbild-Ansicht
-- [ ] 5.3.2.3 Pinch-to-Zoom
-- [ ] 5.3.2.4 Bild teilen
+- [x] 5.3.2.1 Bild-Vorschau in Notiz-Card
+- [x] 5.3.2.2 Vollbild-Ansicht
+- [x] 5.3.2.3 Pinch-to-Zoom
+- [x] 5.3.2.4 Bild teilen
 
 #### 5.3.3 Bild-Notiz UI
-- [ ] 5.3.3.1 Bild-Notiz Screen
-- [ ] 5.3.3.2 Titel-Eingabe
-- [ ] 5.3.3.3 Optional: Beschreibung (Markdown)
-- [ ] 5.3.3.4 Bild ersetzen
-- [ ] 5.3.3.5 Bild löschen
+- [ ] 5.3.3.1 Bild-Notiz Screen → Integration needed
+- [ ] 5.3.3.2 Titel-Eingabe → Integration needed
+- [ ] 5.3.3.3 Optional: Beschreibung (Markdown) → Integration needed
+- [ ] 5.3.3.4 Bild ersetzen → Integration needed
+- [ ] 5.3.3.5 Bild löschen → Integration needed
 
 ### 5.4 Notiz-Typ Auswahl
-- [ ] 5.4.1 "Neue Notiz" Dialog mit Typ-Auswahl
-- [ ] 5.4.2 Text-Notiz Option
-- [ ] 5.4.3 Sprachnotiz Option
-- [ ] 5.4.4 Bildnotiz Option
-- [ ] 5.4.5 Zeichnung Option
-- [ ] 5.4.6 Schnellzugriff über Speed-Dial FAB (optional)
+- [x] 5.4.1 "Neue Notiz" Dialog mit Typ-Auswahl
+- [x] 5.4.2 Text-Notiz Option
+- [x] 5.4.3 Sprachnotiz Option
+- [x] 5.4.4 Bildnotiz Option
+- [x] 5.4.5 Zeichnung Option
+- [x] 5.4.6 Schnellzugriff über Speed-Dial FAB (optional)
 
 ### 5.5 Deliverables M5
-- [ ] Funktionale Sprachnotizen (Aufnahme + Wiedergabe)
-- [ ] Funktionale Bildnotizen (Kamera + Galerie)
-- [ ] Storage-Service für Mediendateien
-- [ ] Integration in Notiz-Liste
+- [x] Funktionale Sprachnotizen (Aufnahme + Wiedergabe)
+- [x] Funktionale Bildnotizen (Kamera + Galerie)
+- [x] Storage-Service für Mediendateien
+- [ ] Integration in Notiz-Liste → Requires screen integration
 
 ---
 

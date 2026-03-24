@@ -181,4 +181,32 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
       );
     }
   }
+
+  /// Notiz duplizieren
+  Future<String> duplicateNote(String id, String newId) async {
+    final note = await getNoteById(id);
+    if (note == null) {
+      throw Exception('Notiz nicht gefunden');
+    }
+
+    final now = DateTime.now();
+    await into(notes).insert(
+      NotesCompanion.insert(
+        id: newId,
+        folderId: note.folderId,
+        title: Value('${note.title} (Kopie)'),
+        content: Value(note.content),
+        contentType: Value(note.contentType),
+        mediaPath: Value(note.mediaPath),
+        drawingData: Value(note.drawingData),
+        isPinned: const Value(false),
+        isArchived: const Value(false),
+        isTrashed: const Value(false),
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+
+    return newId;
+  }
 }

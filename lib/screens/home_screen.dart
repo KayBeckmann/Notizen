@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../constants/breakpoints.dart';
 import '../models/enums.dart';
@@ -385,6 +386,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.copy_outlined),
+              title: const Text('Duplizieren'),
+              onTap: () {
+                Navigator.pop(context);
+                _duplicateNote(note);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.drive_file_move_outlined),
               title: const Text('Verschieben'),
               onTap: () {
@@ -404,6 +413,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _duplicateNote(Note note) async {
+    final newId = const Uuid().v4();
+    try {
+      await ref.read(notesDaoProvider).duplicateNote(note.id, newId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notiz dupliziert')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler beim Duplizieren: $e')),
+        );
+      }
+    }
   }
 
   void _confirmDelete(Note note) {

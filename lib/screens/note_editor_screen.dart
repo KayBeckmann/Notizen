@@ -335,6 +335,22 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
+              PopupMenuItem(
+                value: 'archive',
+                child: ListTile(
+                  leading: Icon(
+                    _existingNote!.isArchived
+                        ? Icons.unarchive_outlined
+                        : Icons.archive_outlined,
+                  ),
+                  title: Text(
+                    _existingNote!.isArchived
+                        ? 'Aus Archiv wiederherstellen'
+                        : 'Archivieren',
+                  ),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
               const PopupMenuItem(
                 value: 'tags',
                 child: ListTile(
@@ -772,6 +788,24 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               isPinned: !_existingNote!.isPinned,
             );
           });
+        }
+        break;
+      case 'archive':
+        if (_existingNote != null) {
+          ref.read(notesDaoProvider).toggleArchive(_existingNote!.id);
+          final wasArchived = _existingNote!.isArchived;
+          setState(() {
+            _existingNote = _existingNote!.copyWith(
+              isArchived: !_existingNote!.isArchived,
+            );
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(wasArchived
+                  ? 'Aus Archiv wiederhergestellt'
+                  : 'In Archiv verschoben'),
+            ),
+          );
         }
         break;
       case 'tags':

@@ -368,6 +368,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
             ),
             ListTile(
+              leading: Icon(
+                note.isArchived ? Icons.unarchive_outlined : Icons.archive_outlined,
+              ),
+              title: Text(note.isArchived ? 'Aus Archiv wiederherstellen' : 'Archivieren'),
+              onTap: () {
+                Navigator.pop(context);
+                ref.read(notesDaoProvider).toggleArchive(note.id);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(note.isArchived
+                        ? 'Aus Archiv wiederhergestellt'
+                        : 'In Archiv verschoben'),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.drive_file_move_outlined),
               title: const Text('Verschieben'),
               onTap: () {

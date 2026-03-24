@@ -765,7 +765,7 @@
 - [ ] 8.4.7 Editor-Präferenzen (Split-View, etc.)
 
 ### 8.5 Zusätzliche Features
-- [ ] 8.5.1 Notiz duplizieren
+- [x] 8.5.1 Notiz duplizieren
 - [ ] 8.5.2 Notiz als Vorlage speichern
 - [ ] 8.5.3 Aus Vorlage erstellen
 - [ ] 8.5.4 Mehrfachauswahl (Notizen)

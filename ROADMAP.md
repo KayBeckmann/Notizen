@@ -646,12 +646,12 @@
 
 ### 7.3 Desktop-Optimierungen
 #### 7.3.1 Keyboard-Shortcuts
-- [ ] 7.3.1.1 `Ctrl+N` - Neue Notiz
-- [ ] 7.3.1.2 `Ctrl+F` - Suche
-- [ ] 7.3.1.3 `Ctrl+,` - Einstellungen
-- [ ] 7.3.1.4 `Delete` - Notiz löschen
-- [ ] 7.3.1.5 `F2` - Umbenennen
-- [ ] 7.3.1.6 Shortcuts-Hilfe Dialog
+- [x] 7.3.1.1 `Ctrl+N` - Neue Notiz
+- [x] 7.3.1.2 `Ctrl+F` - Suche
+- [x] 7.3.1.3 `Ctrl+,` - Einstellungen
+- [x] 7.3.1.4 `Delete` - Notiz löschen
+- [x] 7.3.1.5 `F2` - Umbenennen
+- [x] 7.3.1.6 Shortcuts-Hilfe Dialog
 
 #### 7.3.2 Responsive Layout
 - [ ] 7.3.2.1 Drei-Spalten-Layout (Ordner | Liste | Editor)
@@ -666,14 +666,14 @@
 - [ ] 7.3.3.4 Visual Feedback beim Ziehen
 
 #### 7.3.4 Kontextmenüs
-- [ ] 7.3.4.1 Rechtsklick auf Notiz
-- [ ] 7.3.4.2 Rechtsklick auf Ordner
-- [ ] 7.3.4.3 Native Kontextmenü-Styling
+- [x] 7.3.4.1 Rechtsklick auf Notiz
+- [x] 7.3.4.2 Rechtsklick auf Ordner
+- [x] 7.3.4.3 Native Kontextmenü-Styling
 
 ### 7.4 Web-Optimierungen
 #### 7.4.1 PWA
-- [ ] 7.4.1.1 `manifest.json` konfigurieren
-- [ ] 7.4.1.2 App-Icons für Web
+- [x] 7.4.1.1 `manifest.json` konfigurieren
+- [x] 7.4.1.2 App-Icons für Web
 - [ ] 7.4.1.3 Service Worker für Offline-Support
 - [ ] 7.4.1.4 Install-Prompt
 

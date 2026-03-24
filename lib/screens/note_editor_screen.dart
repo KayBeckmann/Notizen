@@ -54,13 +54,59 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   // Tags
   List<Tag> _noteTags = [];
 
+  // Scroll-Synchronisation
+  final ScrollController _editorScrollController = ScrollController();
+  final ScrollController _previewScrollController = ScrollController();
+  bool _isSyncingScroll = false;
+
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController();
     _contentController = TextEditingController();
     _contentFocusNode = FocusNode();
+    _setupScrollSync();
     _loadNote();
+  }
+
+  /// Scroll-Synchronisation einrichten
+  void _setupScrollSync() {
+    _editorScrollController.addListener(_onEditorScroll);
+    _previewScrollController.addListener(_onPreviewScroll);
+  }
+
+  void _onEditorScroll() {
+    if (_isSyncingScroll) return;
+    if (!_editorScrollController.hasClients || !_previewScrollController.hasClients) return;
+
+    final editorMax = _editorScrollController.position.maxScrollExtent;
+    final previewMax = _previewScrollController.position.maxScrollExtent;
+
+    if (editorMax <= 0 || previewMax <= 0) return;
+
+    final ratio = _editorScrollController.offset / editorMax;
+    final targetOffset = (ratio * previewMax).clamp(0.0, previewMax);
+
+    _isSyncingScroll = true;
+    _previewScrollController.jumpTo(targetOffset);
+    _isSyncingScroll = false;
+  }
+
+  void _onPreviewScroll() {
+    if (_isSyncingScroll) return;
+    if (!_editorScrollController.hasClients || !_previewScrollController.hasClients) return;
+
+    final editorMax = _editorScrollController.position.maxScrollExtent;
+    final previewMax = _previewScrollController.position.maxScrollExtent;
+
+    if (editorMax <= 0 || previewMax <= 0) return;
+
+    final ratio = _previewScrollController.offset / previewMax;
+    final targetOffset = (ratio * editorMax).clamp(0.0, editorMax);
+
+    _isSyncingScroll = true;
+    _editorScrollController.jumpTo(targetOffset);
+    _isSyncingScroll = false;
   }
 
   @override
@@ -69,6 +115,10 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     _titleController.dispose();
     _contentController.dispose();
     _contentFocusNode.dispose();
+    _editorScrollController.removeListener(_onEditorScroll);
+    _previewScrollController.removeListener(_onPreviewScroll);
+    _editorScrollController.dispose();
+    _previewScrollController.dispose();
     super.dispose();
   }
 
@@ -387,26 +437,36 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     }
   }
 
-  Widget _buildEditor() {
+  Widget _buildEditor({bool withScrollSync = false}) {
+    final textField = TextField(
+      controller: _contentController,
+      focusNode: _contentFocusNode,
+      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontFamily: 'monospace',
+            height: 1.5,
+          ),
+      decoration: const InputDecoration(
+        hintText: 'Notiz eingeben...\n\nTipps:\n- **fett** für fett\n- *kursiv* für kursiv\n- # Überschrift\n- - Liste\n- [ ] Checkbox',
+        border: InputBorder.none,
+        filled: false,
+      ),
+      maxLines: null,
+      expands: !withScrollSync,
+      textAlignVertical: TextAlignVertical.top,
+      textCapitalization: TextCapitalization.sentences,
+    );
+
+    if (withScrollSync) {
+      return SingleChildScrollView(
+        controller: _editorScrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: textField,
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
-        controller: _contentController,
-        focusNode: _contentFocusNode,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontFamily: 'monospace',
-              height: 1.5,
-            ),
-        decoration: const InputDecoration(
-          hintText: 'Notiz eingeben...\n\nTipps:\n- **fett** für fett\n- *kursiv* für kursiv\n- # Überschrift\n- - Liste\n- [ ] Checkbox',
-          border: InputBorder.none,
-          filled: false,
-        ),
-        maxLines: null,
-        expands: true,
-        textAlignVertical: TextAlignVertical.top,
-        textCapitalization: TextCapitalization.sentences,
-      ),
+      child: textField,
     );
   }
 
@@ -417,6 +477,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
     return MarkdownPreview(
       data: _contentController.text,
+      scrollController: _previewScrollController,
       onCheckboxChanged: _onCheckboxChanged,
     );
   }
@@ -434,7 +495,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 ),
               ),
             ),
-            child: _buildEditor(),
+            child: _buildEditor(withScrollSync: true),
           ),
         ),
         // Preview
@@ -443,6 +504,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               ? const EmptyMarkdownPreview()
               : MarkdownPreview(
                   data: _contentController.text,
+                  scrollController: _previewScrollController,
                   onCheckboxChanged: _onCheckboxChanged,
                 ),
         ),

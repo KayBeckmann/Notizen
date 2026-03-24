@@ -12,7 +12,7 @@
 | M2 | Datenmodelle & Datenbank | Erledigt |
 | M3 | Basis-UI & Design-System | Erledigt |
 | M4 | Markdown-Editor | Erledigt |
-| M5 | Medien-Integration | Ausstehend |
+| M5 | Medien-Integration | Erledigt |
 | M6 | Zeichenfunktion | Ausstehend |
 | M7 | Plattform-Features | Ausstehend |
 | M8 | Zusatzfunktionen | Ausstehend |
@@ -481,9 +481,9 @@
 #### 5.2.3 Audio-Notiz UI
 - [x] 5.2.3.1 `AudioRecorder` Widget erstellen
 - [x] 5.2.3.2 `AudioPlayer` Widget erstellen
-- [ ] 5.2.3.3 Audio-Notiz Screen → Integration needed
-- [ ] 5.2.3.4 Titel-Eingabe für Audio-Notiz → Integration needed
-- [ ] 5.2.3.5 Optional: Text-Notizen zur Audio hinzufügen → Integration needed
+- [x] 5.2.3.3 Audio-Notiz Screen
+- [x] 5.2.3.4 Titel-Eingabe für Audio-Notiz
+- [x] 5.2.3.5 Optional: Text-Notizen zur Audio hinzufügen
 
 ### 5.3 Bildnotizen
 #### 5.3.1 Bild-Erfassung
@@ -501,11 +501,11 @@
 - [x] 5.3.2.4 Bild teilen
 
 #### 5.3.3 Bild-Notiz UI
-- [ ] 5.3.3.1 Bild-Notiz Screen → Integration needed
-- [ ] 5.3.3.2 Titel-Eingabe → Integration needed
-- [ ] 5.3.3.3 Optional: Beschreibung (Markdown) → Integration needed
-- [ ] 5.3.3.4 Bild ersetzen → Integration needed
-- [ ] 5.3.3.5 Bild löschen → Integration needed
+- [x] 5.3.3.1 Bild-Notiz Screen
+- [x] 5.3.3.2 Titel-Eingabe
+- [x] 5.3.3.3 Optional: Beschreibung (Markdown)
+- [x] 5.3.3.4 Bild ersetzen
+- [x] 5.3.3.5 Bild löschen
 
 ### 5.4 Notiz-Typ Auswahl
 - [x] 5.4.1 "Neue Notiz" Dialog mit Typ-Auswahl
@@ -519,7 +519,7 @@
 - [x] Funktionale Sprachnotizen (Aufnahme + Wiedergabe)
 - [x] Funktionale Bildnotizen (Kamera + Galerie)
 - [x] Storage-Service für Mediendateien
-- [ ] Integration in Notiz-Liste → Requires screen integration
+- [x] Integration in Notiz-Screens
 
 ---
 

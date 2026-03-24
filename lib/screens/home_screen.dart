@@ -6,7 +6,7 @@ import '../models/enums.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
-import '../providers/notes_provider.dart';
+import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider;
 import '../widgets/adaptive_scaffold.dart';
 import '../widgets/drag_and_drop.dart';
 import '../widgets/folder_drawer.dart';
@@ -222,31 +222,72 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showSortOptions() {
+    final currentOrder = ref.read(sortOrderProvider);
+    final currentDirection = ref.read(sortDirectionProvider);
+
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Sortieren nach',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
             ListTile(
               leading: const Icon(Icons.access_time),
-              title: const Text('Nach Änderungsdatum'),
+              title: const Text('Änderungsdatum'),
+              trailing: currentOrder == SortOrder.modified
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                  : null,
               onTap: () {
+                ref.read(sortOrderProvider.notifier).state = SortOrder.modified;
                 Navigator.pop(context);
-                // TODO: Implement sorting
               },
             ),
             ListTile(
               leading: const Icon(Icons.schedule),
-              title: const Text('Nach Erstellungsdatum'),
+              title: const Text('Erstellungsdatum'),
+              trailing: currentOrder == SortOrder.created
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                  : null,
               onTap: () {
+                ref.read(sortOrderProvider.notifier).state = SortOrder.created;
                 Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.sort_by_alpha),
-              title: const Text('Nach Name'),
+              title: const Text('Name'),
+              trailing: currentOrder == SortOrder.name
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                  : null,
               onTap: () {
+                ref.read(sortOrderProvider.notifier).state = SortOrder.name;
+                Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(
+                currentDirection == SortDirection.ascending
+                    ? Icons.arrow_upward
+                    : Icons.arrow_downward,
+              ),
+              title: Text(
+                currentDirection == SortDirection.ascending
+                    ? 'Aufsteigend'
+                    : 'Absteigend',
+              ),
+              onTap: () {
+                ref.read(sortDirectionProvider.notifier).state =
+                    currentDirection == SortDirection.ascending
+                        ? SortDirection.descending
+                        : SortDirection.ascending;
                 Navigator.pop(context);
               },
             ),

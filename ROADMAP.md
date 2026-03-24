@@ -13,7 +13,7 @@
 | M3 | Basis-UI & Design-System | Erledigt |
 | M4 | Markdown-Editor | Erledigt |
 | M5 | Medien-Integration | Erledigt |
-| M6 | Zeichenfunktion | Ausstehend |
+| M6 | Zeichenfunktion | Erledigt |
 | M7 | Plattform-Features | Ausstehend |
 | M8 | Zusatzfunktionen | Ausstehend |
 | M9 | Cloud-Sync | Ausstehend |
@@ -528,82 +528,82 @@
 **Ziel:** Vollständiger Zeicheneditor mit Werkzeugen
 
 ### 6.1 Canvas-Grundlagen
-- [ ] 6.1.1 `CustomPainter` für Zeichenfläche
-- [ ] 6.1.2 Touch/Maus-Events erfassen
-- [ ] 6.1.3 Pfade als Liste von Punkten speichern
-- [ ] 6.1.4 Pfade mit Eigenschaften (Farbe, Dicke, Stil)
-- [ ] 6.1.5 Smooth-Drawing (Bézier-Kurven)
+- [x] 6.1.1 `CustomPainter` für Zeichenfläche
+- [x] 6.1.2 Touch/Maus-Events erfassen
+- [x] 6.1.3 Pfade als Liste von Punkten speichern
+- [x] 6.1.4 Pfade mit Eigenschaften (Farbe, Dicke, Stil)
+- [x] 6.1.5 Smooth-Drawing (Bézier-Kurven)
 
 ### 6.2 Zeichenwerkzeuge
 #### 6.2.1 Stift
-- [ ] 6.2.1.1 Freihand-Zeichnen
-- [ ] 6.2.1.2 Stiftdicke wählbar (3 Stufen minimum)
-- [ ] 6.2.1.3 Stiftfarbe wählbar
+- [x] 6.2.1.1 Freihand-Zeichnen
+- [x] 6.2.1.2 Stiftdicke wählbar (3 Stufen minimum)
+- [x] 6.2.1.3 Stiftfarbe wählbar
 
 #### 6.2.2 Marker/Highlighter
-- [ ] 6.2.2.1 Halbtransparenter Stift
-- [ ] 6.2.2.2 Breitere Standarddicke
+- [x] 6.2.2.1 Halbtransparenter Stift
+- [x] 6.2.2.2 Breitere Standarddicke
 
 #### 6.2.3 Radierer
-- [ ] 6.2.3.1 Radierer-Größe wählbar
-- [ ] 6.2.3.2 Pfade unter Radierer entfernen
+- [x] 6.2.3.1 Radierer-Größe wählbar
+- [x] 6.2.3.2 Pfade unter Radierer entfernen
 - [ ] 6.2.3.3 Punkt-basiertes Radieren (optional)
 
 #### 6.2.4 Formen
-- [ ] 6.2.4.1 Linie
-- [ ] 6.2.4.2 Rechteck
-- [ ] 6.2.4.3 Kreis/Ellipse
-- [ ] 6.2.4.4 Pfeil
-- [ ] 6.2.4.5 Form-Vorschau während Zeichnen
-- [ ] 6.2.4.6 Gefüllt / Nur Umriss Option
+- [x] 6.2.4.1 Linie
+- [x] 6.2.4.2 Rechteck
+- [x] 6.2.4.3 Kreis/Ellipse
+- [x] 6.2.4.4 Pfeil
+- [x] 6.2.4.5 Form-Vorschau während Zeichnen
+- [x] 6.2.4.6 Gefüllt / Nur Umriss Option
 
 ### 6.3 Farbauswahl
-- [ ] 6.3.1 Schnell-Farbpalette (8-12 Farben)
-- [ ] 6.3.2 Aktuelle Farbe anzeigen
-- [ ] 6.3.3 Erweiterter ColorPicker (Dialog)
-- [ ] 6.3.4 Letzte verwendete Farben merken
+- [x] 6.3.1 Schnell-Farbpalette (8-12 Farben)
+- [x] 6.3.2 Aktuelle Farbe anzeigen
+- [x] 6.3.3 Erweiterter ColorPicker (Dialog)
+- [x] 6.3.4 Letzte verwendete Farben merken
 
 ### 6.4 Dicke-Auswahl
-- [ ] 6.4.1 Slider für Stiftdicke
-- [ ] 6.4.2 Vorschau der Dicke
-- [ ] 6.4.3 Preset-Buttons (Fein, Normal, Dick)
+- [x] 6.4.1 Slider für Stiftdicke
+- [x] 6.4.2 Vorschau der Dicke
+- [x] 6.4.3 Preset-Buttons (Fein, Normal, Dick)
 
 ### 6.5 Undo/Redo
-- [ ] 6.5.1 Undo-Stack implementieren
-- [ ] 6.5.2 Redo-Stack implementieren
-- [ ] 6.5.3 Undo-Button in Toolbar
-- [ ] 6.5.4 Redo-Button in Toolbar
-- [ ] 6.5.5 Keyboard-Shortcuts (Ctrl+Z, Ctrl+Y)
+- [x] 6.5.1 Undo-Stack implementieren
+- [x] 6.5.2 Redo-Stack implementieren
+- [x] 6.5.3 Undo-Button in Toolbar
+- [x] 6.5.4 Redo-Button in Toolbar
+- [x] 6.5.5 Keyboard-Shortcuts (Ctrl+Z, Ctrl+Y)
 
 ### 6.6 Zusätzliche Funktionen
-- [ ] 6.6.1 Alles löschen (mit Bestätigung)
-- [ ] 6.6.2 Hintergrundfarbe ändern
-- [ ] 6.6.3 Raster anzeigen (optional)
+- [x] 6.6.1 Alles löschen (mit Bestätigung)
+- [x] 6.6.2 Hintergrundfarbe ändern
+- [x] 6.6.3 Raster anzeigen (optional)
 - [ ] 6.6.4 Zoom & Pan (für große Zeichnungen)
 
 ### 6.7 Speicherung
-- [ ] 6.7.1 Zeichnung als JSON serialisieren
-- [ ] 6.7.2 JSON in Datenbank speichern
-- [ ] 6.7.3 Zeichnung aus JSON laden
-- [ ] 6.7.4 Auto-Save mit Debounce
-- [ ] 6.7.5 Als Bild exportieren (PNG)
+- [x] 6.7.1 Zeichnung als JSON serialisieren
+- [x] 6.7.2 JSON in Datenbank speichern
+- [x] 6.7.3 Zeichnung aus JSON laden
+- [x] 6.7.4 Auto-Save mit Debounce
+- [x] 6.7.5 Als Bild exportieren (PNG)
 
 ### 6.8 Drawing-Screen UI
-- [ ] 6.8.1 Vollbild-Canvas
-- [ ] 6.8.2 Toolbar am unteren Rand (Mobile)
-- [ ] 6.8.3 Sidebar-Toolbar (Desktop)
-- [ ] 6.8.4 Werkzeug-Auswahl
-- [ ] 6.8.5 Farb-Auswahl
-- [ ] 6.8.6 Dicke-Auswahl
-- [ ] 6.8.7 Undo/Redo Buttons
+- [x] 6.8.1 Vollbild-Canvas
+- [x] 6.8.2 Toolbar am unteren Rand (Mobile)
+- [x] 6.8.3 Sidebar-Toolbar (Desktop)
+- [x] 6.8.4 Werkzeug-Auswahl
+- [x] 6.8.5 Farb-Auswahl
+- [x] 6.8.6 Dicke-Auswahl
+- [x] 6.8.7 Undo/Redo Buttons
 
 ### 6.9 Deliverables M6
-- [ ] Funktionaler Zeicheneditor
-- [ ] Stift, Marker, Radierer
-- [ ] Formen (Linie, Rechteck, Kreis, Pfeil)
-- [ ] Farbpalette und Dicken-Auswahl
-- [ ] Undo/Redo
-- [ ] Speicherung und Laden
+- [x] Funktionaler Zeicheneditor
+- [x] Stift, Marker, Radierer
+- [x] Formen (Linie, Rechteck, Kreis, Pfeil)
+- [x] Farbpalette und Dicken-Auswahl
+- [x] Undo/Redo
+- [x] Speicherung und Laden
 
 ---
 

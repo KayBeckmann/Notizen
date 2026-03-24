@@ -18,6 +18,7 @@ import 'audio_note_screen.dart';
 import 'drawing_note_screen.dart';
 import 'image_note_screen.dart';
 import 'note_editor_screen.dart';
+import 'search_screen.dart';
 import 'settings_screen.dart';
 
 /// Hauptbildschirm der App
@@ -199,9 +200,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _openSearch() {
-    // TODO: Implement search
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Suche wird implementiert...')),
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const SearchScreen()),
     );
   }
 

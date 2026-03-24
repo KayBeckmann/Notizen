@@ -62,8 +62,8 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
     return (select(notes)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
-  /// Volltextsuche in Notizen
-  Stream<List<Note>> searchNotes(String query) {
+  /// Volltextsuche in Notizen (Stream)
+  Stream<List<Note>> watchSearchNotes(String query) {
     final searchPattern = '%$query%';
     return (select(notes)
           ..where((t) =>
@@ -71,6 +71,28 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
               (t.title.like(searchPattern) | t.content.like(searchPattern)))
           ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
         .watch();
+  }
+
+  /// Volltextsuche in Notizen (Future)
+  Future<List<Note>> searchNotes(String query) {
+    final searchPattern = '%$query%';
+    return (select(notes)
+          ..where((t) =>
+              t.isTrashed.equals(false) &
+              (t.title.like(searchPattern) | t.content.like(searchPattern)))
+          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
+        .get();
+  }
+
+  /// Alle Notizen abrufen (nicht im Papierkorb)
+  Future<List<Note>> getAllNotes() {
+    return (select(notes)
+          ..where((t) => t.isTrashed.equals(false))
+          ..orderBy([
+            (t) => OrderingTerm.desc(t.isPinned),
+            (t) => OrderingTerm.desc(t.updatedAt),
+          ]))
+        .get();
   }
 
   /// Neue Notiz erstellen

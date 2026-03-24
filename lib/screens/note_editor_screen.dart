@@ -819,9 +819,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     shareText.write(content);
 
     try {
-      await SharePlus.instance.share(
-        ShareParams(text: shareText.toString()),
-      );
+      await Share.share(shareText.toString());
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

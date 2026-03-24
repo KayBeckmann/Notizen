@@ -10,6 +10,9 @@ RUN flutter pub get
 # Source kopieren
 COPY . .
 
+# Code-Generierung (Riverpod, Drift)
+RUN dart run build_runner build --delete-conflicting-outputs
+
 # Web-Build erstellen
 RUN flutter build web --release
 

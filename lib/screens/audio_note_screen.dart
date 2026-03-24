@@ -277,7 +277,7 @@ class _AudioNoteScreenState extends ConsumerState<AudioNoteScreen> {
           folderId: widget.folderId,
           title: Value(title.isEmpty ? 'Sprachnotiz' : title),
           content: Value(description),
-          contentType: Value(ContentType.audio),
+          contentType: Value(ContentType.audio.name),
           mediaPath: Value(_audioPath),
           createdAt: now,
           updatedAt: now,

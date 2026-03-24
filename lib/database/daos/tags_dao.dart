@@ -27,6 +27,17 @@ class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
     return query.map((row) => row.readTable(tags)).watch();
   }
 
+  /// Tags einer Notiz abrufen (einmalig)
+  Future<List<Tag>> getTagsForNote(String noteId) {
+    final query = select(tags).join([
+      innerJoin(noteTags, noteTags.tagId.equalsExp(tags.id)),
+    ])
+      ..where(noteTags.noteId.equals(noteId))
+      ..orderBy([OrderingTerm.asc(tags.name)]);
+
+    return query.map((row) => row.readTable(tags)).get();
+  }
+
   /// Einzelnen Tag abrufen
   Future<Tag?> getTagById(String id) {
     return (select(tags)..where((t) => t.id.equals(id))).getSingleOrNull();

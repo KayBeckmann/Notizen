@@ -352,7 +352,7 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
           folderId: widget.folderId,
           title: Value(title.isEmpty ? 'Bildnotiz' : title),
           content: Value(description),
-          contentType: Value(ContentType.image),
+          contentType: Value(ContentType.image.name),
           mediaPath: Value(_imagePath),
           createdAt: now,
           updatedAt: now,

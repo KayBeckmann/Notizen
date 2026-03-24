@@ -135,5 +135,5 @@ Stream<List<Note>> searchResults(Ref ref) {
   if (query.isEmpty) {
     return Stream.value([]);
   }
-  return ref.watch(notesDaoProvider).searchNotes(query);
+  return ref.watch(notesDaoProvider).watchSearchNotes(query);
 }

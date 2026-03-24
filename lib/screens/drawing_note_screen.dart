@@ -387,7 +387,7 @@ class _DrawingNoteScreenState extends ConsumerState<DrawingNoteScreen> {
           id: noteId,
           folderId: widget.folderId,
           title: Value(title.isEmpty ? 'Zeichnung' : title),
-          contentType: Value(ContentType.drawing),
+          contentType: Value(ContentType.drawing.name),
           drawingData: Value(drawingJson),
           createdAt: now,
           updatedAt: now,

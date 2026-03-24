@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'syntax_highlighter.dart';
@@ -130,7 +131,7 @@ class MarkdownPreview extends StatelessWidget {
         'input': CheckboxBuilder(onCheckboxChanged: onCheckboxChanged),
         if (enableSyntaxHighlighting) 'pre': CodeBlockBuilder(),
       },
-      extensionSet: MarkdownExtensionSet.gitHubFlavored,
+      extensionSet: md.ExtensionSet.gitHubFlavored,
     );
   }
 

@@ -77,9 +77,7 @@ class ImageViewer extends StatelessWidget {
 
   Future<void> _shareImage(BuildContext context) async {
     try {
-      await SharePlus.instance.share(
-        ShareParams(files: [XFile(imagePath)]),
-      );
+      await Share.shareXFiles([XFile(imagePath)]);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

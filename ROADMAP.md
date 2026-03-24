@@ -753,7 +753,7 @@
 - [x] 8.3.2.1 Notiz archivieren
 - [x] 8.3.2.2 Archiv-Ansicht
 - [x] 8.3.2.3 Notiz aus Archiv wiederherstellen
-- [ ] 8.3.2.4 Archivierte Notizen aus Suche ausschließen (optional)
+- [x] 8.3.2.4 Archivierte Notizen aus Suche ausschließen (optional)
 
 ### 8.4 Einstellungen persistieren
 - [x] 8.4.1 `SharedPreferences` Service erstellen

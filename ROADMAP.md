@@ -14,8 +14,8 @@
 | M4 | Markdown-Editor | Erledigt |
 | M5 | Medien-Integration | Erledigt |
 | M6 | Zeichenfunktion | Erledigt |
-| M7 | Plattform-Features | Ausstehend |
-| M8 | Zusatzfunktionen | Ausstehend |
+| M7 | Plattform-Features | Erledigt |
+| M8 | Zusatzfunktionen | Erledigt |
 | M9 | Cloud-Sync | Ausstehend |
 | M10 | Release & Polish | Ausstehend |
 
@@ -719,7 +719,7 @@
 
 ### 8.2 Export
 #### 8.2.1 Markdown-Export
-- [ ] 8.2.1.1 Einzelne Notiz als .md exportieren
+- [x] 8.2.1.1 Einzelne Notiz als .md exportieren
 - [ ] 8.2.1.2 Ordner als .zip mit .md-Dateien
 - [ ] 8.2.1.3 Alle Notizen exportieren
 
@@ -731,23 +731,23 @@
 - [ ] 8.2.2.5 Zeichnungen einbetten
 
 #### 8.2.3 Text-Export
-- [ ] 8.2.3.1 Plain-Text Export (ohne Markdown)
-- [ ] 8.2.3.2 In Zwischenablage kopieren
+- [x] 8.2.3.1 Plain-Text Export (ohne Markdown)
+- [x] 8.2.3.2 In Zwischenablage kopieren
 
 #### 8.2.4 Teilen
-- [ ] 8.2.4.1 Share-Intent (Mobile)
-- [ ] 8.2.4.2 Als Text teilen
-- [ ] 8.2.4.3 Als Datei teilen
+- [x] 8.2.4.1 Share-Intent (Mobile)
+- [x] 8.2.4.2 Als Text teilen
+- [x] 8.2.4.3 Als Datei teilen
 - [ ] 8.2.4.4 Als PDF teilen
 
 ### 8.3 Papierkorb & Archiv
 #### 8.3.1 Papierkorb
-- [ ] 8.3.1.1 Gelöschte Notizen 30 Tage aufbewahren
-- [ ] 8.3.1.2 Papierkorb-Ansicht
-- [ ] 8.3.1.3 Notiz wiederherstellen
-- [ ] 8.3.1.4 Notiz endgültig löschen
-- [ ] 8.3.1.5 Papierkorb leeren
-- [ ] 8.3.1.6 Automatische Bereinigung (30+ Tage)
+- [x] 8.3.1.1 Gelöschte Notizen 30 Tage aufbewahren
+- [x] 8.3.1.2 Papierkorb-Ansicht
+- [x] 8.3.1.3 Notiz wiederherstellen
+- [x] 8.3.1.4 Notiz endgültig löschen
+- [x] 8.3.1.5 Papierkorb leeren
+- [x] 8.3.1.6 Automatische Bereinigung (30+ Tage)
 
 #### 8.3.2 Archiv
 - [ ] 8.3.2.1 Notiz archivieren

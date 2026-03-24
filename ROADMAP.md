@@ -660,10 +660,10 @@
 - [ ] 7.3.2.4 Minimale Fenstergrößen
 
 #### 7.3.3 Drag & Drop
-- [ ] 7.3.3.1 Notizen zwischen Ordnern ziehen
-- [ ] 7.3.3.2 Ordner neu anordnen
+- [x] 7.3.3.1 Notizen zwischen Ordnern ziehen
+- [x] 7.3.3.2 Ordner neu anordnen
 - [ ] 7.3.3.3 Dateien in App ziehen (Bilder)
-- [ ] 7.3.3.4 Visual Feedback beim Ziehen
+- [x] 7.3.3.4 Visual Feedback beim Ziehen
 
 #### 7.3.4 Kontextmenüs
 - [x] 7.3.4.1 Rechtsklick auf Notiz

@@ -750,18 +750,18 @@
 - [x] 8.3.1.6 Automatische Bereinigung (30+ Tage)
 
 #### 8.3.2 Archiv
-- [ ] 8.3.2.1 Notiz archivieren
-- [ ] 8.3.2.2 Archiv-Ansicht
-- [ ] 8.3.2.3 Notiz aus Archiv wiederherstellen
+- [x] 8.3.2.1 Notiz archivieren
+- [x] 8.3.2.2 Archiv-Ansicht
+- [x] 8.3.2.3 Notiz aus Archiv wiederherstellen
 - [ ] 8.3.2.4 Archivierte Notizen aus Suche ausschließen (optional)
 
 ### 8.4 Einstellungen persistieren
-- [ ] 8.4.1 `SharedPreferences` Service erstellen
-- [ ] 8.4.2 Theme-Modus speichern/laden
-- [ ] 8.4.3 Akzentfarbe speichern/laden
-- [ ] 8.4.4 Dynamic Color Präferenz speichern
-- [ ] 8.4.5 Sortier-Einstellungen speichern
-- [ ] 8.4.6 Letzter geöffneter Ordner speichern
+- [x] 8.4.1 `SharedPreferences` Service erstellen
+- [x] 8.4.2 Theme-Modus speichern/laden
+- [x] 8.4.3 Akzentfarbe speichern/laden
+- [x] 8.4.4 Dynamic Color Präferenz speichern
+- [x] 8.4.5 Sortier-Einstellungen speichern
+- [x] 8.4.6 Letzter geöffneter Ordner speichern
 - [ ] 8.4.7 Editor-Präferenzen (Split-View, etc.)
 
 ### 8.5 Zusätzliche Features

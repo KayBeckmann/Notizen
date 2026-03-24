@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
 import '../constants/breakpoints.dart';
@@ -300,6 +301,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             icon: const Icon(Icons.check),
             onPressed: () => _saveNote(),
             tooltip: 'Speichern (Ctrl+S)',
+          ),
+
+        // Teilen-Button
+        if (_existingNote != null || _contentController.text.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            onPressed: _shareNote,
+            tooltip: 'Teilen',
           ),
 
         // Mehr-Menü
@@ -749,6 +758,39 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       case 'delete':
         _confirmDelete();
         break;
+    }
+  }
+
+  /// Notiz teilen
+  Future<void> _shareNote() async {
+    final title = _titleController.text.trim();
+    final content = _contentController.text.trim();
+
+    if (content.isEmpty && title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nichts zu teilen')),
+      );
+      return;
+    }
+
+    // Inhalt für das Teilen vorbereiten
+    final shareText = StringBuffer();
+    if (title.isNotEmpty) {
+      shareText.writeln('# $title');
+      shareText.writeln();
+    }
+    shareText.write(content);
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(text: shareText.toString()),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler beim Teilen: $e')),
+        );
+      }
     }
   }
 

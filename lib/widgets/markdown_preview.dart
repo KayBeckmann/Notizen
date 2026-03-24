@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'syntax_highlighter.dart';
+
 /// Markdown-Preview Widget mit Theme-Integration
 class MarkdownPreview extends StatelessWidget {
   final String data;
   final ScrollController? scrollController;
   final Function(bool, String)? onCheckboxChanged;
+  final bool enableSyntaxHighlighting;
 
   const MarkdownPreview({
     super.key,
     required this.data,
     this.scrollController,
     this.onCheckboxChanged,
+    this.enableSyntaxHighlighting = true,
   });
 
   @override
@@ -124,6 +128,7 @@ class MarkdownPreview extends StatelessWidget {
       ),
       builders: {
         'input': CheckboxBuilder(onCheckboxChanged: onCheckboxChanged),
+        if (enableSyntaxHighlighting) 'pre': CodeBlockBuilder(),
       },
       extensionSet: MarkdownExtensionSet.gitHubFlavored,
     );

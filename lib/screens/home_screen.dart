@@ -7,6 +7,7 @@ import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
 import '../providers/notes_provider.dart';
 import '../widgets/adaptive_scaffold.dart';
+import '../widgets/drag_and_drop.dart';
 import '../widgets/folder_drawer.dart';
 import '../widgets/folder_rail.dart';
 import '../widgets/note_card.dart';
@@ -121,6 +122,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return _buildEmptyState();
     }
 
+    // Drag & Drop nur auf Desktop aktivieren
+    final layoutType = Breakpoints.getLayoutType(context);
+    final enableDrag = layoutType != LayoutType.compact;
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: notes.length,
@@ -128,10 +133,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final note = notes[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: NoteCard(
+          child: DraggableNoteCard(
             note: note,
-            onTap: () => _openNote(note),
-            onLongPress: () => _showNoteOptions(note),
+            enabled: enableDrag,
+            child: NoteCard(
+              note: note,
+              onTap: () => _openNote(note),
+              onLongPress: () => _showNoteOptions(note),
+            ),
           ),
         );
       },

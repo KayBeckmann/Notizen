@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../constants/breakpoints.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
+import 'drag_and_drop.dart';
 import 'folder_dialog.dart';
 import 'tag_list.dart';
 
@@ -151,6 +153,10 @@ class FolderDrawer extends ConsumerWidget {
     // Nur Root-Ordner anzeigen
     final rootFolders = folders.where((f) => f.parentId == null).toList();
 
+    // Drag & Drop nur auf Desktop aktivieren
+    final layoutType = Breakpoints.getLayoutType(context);
+    final enableDragDrop = layoutType != LayoutType.compact;
+
     return Column(
       children: rootFolders.map((folder) {
         return _FolderTile(
@@ -162,6 +168,7 @@ class FolderDrawer extends ConsumerWidget {
             Navigator.of(context).pop();
           },
           onLongPress: () => _showFolderOptions(context, ref, folder),
+          enableDragDrop: enableDragDrop,
         );
       }).toList(),
     );
@@ -267,6 +274,7 @@ class _FolderTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final int depth;
+  final bool enableDragDrop;
 
   const _FolderTile({
     required this.folder,
@@ -275,6 +283,7 @@ class _FolderTile extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     this.depth = 0,
+    this.enableDragDrop = false,
   });
 
   @override
@@ -283,19 +292,33 @@ class _FolderTile extends StatelessWidget {
     final hasChildren = children.isNotEmpty;
     final icon = getIconFromName(folder.icon);
 
+    Widget destination = NavigationDrawerDestination(
+      icon: Icon(
+        icon == Icons.folder ? Icons.folder_outlined : icon,
+        color: Color(folder.color),
+      ),
+      selectedIcon: Icon(
+        icon,
+        color: Color(folder.color),
+      ),
+      label: Text(folder.name),
+    );
+
+    // Wrap mit Drop-Target für Drag & Drop auf Desktop
+    if (enableDragDrop) {
+      destination = CombinedFolderDropTarget(
+        folder: folder,
+        child: DraggableFolder(
+          folder: folder,
+          enabled: folder.id != 'default',
+          child: destination,
+        ),
+      );
+    }
+
     return Column(
       children: [
-        NavigationDrawerDestination(
-          icon: Icon(
-            icon == Icons.folder ? Icons.folder_outlined : icon,
-            color: Color(folder.color),
-          ),
-          selectedIcon: Icon(
-            icon,
-            color: Color(folder.color),
-          ),
-          label: Text(folder.name),
-        ),
+        destination,
         // Kinder-Ordner (eingerückt)
         if (hasChildren)
           Padding(
@@ -309,6 +332,7 @@ class _FolderTile extends StatelessWidget {
                   onTap: onTap,
                   onLongPress: onLongPress,
                   depth: depth + 1,
+                  enableDragDrop: enableDragDrop,
                 );
               }).toList(),
             ),

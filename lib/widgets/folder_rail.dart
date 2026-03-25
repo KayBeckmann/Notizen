@@ -28,12 +28,23 @@ class FolderRail extends ConsumerWidget {
     List<Folder> folders,
     String? currentFolderId,
   ) {
-    final pinnedCount = ref.watch(pinnedCountProvider).valueOrNull ?? 0;
-    final archivedCount = ref.watch(archivedCountProvider).valueOrNull ?? 0;
-    final trashedCount = ref.watch(trashedCountProvider).valueOrNull ?? 0;
-    final allNotesAsync = ref.watch(allNotesProvider);
-    final allNotesCount = allNotesAsync.valueOrNull?.length ?? 0;
-    final noteCounts = ref.watch(noteCountsByFolderProvider).valueOrNull ?? {};
+    // Sichere Abfrage der Zähler mit Fallback auf 0
+    int pinnedCount = 0;
+    int archivedCount = 0;
+    int trashedCount = 0;
+    int allNotesCount = 0;
+    Map<String, int> noteCounts = {};
+
+    try {
+      pinnedCount = ref.watch(pinnedCountProvider).valueOrNull ?? 0;
+      archivedCount = ref.watch(archivedCountProvider).valueOrNull ?? 0;
+      trashedCount = ref.watch(trashedCountProvider).valueOrNull ?? 0;
+      final allNotesAsync = ref.watch(allNotesProvider);
+      allNotesCount = allNotesAsync.valueOrNull?.length ?? 0;
+      noteCounts = ref.watch(noteCountsByFolderProvider).valueOrNull ?? {};
+    } catch (_) {
+      // Ignoriere Fehler beim Laden der Zähler
+    }
 
     final destinations = <NavigationRailDestination>[
       NavigationRailDestination(

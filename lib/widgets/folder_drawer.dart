@@ -18,11 +18,22 @@ class FolderDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final foldersAsync = ref.watch(allFoldersProvider);
     final currentFolderId = ref.watch(currentFolderProvider);
-    final pinnedCount = ref.watch(pinnedCountProvider).valueOrNull ?? 0;
-    final archivedCount = ref.watch(archivedCountProvider).valueOrNull ?? 0;
-    final trashedCount = ref.watch(trashedCountProvider).valueOrNull ?? 0;
-    final allNotesAsync = ref.watch(allNotesProvider);
-    final allNotesCount = allNotesAsync.valueOrNull?.length ?? 0;
+
+    // Sichere Abfrage der Zähler mit Fallback auf 0
+    int pinnedCount = 0;
+    int archivedCount = 0;
+    int trashedCount = 0;
+    int allNotesCount = 0;
+
+    try {
+      pinnedCount = ref.watch(pinnedCountProvider).valueOrNull ?? 0;
+      archivedCount = ref.watch(archivedCountProvider).valueOrNull ?? 0;
+      trashedCount = ref.watch(trashedCountProvider).valueOrNull ?? 0;
+      final allNotesAsync = ref.watch(allNotesProvider);
+      allNotesCount = allNotesAsync.valueOrNull?.length ?? 0;
+    } catch (_) {
+      // Ignoriere Fehler beim Laden der Zähler
+    }
 
     return NavigationDrawer(
       selectedIndex: _getSelectedIndex(foldersAsync, currentFolderId),

@@ -213,8 +213,13 @@ class TagDrawerSection extends ConsumerWidget {
       );
     }
 
-    final noteCountsAsync = ref.watch(noteCountsByTagProvider);
-    final noteCounts = noteCountsAsync.valueOrNull ?? {};
+    Map<String, int> noteCounts = {};
+    try {
+      final noteCountsAsync = ref.watch(noteCountsByTagProvider);
+      noteCounts = noteCountsAsync.valueOrNull ?? {};
+    } catch (_) {
+      // Ignoriere Fehler beim Laden der Zähler
+    }
 
     return Wrap(
       spacing: 8,

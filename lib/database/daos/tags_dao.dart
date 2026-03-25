@@ -107,4 +107,16 @@ class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
         .map((row) => row.noteId)
         .watch();
   }
+
+  /// Stream der Notizanzahl pro Tag
+  /// Gibt eine Map zurück: tagId -> Anzahl
+  Stream<Map<String, int>> watchNoteCountsByTag() {
+    return select(noteTags).watch().map((noteTagsList) {
+      final counts = <String, int>{};
+      for (final noteTag in noteTagsList) {
+        counts[noteTag.tagId] = (counts[noteTag.tagId] ?? 0) + 1;
+      }
+      return counts;
+    });
+  }
 }

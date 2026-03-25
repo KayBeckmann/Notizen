@@ -213,15 +213,42 @@ class TagDrawerSection extends ConsumerWidget {
       );
     }
 
+    final noteCountsAsync = ref.watch(noteCountsByTagProvider);
+    final noteCounts = noteCountsAsync.valueOrNull ?? {};
+
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: tags.map((tag) {
         final isSelected = selectedTagId == tag.id;
+        final count = noteCounts[tag.id] ?? 0;
         return GestureDetector(
           onLongPress: () => _showTagOptions(context, ref, tag),
           child: FilterChip(
-            label: Text(tag.name),
+            label: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(tag.name),
+                if (count > 0) ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Color(tag.color).withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      count.toString(),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(tag.color),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
             selected: isSelected,
             onSelected: (_) {
               if (isSelected) {

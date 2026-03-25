@@ -18,6 +18,12 @@ Stream<List<Tag>> tagsForNote(Ref ref, String noteId) {
   return ref.watch(tagsDaoProvider).watchTagsForNote(noteId);
 }
 
+/// Notizanzahl pro Tag
+@riverpod
+Stream<Map<String, int>> noteCountsByTag(Ref ref) {
+  return ref.watch(tagsDaoProvider).watchNoteCountsByTag();
+}
+
 /// Aktuell ausgewählter Tag zum Filtern
 @riverpod
 class SelectedTag extends _$SelectedTag {

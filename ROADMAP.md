@@ -291,7 +291,7 @@
 - [x] 3.4.1.2 Rekursive Darstellung (verschachtelt)
 - [ ] 3.4.1.3 Expand/Collapse Animation
 - [x] 3.4.1.4 Ordner-Icon und Farbe anzeigen
-- [ ] 3.4.1.5 Anzahl Notizen pro Ordner
+- [x] 3.4.1.5 Anzahl Notizen pro Ordner
 - [x] 3.4.1.6 Aktiven Ordner hervorheben
 - [x] 3.4.1.7 Ordner per Tap auswählen
 

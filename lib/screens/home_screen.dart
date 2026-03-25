@@ -46,8 +46,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Nur auf compact (Phone) zeigen wir das Menü-Icon
     final showMenuButton = layoutType == LayoutType.compact;
 
-    // FAB nur auf Phone zeigen, da Rail/Sidebar eigene haben
-    final showFab = layoutType == LayoutType.compact;
+    // FAB auf allen Layouts zeigen
+    const showFab = true;
 
     return AppShortcuts(
       onNewNote: _createNewNote,

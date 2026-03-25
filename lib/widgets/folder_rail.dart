@@ -94,13 +94,6 @@ class FolderRail extends ConsumerWidget {
         _onDestinationSelected(ref, index, folders);
       },
       labelType: NavigationRailLabelType.all,
-      leading: FloatingActionButton(
-        heroTag: 'rail_fab',
-        onPressed: () {
-          // TODO: Create new note
-        },
-        child: const Icon(Icons.add),
-      ),
       destinations: destinations,
     );
   }

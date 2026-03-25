@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../constants/breakpoints.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
 import '../providers/notes_provider.dart';
-import 'drag_and_drop.dart';
 import 'folder_dialog.dart';
 import 'tag_list.dart';
 
@@ -94,14 +92,70 @@ class FolderDrawer extends ConsumerWidget {
           ),
         ),
 
-        // Benutzer-Ordner
-        foldersAsync.when(
+        // Benutzer-Ordner als ListTiles
+        ...foldersAsync.when(
           data: (folders) {
-            final noteCounts = ref.watch(noteCountsByFolderProvider).valueOrNull ?? {};
-            return _buildFolderList(context, ref, folders, currentFolderId, noteCounts);
+            Map<String, int> noteCounts = {};
+            try {
+              noteCounts = ref.watch(noteCountsByFolderProvider).valueOrNull ?? {};
+            } catch (_) {}
+
+            final rootFolders = folders.where((f) => f.parentId == null).toList();
+            if (rootFolders.isEmpty) {
+              return [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 8),
+                  child: Text(
+                    'Keine Ordner vorhanden',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ),
+              ];
+            }
+
+            return rootFolders.map<Widget>((folder) {
+              final icon = getIconFromName(folder.icon);
+              final count = noteCounts[folder.id] ?? 0;
+              final isSelected = currentFolderId == folder.id;
+
+              return ListTile(
+                leading: Icon(
+                  icon == Icons.folder ? Icons.folder_outlined : icon,
+                  color: Color(folder.color),
+                ),
+                title: Text(folder.name),
+                trailing: count > 0
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          count.toString(),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      )
+                    : null,
+                selected: isSelected,
+                onTap: () {
+                  ref.read(currentFolderProvider.notifier).select(folder.id);
+                  Navigator.of(context).pop();
+                },
+                onLongPress: () => _showFolderOptions(context, ref, folder),
+              );
+            }).toList();
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Fehler: $e')),
+          loading: () => [const Center(child: Padding(
+            padding: EdgeInsets.all(16),
+            child: CircularProgressIndicator(),
+          ))],
+          error: (e, _) => [Center(child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Fehler: $e'),
+          ))],
         ),
 
         const Divider(indent: 28, endIndent: 28),
@@ -135,23 +189,18 @@ class FolderDrawer extends ConsumerWidget {
     );
   }
 
-  int _getSelectedIndex(
+  int? _getSelectedIndex(
     AsyncValue<List<Folder>> foldersAsync,
     String? currentFolderId,
   ) {
+    // Nur die 4 speziellen Ordner sind NavigationDrawerDestinations
     if (currentFolderId == null) return 0;
     if (currentFolderId == '_pinned') return 1;
     if (currentFolderId == '_archived') return 2;
     if (currentFolderId == '_trash') return 3;
 
-    return foldersAsync.when(
-      data: (folders) {
-        final index = folders.indexWhere((f) => f.id == currentFolderId);
-        return index >= 0 ? index + 4 : 0;
-      },
-      loading: () => 0,
-      error: (_, __) => 0,
-    );
+    // Wenn ein User-Ordner ausgewählt ist, kein Index
+    return null;
   }
 
   void _onDestinationSelected(
@@ -162,6 +211,7 @@ class FolderDrawer extends ConsumerWidget {
   ) {
     final notifier = ref.read(currentFolderProvider.notifier);
 
+    // Nur 4 spezielle Ordner als NavigationDrawerDestinations
     switch (index) {
       case 0:
         notifier.select(null); // Alle Notizen
@@ -175,49 +225,9 @@ class FolderDrawer extends ConsumerWidget {
       case 3:
         notifier.select('_trash');
         break;
-      default:
-        foldersAsync.whenData((folders) {
-          final folderIndex = index - 4;
-          if (folderIndex < folders.length) {
-            notifier.select(folders[folderIndex].id);
-          }
-        });
     }
 
     Navigator.of(context).pop();
-  }
-
-  Widget _buildFolderList(
-    BuildContext context,
-    WidgetRef ref,
-    List<Folder> folders,
-    String? currentFolderId,
-    Map<String, int> noteCounts,
-  ) {
-    // Nur Root-Ordner anzeigen
-    final rootFolders = folders.where((f) => f.parentId == null).toList();
-
-    // Drag & Drop nur auf Desktop aktivieren
-    final layoutType = Breakpoints.getLayoutType(context);
-    final enableDragDrop = layoutType != LayoutType.compact;
-
-    return Column(
-      children: rootFolders.map((folder) {
-        return _FolderTile(
-          folder: folder,
-          allFolders: folders,
-          isSelected: currentFolderId == folder.id,
-          noteCount: noteCounts[folder.id] ?? 0,
-          noteCounts: noteCounts,
-          onTap: () {
-            ref.read(currentFolderProvider.notifier).select(folder.id);
-            Navigator.of(context).pop();
-          },
-          onLongPress: () => _showFolderOptions(context, ref, folder),
-          enableDragDrop: enableDragDrop,
-        );
-      }).toList(),
-    );
   }
 
   void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
@@ -308,107 +318,6 @@ class FolderDrawer extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Einzelner Ordner-Eintrag mit optionaler Verschachtelung
-class _FolderTile extends StatelessWidget {
-  final Folder folder;
-  final List<Folder> allFolders;
-  final bool isSelected;
-  final int noteCount;
-  final Map<String, int> noteCounts;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-  final int depth;
-  final bool enableDragDrop;
-
-  const _FolderTile({
-    required this.folder,
-    required this.allFolders,
-    required this.isSelected,
-    required this.noteCount,
-    required this.noteCounts,
-    required this.onTap,
-    required this.onLongPress,
-    this.depth = 0,
-    this.enableDragDrop = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final children = allFolders.where((f) => f.parentId == folder.id).toList();
-    final hasChildren = children.isNotEmpty;
-    final icon = getIconFromName(folder.icon);
-
-    Widget destination = NavigationDrawerDestination(
-      icon: Icon(
-        icon == Icons.folder ? Icons.folder_outlined : icon,
-        color: Color(folder.color),
-      ),
-      selectedIcon: Icon(
-        icon,
-        color: Color(folder.color),
-      ),
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(child: Text(folder.name, overflow: TextOverflow.ellipsis)),
-          if (noteCount > 0) ...[
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                noteCount.toString(),
-                style: const TextStyle(fontSize: 12),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-
-    // Wrap mit Drop-Target für Drag & Drop auf Desktop
-    if (enableDragDrop) {
-      destination = CombinedFolderDropTarget(
-        folder: folder,
-        child: DraggableFolder(
-          folder: folder,
-          enabled: folder.id != 'default',
-          child: destination,
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        destination,
-        // Kinder-Ordner (eingerückt)
-        if (hasChildren)
-          Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: Column(
-              children: children.map((child) {
-                return _FolderTile(
-                  folder: child,
-                  allFolders: allFolders,
-                  isSelected: false,
-                  noteCount: noteCounts[child.id] ?? 0,
-                  noteCounts: noteCounts,
-                  onTap: onTap,
-                  onLongPress: onLongPress,
-                  depth: depth + 1,
-                  enableDragDrop: enableDragDrop,
-                );
-              }).toList(),
-            ),
-          ),
-      ],
     );
   }
 }

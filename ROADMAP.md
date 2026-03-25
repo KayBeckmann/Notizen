@@ -701,7 +701,7 @@
 - [x] 8.1.1.2 Volltextsuche in Titel und Inhalt
 - [x] 8.1.1.3 Suche in Echtzeit (mit Debounce)
 - [x] 8.1.1.4 Suchergebnisse als Liste
-- [ ] 8.1.1.5 Suchbegriff hervorheben
+- [x] 8.1.1.5 Suchbegriff hervorheben
 
 #### 8.1.2 Filter
 - [x] 8.1.2.1 Nach Ordner filtern

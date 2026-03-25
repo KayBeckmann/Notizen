@@ -276,7 +276,7 @@
 - [x] 3.3.3.4 Pinned-Indikator
 - [x] 3.3.3.5 Tags als Chips anzeigen
 - [x] 3.3.3.6 ListView für Mobile
-- [ ] 3.3.3.7 GridView Option
+- [x] 3.3.3.7 GridView Option
 - [x] 3.3.3.8 Leerer Zustand (Empty State)
 - [x] 3.3.3.9 Ladeindikator
 

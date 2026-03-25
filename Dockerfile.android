@@ -1,0 +1,27 @@
+# Dockerfile für Android APK Build
+FROM ghcr.io/cirruslabs/flutter:latest
+
+# Android SDK Lizenzen akzeptieren
+RUN yes | flutter doctor --android-licenses || true
+
+# Arbeitsverzeichnis
+WORKDIR /app
+
+# Dependencies cachen
+COPY pubspec.yaml pubspec.lock ./
+RUN flutter pub get
+
+# Quellcode kopieren
+COPY . .
+
+# Code-Generierung ausführen
+RUN flutter pub run build_runner build --delete-conflicting-outputs
+
+# APK bauen
+RUN flutter build apk --release
+
+# APK in Output-Verzeichnis kopieren
+RUN mkdir -p /output && cp build/app/outputs/flutter-apk/app-release.apk /output/notizen.apk
+
+# Output-Verzeichnis als Volume
+VOLUME /output

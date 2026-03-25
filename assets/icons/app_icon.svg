@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Hintergrund -->
+  <rect width="512" height="512" rx="80" fill="#6750A4"/>
+
+  <!-- Notizbuch - Rückseite/Schatten -->
+  <rect x="85" y="70" width="280" height="360" rx="12" fill="#4A3880" transform="rotate(-5, 225, 250)"/>
+
+  <!-- Notizbuch - Hauptkörper -->
+  <rect x="100" y="80" width="270" height="350" rx="10" fill="#FFFFFF" transform="rotate(-5, 235, 255)"/>
+
+  <!-- Notizbuch - Linien -->
+  <g transform="rotate(-5, 235, 255)" stroke="#E8E0F0" stroke-width="2">
+    <line x1="120" y1="140" x2="350" y2="140"/>
+    <line x1="120" y1="180" x2="350" y2="180"/>
+    <line x1="120" y1="220" x2="350" y2="220"/>
+    <line x1="120" y1="260" x2="350" y2="260"/>
+    <line x1="120" y1="300" x2="350" y2="300"/>
+    <line x1="120" y1="340" x2="350" y2="340"/>
+    <line x1="120" y1="380" x2="350" y2="380"/>
+  </g>
+
+  <!-- Notizbuch - Bindung -->
+  <rect x="95" y="80" width="25" height="350" rx="5" fill="#D4C8E8" transform="rotate(-5, 107, 255)"/>
+  <g transform="rotate(-5, 107, 255)">
+    <circle cx="107" cy="120" r="6" fill="#6750A4"/>
+    <circle cx="107" cy="180" r="6" fill="#6750A4"/>
+    <circle cx="107" cy="240" r="6" fill="#6750A4"/>
+    <circle cx="107" cy="300" r="6" fill="#6750A4"/>
+    <circle cx="107" cy="360" r="6" fill="#6750A4"/>
+  </g>
+
+  <!-- Stift - Schatten -->
+  <rect x="280" y="200" width="180" height="28" rx="4" fill="#4A3880" transform="rotate(35, 370, 214)"/>
+
+  <!-- Stift - Körper -->
+  <rect x="285" y="195" width="170" height="26" rx="4" fill="#FFB74D" transform="rotate(35, 370, 208)"/>
+
+  <!-- Stift - Spitze -->
+  <polygon points="285,208 260,208 272,195 272,221" fill="#5D4037" transform="rotate(35, 272, 208)"/>
+
+  <!-- Stift - Metall-Ring -->
+  <rect x="285" y="195" width="15" height="26" rx="2" fill="#B0BEC5" transform="rotate(35, 292, 208)"/>
+
+  <!-- Stift - Gummi/Radierer -->
+  <rect x="440" y="195" width="20" height="26" rx="4" fill="#F48FB1" transform="rotate(35, 450, 208)"/>
+
+  <!-- Geschriebener Text (stilisiert) -->
+  <g transform="rotate(-5, 235, 255)" fill="#6750A4" opacity="0.6">
+    <rect x="130" y="145" width="80" height="6" rx="3"/>
+    <rect x="130" y="185" width="120" height="6" rx="3"/>
+    <rect x="130" y="225" width="100" height="6" rx="3"/>
+    <rect x="130" y="265" width="140" height="6" rx="3"/>
+  </g>
+</svg>

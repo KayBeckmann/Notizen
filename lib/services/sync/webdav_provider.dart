@@ -133,7 +133,7 @@ class WebDAVSyncProvider implements SyncProvider {
 
     int uploaded = 0;
     int downloaded = 0;
-    final conflicts = <SyncConflict>[];
+    final conflicts = <SyncConflictInfo>[];
 
     try {
       // 1. Remote-Änderungen abrufen
@@ -302,7 +302,7 @@ class WebDAVSyncProvider implements SyncProvider {
   }
 
   @override
-  Future<bool> resolveConflict(SyncConflict conflict, ConflictResolution resolution) async {
+  Future<bool> resolveConflict(SyncConflictInfo conflict, ConflictResolution resolution) async {
     switch (resolution) {
       case ConflictResolution.keepLocal:
         return await uploadNote(conflict.localNote);

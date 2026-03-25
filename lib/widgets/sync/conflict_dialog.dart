@@ -6,7 +6,7 @@ import '../../services/sync/sync_provider.dart';
 
 /// Dialog zur Auflösung von Sync-Konflikten
 class ConflictResolutionDialog extends StatelessWidget {
-  final SyncConflict conflict;
+  final SyncConflictInfo conflict;
   final void Function(ConflictResolution) onResolve;
 
   const ConflictResolutionDialog({
@@ -206,7 +206,7 @@ class _VersionCard extends StatelessWidget {
 /// Zeigt den Konflikt-Dialog an
 Future<ConflictResolution?> showConflictResolutionDialog(
   BuildContext context,
-  SyncConflict conflict,
+  SyncConflictInfo conflict,
 ) async {
   ConflictResolution? resolution;
 
@@ -224,8 +224,8 @@ Future<ConflictResolution?> showConflictResolutionDialog(
 
 /// Liste aller Konflikte anzeigen
 class ConflictListDialog extends StatelessWidget {
-  final List<SyncConflict> conflicts;
-  final void Function(SyncConflict, ConflictResolution) onResolve;
+  final List<SyncConflictInfo> conflicts;
+  final void Function(SyncConflictInfo, ConflictResolution) onResolve;
 
   const ConflictListDialog({
     super.key,

@@ -16,7 +16,7 @@ class SyncResult {
   final int downloadedCount;
   final int conflictCount;
   final String? errorMessage;
-  final List<SyncConflict> conflicts;
+  final List<SyncConflictInfo> conflicts;
   final DateTime timestamp;
 
   SyncResult({
@@ -47,7 +47,7 @@ class SyncResult {
     );
   }
 
-  factory SyncResult.conflict(List<SyncConflict> conflicts) {
+  factory SyncResult.conflict(List<SyncConflictInfo> conflicts) {
     return SyncResult(
       status: SyncStatus.conflict,
       conflictCount: conflicts.length,
@@ -57,14 +57,14 @@ class SyncResult {
 }
 
 /// Ein Sync-Konflikt zwischen lokaler und remote Version
-class SyncConflict {
+class SyncConflictInfo {
   final String noteId;
   final Note localNote;
   final Note remoteNote;
   final DateTime localModified;
   final DateTime remoteModified;
 
-  SyncConflict({
+  SyncConflictInfo({
     required this.noteId,
     required this.localNote,
     required this.remoteNote,
@@ -143,5 +143,5 @@ abstract class SyncProvider {
   Future<String?> downloadMedia(String remoteId, String localPath);
 
   /// Konflikt auflösen
-  Future<bool> resolveConflict(SyncConflict conflict, ConflictResolution resolution);
+  Future<bool> resolveConflict(SyncConflictInfo conflict, ConflictResolution resolution);
 }

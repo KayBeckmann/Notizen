@@ -185,7 +185,7 @@ class SyncService extends ChangeNotifier {
   }
 
   /// Konflikt auflösen
-  Future<bool> resolveConflict(SyncConflict conflict, ConflictResolution resolution) async {
+  Future<bool> resolveConflict(SyncConflictInfo conflict, ConflictResolution resolution) async {
     if (_provider == null) return false;
     return await _provider!.resolveConflict(conflict, resolution);
   }

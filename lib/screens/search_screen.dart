@@ -317,6 +317,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           child: NoteCard(
             note: note,
             onTap: () => _openNote(note),
+            searchQuery: query.isNotEmpty ? query : null,
           ),
         );
       },

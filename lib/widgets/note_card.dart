@@ -10,12 +10,14 @@ class NoteCard extends ConsumerWidget {
   final Note note;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final String? searchQuery;
 
   const NoteCard({
     super.key,
     required this.note,
     this.onTap,
     this.onLongPress,
+    this.searchQuery,
   });
 
   @override
@@ -47,25 +49,25 @@ class NoteCard extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Titel
-                        Text(
+                        _buildHighlightedText(
+                          context,
                           note.title.isEmpty ? 'Unbenannt' : note.title,
-                          style: theme.textTheme.titleMedium?.copyWith(
+                          theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
 
                         // Vorschau des Inhalts
                         if (note.content.isNotEmpty)
-                          Text(
+                          _buildHighlightedText(
+                            context,
                             _getPreviewText(),
-                            style: theme.textTheme.bodyMedium?.copyWith(
+                            theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                             maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
@@ -193,5 +195,64 @@ class NoteCard extends ConsumerWidget {
     } else {
       return DateFormat.yMd().format(date);
     }
+  }
+
+  /// Erstellt einen Text mit hervorgehobenem Suchbegriff
+  Widget _buildHighlightedText(
+    BuildContext context,
+    String text,
+    TextStyle? style, {
+    int maxLines = 1,
+  }) {
+    if (searchQuery == null || searchQuery!.isEmpty) {
+      return Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    final query = searchQuery!.toLowerCase();
+    final textLower = text.toLowerCase();
+    final highlightColor = Theme.of(context).colorScheme.primaryContainer;
+    final highlightTextColor = Theme.of(context).colorScheme.onPrimaryContainer;
+
+    final List<TextSpan> spans = [];
+    int start = 0;
+
+    while (true) {
+      final index = textLower.indexOf(query, start);
+      if (index == -1) {
+        // Rest des Textes hinzufügen
+        if (start < text.length) {
+          spans.add(TextSpan(text: text.substring(start)));
+        }
+        break;
+      }
+
+      // Text vor dem Treffer
+      if (index > start) {
+        spans.add(TextSpan(text: text.substring(start, index)));
+      }
+
+      // Hervorgehobener Treffer
+      spans.add(TextSpan(
+        text: text.substring(index, index + query.length),
+        style: TextStyle(
+          backgroundColor: highlightColor,
+          color: highlightTextColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ));
+
+      start = index + query.length;
+    }
+
+    return Text.rich(
+      TextSpan(style: style, children: spans),
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
+    );
   }
 }

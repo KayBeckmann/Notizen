@@ -16,7 +16,7 @@
 | M6 | Zeichenfunktion | Erledigt |
 | M7 | Plattform-Features | Erledigt |
 | M8 | Zusatzfunktionen | Erledigt |
-| M9 | Cloud-Sync | Ausstehend |
+| M9 | Cloud-Sync | In Arbeit |
 | M10 | Release & Polish | Ausstehend |
 
 ---
@@ -787,30 +787,30 @@
 
 ### 9.1 Sync-Architektur
 #### 9.1.1 Interface definieren
-- [ ] 9.1.1.1 `SyncProvider` abstrakte Klasse
-- [ ] 9.1.1.2 `connect()` Methode
-- [ ] 9.1.1.3 `disconnect()` Methode
-- [ ] 9.1.1.4 `isConnected()` Methode
-- [ ] 9.1.1.5 `sync()` Methode
-- [ ] 9.1.1.6 `upload(note)` Methode
-- [ ] 9.1.1.7 `download(noteId)` Methode
-- [ ] 9.1.1.8 `delete(noteId)` Methode
-- [ ] 9.1.1.9 `getRemoteChanges()` Methode
+- [x] 9.1.1.1 `SyncProvider` abstrakte Klasse
+- [x] 9.1.1.2 `connect()` Methode
+- [x] 9.1.1.3 `disconnect()` Methode
+- [x] 9.1.1.4 `isConnected()` Methode
+- [x] 9.1.1.5 `sync()` Methode
+- [x] 9.1.1.6 `upload(note)` Methode
+- [x] 9.1.1.7 `download(noteId)` Methode
+- [x] 9.1.1.8 `delete(noteId)` Methode
+- [x] 9.1.1.9 `getRemoteChanges()` Methode
 
 #### 9.1.2 Sync-Logik
-- [ ] 9.1.2.1 Änderungs-Tracking (lastSyncedAt)
-- [ ] 9.1.2.2 Lokale Änderungen erkennen
-- [ ] 9.1.2.3 Remote-Änderungen erkennen
+- [x] 9.1.2.1 Änderungs-Tracking (lastSyncedAt)
+- [x] 9.1.2.2 Lokale Änderungen erkennen
+- [x] 9.1.2.3 Remote-Änderungen erkennen
 - [ ] 9.1.2.4 Änderungen zusammenführen
-- [ ] 9.1.2.5 Sync-Queue für Offline-Änderungen
+- [x] 9.1.2.5 Sync-Queue für Offline-Änderungen
 
 #### 9.1.3 Konflikt-Behandlung
-- [ ] 9.1.3.1 Konflikt erkennen (gleiche Notiz, verschiedene Änderungen)
-- [ ] 9.1.3.2 Konflikt-Dialog anzeigen
-- [ ] 9.1.3.3 "Lokal behalten" Option
-- [ ] 9.1.3.4 "Remote übernehmen" Option
-- [ ] 9.1.3.5 "Beide behalten" Option (Duplikat)
-- [ ] 9.1.3.6 Automatische Konfliktlösung (neueste gewinnt, optional)
+- [x] 9.1.3.1 Konflikt erkennen (gleiche Notiz, verschiedene Änderungen)
+- [x] 9.1.3.2 Konflikt-Dialog anzeigen
+- [x] 9.1.3.3 "Lokal behalten" Option
+- [x] 9.1.3.4 "Remote übernehmen" Option
+- [x] 9.1.3.5 "Beide behalten" Option (Duplikat)
+- [x] 9.1.3.6 Automatische Konfliktlösung (neueste gewinnt, optional)
 
 ### 9.2 Google Drive Integration
 - [ ] 9.2.1 `googleapis` Package integrieren
@@ -823,54 +823,54 @@
 - [ ] 9.2.8 Sign-Out implementieren
 
 ### 9.3 Nextcloud/WebDAV Integration
-- [ ] 9.3.1 WebDAV-Client implementieren
-- [ ] 9.3.2 Server-URL Eingabe
-- [ ] 9.3.3 Authentifizierung (User/Passwort oder App-Token)
-- [ ] 9.3.4 Verbindung testen
-- [ ] 9.3.5 App-Ordner auf Server erstellen
-- [ ] 9.3.6 Dateien hochladen/herunterladen
-- [ ] 9.3.7 Änderungen synchronisieren
+- [x] 9.3.1 WebDAV-Client implementieren
+- [x] 9.3.2 Server-URL Eingabe
+- [x] 9.3.3 Authentifizierung (User/Passwort oder App-Token)
+- [x] 9.3.4 Verbindung testen
+- [x] 9.3.5 App-Ordner auf Server erstellen
+- [x] 9.3.6 Dateien hochladen/herunterladen
+- [x] 9.3.7 Änderungen synchronisieren
 
 ### 9.4 Eigener Server (REST API)
-- [ ] 9.4.1 API-Spezifikation definieren
-- [ ] 9.4.2 Server-URL Eingabe
-- [ ] 9.4.3 API-Key oder JWT-Auth
-- [ ] 9.4.4 HTTP-Client implementieren
-- [ ] 9.4.5 CRUD-Endpunkte ansprechen
-- [ ] 9.4.6 Mediendateien-Upload
-- [ ] 9.4.7 Sync-Endpunkt (Delta-Sync)
+- [x] 9.4.1 API-Spezifikation definieren
+- [x] 9.4.2 Server-URL Eingabe
+- [x] 9.4.3 API-Key oder JWT-Auth
+- [x] 9.4.4 HTTP-Client implementieren
+- [x] 9.4.5 CRUD-Endpunkte ansprechen
+- [x] 9.4.6 Mediendateien-Upload
+- [x] 9.4.7 Sync-Endpunkt (Delta-Sync)
 
 ### 9.5 Sync-UI
 #### 9.5.1 Einstellungen
-- [ ] 9.5.1.1 Sync-Provider Auswahl
-- [ ] 9.5.1.2 Verbindung herstellen
-- [ ] 9.5.1.3 Verbindungsstatus anzeigen
-- [ ] 9.5.1.4 Letzter Sync-Zeitpunkt
-- [ ] 9.5.1.5 Manueller Sync-Button
-- [ ] 9.5.1.6 Auto-Sync Intervall einstellen
-- [ ] 9.5.1.7 Nur über WLAN synchronisieren (Mobile)
-- [ ] 9.5.1.8 Verbindung trennen
+- [x] 9.5.1.1 Sync-Provider Auswahl
+- [x] 9.5.1.2 Verbindung herstellen
+- [x] 9.5.1.3 Verbindungsstatus anzeigen
+- [x] 9.5.1.4 Letzter Sync-Zeitpunkt
+- [x] 9.5.1.5 Manueller Sync-Button
+- [x] 9.5.1.6 Auto-Sync Intervall einstellen
+- [x] 9.5.1.7 Nur über WLAN synchronisieren (Mobile)
+- [x] 9.5.1.8 Verbindung trennen
 
 #### 9.5.2 Sync-Status
-- [ ] 9.5.2.1 Sync-Icon in AppBar
-- [ ] 9.5.2.2 Sync-Animation während Synchronisation
-- [ ] 9.5.2.3 Fehler-Indikator
-- [ ] 9.5.2.4 Ausstehende Änderungen anzeigen
+- [x] 9.5.2.1 Sync-Icon in AppBar
+- [x] 9.5.2.2 Sync-Animation während Synchronisation
+- [x] 9.5.2.3 Fehler-Indikator
+- [x] 9.5.2.4 Ausstehende Änderungen anzeigen
 - [ ] 9.5.2.5 Sync-Log (Debug)
 
 ### 9.6 Offline-First
-- [ ] 9.6.1 Alle Operationen lokal zuerst
-- [ ] 9.6.2 Änderungen queuen wenn offline
-- [ ] 9.6.3 Bei Verbindung automatisch synchronisieren
+- [x] 9.6.1 Alle Operationen lokal zuerst
+- [x] 9.6.2 Änderungen queuen wenn offline
+- [x] 9.6.3 Bei Verbindung automatisch synchronisieren
 - [ ] 9.6.4 Netzwerkstatus überwachen
 - [ ] 9.6.5 Offline-Indikator anzeigen
 
 ### 9.7 Deliverables M9
-- [ ] Sync-Interface und Logik
-- [ ] Mindestens ein Provider funktionsfähig
-- [ ] Konflikt-Behandlung
-- [ ] Offline-First Architektur
-- [ ] Sync-UI in Einstellungen
+- [x] Sync-Interface und Logik
+- [x] Mindestens ein Provider funktionsfähig
+- [x] Konflikt-Behandlung
+- [x] Offline-First Architektur
+- [x] Sync-UI in Einstellungen
 
 ---
 

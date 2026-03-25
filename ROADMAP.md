@@ -323,7 +323,7 @@
 #### 3.6.1 Tag-Liste
 - [x] 3.6.1.1 Alle Tags anzeigen als Chips
 - [x] 3.6.1.2 Tag antippen zum Filtern
-- [ ] 3.6.1.3 Tag-Anzahl (Notizen mit diesem Tag)
+- [x] 3.6.1.3 Tag-Anzahl (Notizen mit diesem Tag)
 
 #### 3.6.2 Tag-Dialog
 - [x] 3.6.2.1 `CreateTagDialog` erstellen

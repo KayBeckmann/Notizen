@@ -19,6 +19,12 @@ enum SortDirection {
   descending,
 }
 
+/// Enum für den Ansichtsmodus (Liste oder Raster)
+enum ViewMode {
+  list,
+  grid,
+}
+
 /// Standard-Ordnerfarben (Material Design 3 Farben)
 class FolderColors {
   static const List<int> defaults = [

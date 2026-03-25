@@ -21,6 +21,7 @@ class SettingsService {
   static const String _sortDirectionKey = 'sort_direction';
   static const String _lastFolderKey = 'last_folder';
   static const String _editorSplitModeKey = 'editor_split_mode';
+  static const String _viewModeKey = 'view_mode';
 
   // --- Sort Order ---
 
@@ -67,5 +68,16 @@ class SettingsService {
 
   Future<void> setEditorSplitMode(bool enabled) async {
     await _prefs?.setBool(_editorSplitModeKey, enabled);
+  }
+
+  // --- View Mode (List/Grid) ---
+
+  ViewMode get viewMode {
+    final index = _prefs?.getInt(_viewModeKey) ?? ViewMode.list.index;
+    return ViewMode.values[index];
+  }
+
+  Future<void> setViewMode(ViewMode mode) async {
+    await _prefs?.setInt(_viewModeKey, mode.index);
   }
 }

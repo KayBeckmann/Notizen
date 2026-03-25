@@ -162,6 +162,25 @@ Stream<List<Note>> searchResults(Ref ref) {
   return ref.watch(notesDaoProvider).watchSearchNotes(query);
 }
 
+/// Ansichtsmodus (Liste oder Raster)
+final viewModeProvider = StateNotifierProvider<ViewModeNotifier, ViewMode>((ref) {
+  return ViewModeNotifier();
+});
+
+class ViewModeNotifier extends StateNotifier<ViewMode> {
+  ViewModeNotifier() : super(SettingsService.instance.viewMode);
+
+  void setMode(ViewMode mode) {
+    state = mode;
+    SettingsService.instance.setViewMode(mode);
+  }
+
+  void toggle() {
+    final newMode = state == ViewMode.list ? ViewMode.grid : ViewMode.list;
+    setMode(newMode);
+  }
+}
+
 /// Notizanzahl pro Ordner
 @riverpod
 Stream<Map<String, int>> noteCountsByFolder(Ref ref) {

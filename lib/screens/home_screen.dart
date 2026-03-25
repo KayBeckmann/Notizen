@@ -7,7 +7,7 @@ import '../models/enums.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
-import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider;
+import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider, viewModeProvider;
 import '../widgets/adaptive_scaffold.dart';
 import '../widgets/drag_and_drop.dart';
 import '../widgets/folder_drawer.dart';
@@ -68,6 +68,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               : null,
           automaticallyImplyLeading: false,
           actions: [
+            // View Mode Toggle
+            Consumer(
+              builder: (context, ref, _) {
+                final viewMode = ref.watch(viewModeProvider);
+                return IconButton(
+                  icon: Icon(
+                    viewMode == ViewMode.list ? Icons.grid_view : Icons.view_list,
+                  ),
+                  onPressed: () => ref.read(viewModeProvider.notifier).toggle(),
+                  tooltip: viewMode == ViewMode.list ? 'Rasteransicht' : 'Listenansicht',
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: _openSearch,
@@ -149,6 +162,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Drag & Drop nur auf Desktop aktivieren
     final layoutType = Breakpoints.getLayoutType(context);
     final enableDrag = layoutType != LayoutType.compact;
+    final viewMode = ref.watch(viewModeProvider);
+
+    if (viewMode == ViewMode.grid) {
+      return _buildNotesGrid(notes, enableDrag);
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -165,6 +183,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onTap: () => _openNote(note),
               onLongPress: () => _showNoteOptions(note),
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNotesGrid(List<Note> notes, bool enableDrag) {
+    // Bestimme Anzahl der Spalten basierend auf Bildschirmbreite
+    final width = MediaQuery.of(context).size.width;
+    final crossAxisCount = width < 600 ? 2 : (width < 900 ? 3 : 4);
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.0,
+      ),
+      itemCount: notes.length,
+      itemBuilder: (context, index) {
+        final note = notes[index];
+        return DraggableNoteCard(
+          note: note,
+          enabled: enableDrag,
+          child: _NoteGridCard(
+            note: note,
+            onTap: () => _openNote(note),
+            onLongPress: () => _showNoteOptions(note),
           ),
         );
       },
@@ -459,5 +506,145 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
     );
+  }
+}
+
+/// Notiz-Karte für die Rasteransicht
+class _NoteGridCard extends StatelessWidget {
+  final Note note;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+
+  const _NoteGridCard({
+    required this.note,
+    this.onTap,
+    this.onLongPress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header mit Icon und Pin
+              Row(
+                children: [
+                  _buildContentTypeIcon(context),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      note.title.isEmpty ? 'Unbenannt' : note.title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (note.isPinned)
+                    Icon(
+                      Icons.push_pin,
+                      size: 14,
+                      color: theme.colorScheme.primary,
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // Vorschau des Inhalts
+              Expanded(
+                child: Text(
+                  _getPreviewText(),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Datum
+              Text(
+                _formatDate(note.updatedAt),
+                style: theme.textTheme.labelSmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContentTypeIcon(BuildContext context) {
+    final theme = Theme.of(context);
+    IconData icon;
+
+    switch (note.contentType) {
+      case 'audio':
+        icon = Icons.mic;
+        break;
+      case 'image':
+        icon = Icons.image;
+        break;
+      case 'drawing':
+        icon = Icons.brush;
+        break;
+      default:
+        icon = Icons.article;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Icon(
+        icon,
+        size: 16,
+        color: theme.colorScheme.onPrimaryContainer,
+      ),
+    );
+  }
+
+  String _getPreviewText() {
+    final preview = note.content
+        .replaceAll(RegExp(r'#{1,6}\s'), '')
+        .replaceAll(RegExp(r'\*{1,2}'), '')
+        .replaceAll(RegExp(r'_{1,2}'), '')
+        .replaceAll(RegExp(r'`{1,3}'), '')
+        .replaceAll(RegExp(r'\[([^\]]+)\]\([^\)]+\)'), r'$1')
+        .replaceAll(RegExp(r'\n+'), ' ')
+        .trim();
+
+    return preview;
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final noteDate = DateTime(date.year, date.month, date.day);
+
+    if (noteDate == today) {
+      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    } else if (noteDate == today.subtract(const Duration(days: 1))) {
+      return 'Gestern';
+    } else if (now.difference(date).inDays < 7) {
+      final weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      return weekdays[date.weekday - 1];
+    } else {
+      return '${date.day}.${date.month}.${date.year}';
+    }
   }
 }

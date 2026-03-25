@@ -43,6 +43,15 @@ class Notes extends Table {
   /// Änderungsdatum
   DateTimeColumn get updatedAt => dateTime()();
 
+  /// Letzter Sync-Zeitpunkt
+  DateTimeColumn get syncedAt => dateTime().nullable()();
+
+  /// Sync-Status: synced, pending, conflict
+  TextColumn get syncStatus => text().withDefault(const Constant('pending'))();
+
+  /// Remote-ID auf dem Server (kann von lokaler ID abweichen)
+  TextColumn get remoteId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

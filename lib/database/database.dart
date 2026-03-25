@@ -4,12 +4,13 @@ import 'connection/connection.dart' as connection;
 import 'tables/folders.dart';
 import 'tables/note_tags.dart';
 import 'tables/notes.dart';
+import 'tables/sync_queue.dart';
 import 'tables/tags.dart';
 
 part 'database.g.dart';
 
 /// Hauptdatenbank der Notizen-App
-@DriftDatabase(tables: [Folders, Notes, Tags, NoteTags])
+@DriftDatabase(tables: [Folders, Notes, Tags, NoteTags, SyncQueue, SyncConflicts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(connection.openConnection());
 
@@ -17,7 +18,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -28,7 +29,16 @@ class AppDatabase extends _$AppDatabase {
         await _createDefaultFolder();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Zukünftige Migrationen hier
+        if (from < 2) {
+          // Migration zu Version 2: Sync-Unterstützung
+          // Neue Spalten zur Notes-Tabelle hinzufügen
+          await m.addColumn(notes, notes.syncedAt);
+          await m.addColumn(notes, notes.syncStatus);
+          await m.addColumn(notes, notes.remoteId);
+          // Neue Tabellen erstellen
+          await m.createTable(syncQueue);
+          await m.createTable(syncConflicts);
+        }
       },
       beforeOpen: (details) async {
         // Foreign Keys aktivieren

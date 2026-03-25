@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../database/database.dart';
 import '../providers/folders_provider.dart';
+import '../providers/notes_provider.dart';
 import 'folder_dialog.dart';
 
 /// NavigationRail für Tablet-Ansicht
@@ -27,36 +28,45 @@ class FolderRail extends ConsumerWidget {
     List<Folder> folders,
     String? currentFolderId,
   ) {
+    final pinnedCount = ref.watch(pinnedCountProvider).valueOrNull ?? 0;
+    final archivedCount = ref.watch(archivedCountProvider).valueOrNull ?? 0;
+    final trashedCount = ref.watch(trashedCountProvider).valueOrNull ?? 0;
+    final allNotesAsync = ref.watch(allNotesProvider);
+    final allNotesCount = allNotesAsync.valueOrNull?.length ?? 0;
+    final noteCounts = ref.watch(noteCountsByFolderProvider).valueOrNull ?? {};
+
     final destinations = <NavigationRailDestination>[
-      const NavigationRailDestination(
-        icon: Icon(Icons.notes_outlined),
-        selectedIcon: Icon(Icons.notes),
-        label: Text('Alle'),
+      NavigationRailDestination(
+        icon: _buildBadgedIcon(Icons.notes_outlined, allNotesCount),
+        selectedIcon: _buildBadgedIcon(Icons.notes, allNotesCount),
+        label: const Text('Alle'),
       ),
-      const NavigationRailDestination(
-        icon: Icon(Icons.push_pin_outlined),
-        selectedIcon: Icon(Icons.push_pin),
-        label: Text('Angepinnt'),
+      NavigationRailDestination(
+        icon: _buildBadgedIcon(Icons.push_pin_outlined, pinnedCount),
+        selectedIcon: _buildBadgedIcon(Icons.push_pin, pinnedCount),
+        label: const Text('Angepinnt'),
       ),
-      const NavigationRailDestination(
-        icon: Icon(Icons.archive_outlined),
-        selectedIcon: Icon(Icons.archive),
-        label: Text('Archiv'),
+      NavigationRailDestination(
+        icon: _buildBadgedIcon(Icons.archive_outlined, archivedCount),
+        selectedIcon: _buildBadgedIcon(Icons.archive, archivedCount),
+        label: const Text('Archiv'),
       ),
-      const NavigationRailDestination(
-        icon: Icon(Icons.delete_outlined),
-        selectedIcon: Icon(Icons.delete),
-        label: Text('Papierkorb'),
+      NavigationRailDestination(
+        icon: _buildBadgedIcon(Icons.delete_outlined, trashedCount),
+        selectedIcon: _buildBadgedIcon(Icons.delete, trashedCount),
+        label: const Text('Papierkorb'),
       ),
       // User-Ordner
       ...folders.where((f) => f.parentId == null).map((folder) {
         final icon = getIconFromName(folder.icon);
+        final count = noteCounts[folder.id] ?? 0;
         return NavigationRailDestination(
-          icon: Icon(
+          icon: _buildBadgedIcon(
             icon == Icons.folder ? Icons.folder_outlined : icon,
+            count,
             color: Color(folder.color),
           ),
-          selectedIcon: Icon(icon, color: Color(folder.color)),
+          selectedIcon: _buildBadgedIcon(icon, count, color: Color(folder.color)),
           label: Text(
             folder.name,
             overflow: TextOverflow.ellipsis,
@@ -93,6 +103,16 @@ class FolderRail extends ConsumerWidget {
     final rootFolders = folders.where((f) => f.parentId == null).toList();
     final index = rootFolders.indexWhere((f) => f.id == currentFolderId);
     return index >= 0 ? index + 4 : 0;
+  }
+
+  Widget _buildBadgedIcon(IconData icon, int count, {Color? color}) {
+    if (count == 0) {
+      return Icon(icon, color: color);
+    }
+    return Badge(
+      label: Text(count.toString()),
+      child: Icon(icon, color: color),
+    );
   }
 
   void _onDestinationSelected(

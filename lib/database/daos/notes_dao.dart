@@ -186,6 +186,43 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
     }
   }
 
+  /// Stream der Notizanzahl pro Ordner
+  /// Gibt eine Map zurück: folderId -> Anzahl
+  Stream<Map<String, int>> watchNoteCountsByFolder() {
+    return (select(notes)..where((t) => t.isTrashed.equals(false)))
+        .watch()
+        .map((notesList) {
+      final counts = <String, int>{};
+      for (final note in notesList) {
+        counts[note.folderId] = (counts[note.folderId] ?? 0) + 1;
+      }
+      return counts;
+    });
+  }
+
+  /// Anzahl der angepinnten Notizen
+  Stream<int> watchPinnedCount() {
+    return (select(notes)
+          ..where((t) => t.isPinned.equals(true) & t.isTrashed.equals(false)))
+        .watch()
+        .map((list) => list.length);
+  }
+
+  /// Anzahl der archivierten Notizen
+  Stream<int> watchArchivedCount() {
+    return (select(notes)
+          ..where((t) => t.isArchived.equals(true) & t.isTrashed.equals(false)))
+        .watch()
+        .map((list) => list.length);
+  }
+
+  /// Anzahl der Notizen im Papierkorb
+  Stream<int> watchTrashedCount() {
+    return (select(notes)..where((t) => t.isTrashed.equals(true)))
+        .watch()
+        .map((list) => list.length);
+  }
+
   /// Notiz duplizieren
   Future<String> duplicateNote(String id, String newId) async {
     final note = await getNoteById(id);

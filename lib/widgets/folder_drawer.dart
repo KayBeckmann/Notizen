@@ -5,6 +5,7 @@ import '../constants/breakpoints.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
+import '../providers/notes_provider.dart';
 import 'drag_and_drop.dart';
 import 'folder_dialog.dart';
 import 'tag_list.dart';
@@ -17,6 +18,11 @@ class FolderDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final foldersAsync = ref.watch(allFoldersProvider);
     final currentFolderId = ref.watch(currentFolderProvider);
+    final pinnedCount = ref.watch(pinnedCountProvider).valueOrNull ?? 0;
+    final archivedCount = ref.watch(archivedCountProvider).valueOrNull ?? 0;
+    final trashedCount = ref.watch(trashedCountProvider).valueOrNull ?? 0;
+    final allNotesAsync = ref.watch(allNotesProvider);
+    final allNotesCount = allNotesAsync.valueOrNull?.length ?? 0;
 
     return NavigationDrawer(
       selectedIndex: _getSelectedIndex(foldersAsync, currentFolderId),
@@ -36,25 +42,25 @@ class FolderDrawer extends ConsumerWidget {
         ),
 
         // Spezielle Ordner
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.notes_outlined),
-          selectedIcon: Icon(Icons.notes),
-          label: Text('Alle Notizen'),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.notes_outlined),
+          selectedIcon: const Icon(Icons.notes),
+          label: _buildLabelWithCount('Alle Notizen', allNotesCount),
         ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.push_pin_outlined),
-          selectedIcon: Icon(Icons.push_pin),
-          label: Text('Angepinnt'),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.push_pin_outlined),
+          selectedIcon: const Icon(Icons.push_pin),
+          label: _buildLabelWithCount('Angepinnt', pinnedCount),
         ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.archive_outlined),
-          selectedIcon: Icon(Icons.archive),
-          label: Text('Archiv'),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.archive_outlined),
+          selectedIcon: const Icon(Icons.archive),
+          label: _buildLabelWithCount('Archiv', archivedCount),
         ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.delete_outlined),
-          selectedIcon: Icon(Icons.delete),
-          label: Text('Papierkorb'),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.delete_outlined),
+          selectedIcon: const Icon(Icons.delete),
+          label: _buildLabelWithCount('Papierkorb', trashedCount),
         ),
 
         const Divider(indent: 28, endIndent: 28),
@@ -79,7 +85,10 @@ class FolderDrawer extends ConsumerWidget {
 
         // Benutzer-Ordner
         foldersAsync.when(
-          data: (folders) => _buildFolderList(context, ref, folders, currentFolderId),
+          data: (folders) {
+            final noteCounts = ref.watch(noteCountsByFolderProvider).valueOrNull ?? {};
+            return _buildFolderList(context, ref, folders, currentFolderId, noteCounts);
+          },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Fehler: $e')),
         ),
@@ -88,6 +97,29 @@ class FolderDrawer extends ConsumerWidget {
 
         // Tags
         const TagDrawerSection(),
+      ],
+    );
+  }
+
+  Widget _buildLabelWithCount(String label, int count) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label),
+        if (count > 0) ...[
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              count.toString(),
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -149,6 +181,7 @@ class FolderDrawer extends ConsumerWidget {
     WidgetRef ref,
     List<Folder> folders,
     String? currentFolderId,
+    Map<String, int> noteCounts,
   ) {
     // Nur Root-Ordner anzeigen
     final rootFolders = folders.where((f) => f.parentId == null).toList();
@@ -163,6 +196,8 @@ class FolderDrawer extends ConsumerWidget {
           folder: folder,
           allFolders: folders,
           isSelected: currentFolderId == folder.id,
+          noteCount: noteCounts[folder.id] ?? 0,
+          noteCounts: noteCounts,
           onTap: () {
             ref.read(currentFolderProvider.notifier).select(folder.id);
             Navigator.of(context).pop();
@@ -271,6 +306,8 @@ class _FolderTile extends StatelessWidget {
   final Folder folder;
   final List<Folder> allFolders;
   final bool isSelected;
+  final int noteCount;
+  final Map<String, int> noteCounts;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final int depth;
@@ -280,6 +317,8 @@ class _FolderTile extends StatelessWidget {
     required this.folder,
     required this.allFolders,
     required this.isSelected,
+    required this.noteCount,
+    required this.noteCounts,
     required this.onTap,
     required this.onLongPress,
     this.depth = 0,
@@ -301,7 +340,26 @@ class _FolderTile extends StatelessWidget {
         icon,
         color: Color(folder.color),
       ),
-      label: Text(folder.name),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(child: Text(folder.name, overflow: TextOverflow.ellipsis)),
+          if (noteCount > 0) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                noteCount.toString(),
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
 
     // Wrap mit Drop-Target für Drag & Drop auf Desktop
@@ -329,6 +387,8 @@ class _FolderTile extends StatelessWidget {
                   folder: child,
                   allFolders: allFolders,
                   isSelected: false,
+                  noteCount: noteCounts[child.id] ?? 0,
+                  noteCounts: noteCounts,
                   onTap: onTap,
                   onLongPress: onLongPress,
                   depth: depth + 1,

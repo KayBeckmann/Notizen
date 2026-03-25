@@ -161,3 +161,27 @@ Stream<List<Note>> searchResults(Ref ref) {
   }
   return ref.watch(notesDaoProvider).watchSearchNotes(query);
 }
+
+/// Notizanzahl pro Ordner
+@riverpod
+Stream<Map<String, int>> noteCountsByFolder(Ref ref) {
+  return ref.watch(notesDaoProvider).watchNoteCountsByFolder();
+}
+
+/// Anzahl angepinnter Notizen
+@riverpod
+Stream<int> pinnedCount(Ref ref) {
+  return ref.watch(notesDaoProvider).watchPinnedCount();
+}
+
+/// Anzahl archivierter Notizen
+@riverpod
+Stream<int> archivedCount(Ref ref) {
+  return ref.watch(notesDaoProvider).watchArchivedCount();
+}
+
+/// Anzahl Notizen im Papierkorb
+@riverpod
+Stream<int> trashedCount(Ref ref) {
+  return ref.watch(notesDaoProvider).watchTrashedCount();
+}

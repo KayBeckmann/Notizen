@@ -16,6 +16,9 @@ RUN dart run build_runner build --delete-conflicting-outputs
 # Web-Build erstellen
 RUN flutter build web --release
 
+# sql-wasm Dateien kopieren (falls nicht automatisch kopiert)
+RUN cp -r /app/web/sql-wasm /app/build/web/sql-wasm
+
 # Production Stage
 FROM nginx:alpine
 

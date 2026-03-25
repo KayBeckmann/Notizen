@@ -3,6 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/theme_provider.dart';
+import '../widgets/sync/sync_settings.dart';
 
 /// Einstellungen-Bildschirm
 class SettingsScreen extends ConsumerWidget {
@@ -61,6 +62,11 @@ class SettingsScreen extends ConsumerWidget {
             enabled: !useDynamicColor,
             onTap: () => _showColorPicker(context, ref, seedColor),
           ),
+
+          const Divider(),
+
+          // Synchronisation
+          const SyncSettingsSection(),
 
           const Divider(),
 

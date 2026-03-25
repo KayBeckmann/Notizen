@@ -39,6 +39,9 @@ dependencies:
   shared_preferences: ^2.3.4
   intl: ^0.20.2
 
+  # HTTP & Sync
+  http: ^1.2.2
+
   # Sharing
   share_plus: ^10.1.4
 

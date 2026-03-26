@@ -715,7 +715,7 @@
 - [x] 8.1.3.1 Nach Name (A-Z, Z-A)
 - [x] 8.1.3.2 Nach Erstellungsdatum
 - [x] 8.1.3.3 Nach Änderungsdatum
-- [ ] 8.1.3.4 Sortierung merken (pro Ordner oder global)
+- [x] 8.1.3.4 Sortierung merken (pro Ordner oder global)
 
 ### 8.2 Export
 #### 8.2.1 Markdown-Export

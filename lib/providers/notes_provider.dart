@@ -137,6 +137,54 @@ class SelectedNote extends _$SelectedNote {
   }
 }
 
+/// Mehrfachauswahl-Modus für Notizen
+final selectionModeProvider = StateNotifierProvider<SelectionModeNotifier, bool>((ref) {
+  return SelectionModeNotifier();
+});
+
+class SelectionModeNotifier extends StateNotifier<bool> {
+  SelectionModeNotifier() : super(false);
+
+  void enable() => state = true;
+  void disable() => state = false;
+  void toggle() => state = !state;
+}
+
+/// Ausgewählte Notizen für Bulk-Aktionen
+final selectedNotesProvider = StateNotifierProvider<SelectedNotesNotifier, Set<String>>((ref) {
+  return SelectedNotesNotifier();
+});
+
+class SelectedNotesNotifier extends StateNotifier<Set<String>> {
+  SelectedNotesNotifier() : super({});
+
+  void select(String noteId) {
+    state = {...state, noteId};
+  }
+
+  void deselect(String noteId) {
+    state = {...state}..remove(noteId);
+  }
+
+  void toggle(String noteId) {
+    if (state.contains(noteId)) {
+      deselect(noteId);
+    } else {
+      select(noteId);
+    }
+  }
+
+  void selectAll(List<String> noteIds) {
+    state = {...noteIds};
+  }
+
+  void clear() {
+    state = {};
+  }
+
+  bool isSelected(String noteId) => state.contains(noteId);
+}
+
 /// Suchbegriff
 @riverpod
 class SearchQuery extends _$SearchQuery {

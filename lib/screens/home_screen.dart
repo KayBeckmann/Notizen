@@ -7,7 +7,7 @@ import '../models/enums.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
-import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider, viewModeProvider;
+import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider, viewModeProvider, selectionModeProvider, selectedNotesProvider;
 import '../widgets/adaptive_scaffold.dart';
 import '../widgets/drag_and_drop.dart';
 import '../widgets/folder_drawer.dart';
@@ -39,6 +39,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final notesAsync = ref.watch(notesInCurrentFolderProvider);
     final foldersAsync = ref.watch(allFoldersProvider);
     final layoutType = Breakpoints.getLayoutType(context);
+    final isSelectionMode = ref.watch(selectionModeProvider);
+    final selectedNotes = ref.watch(selectedNotesProvider);
 
     // Aktuellen Ordnernamen ermitteln
     final currentFolderName = _getFolderName(currentFolderId, foldersAsync);
@@ -46,8 +48,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Nur auf compact (Phone) zeigen wir das Menü-Icon
     final showMenuButton = layoutType == LayoutType.compact;
 
-    // FAB auf allen Layouts zeigen
-    const showFab = true;
+    // FAB auf allen Layouts zeigen, außer im Selection Mode
+    final showFab = !isSelectionMode;
 
     return AppShortcuts(
       onNewNote: _createNewNote,
@@ -58,65 +60,75 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       onHelp: () => showKeyboardShortcutsHelp(context),
       child: AdaptiveScaffold(
         scaffoldKey: _scaffoldKey,
-        appBar: AppBar(
-          title: Text(currentFolderName),
-          leading: showMenuButton
-              ? IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                )
-              : null,
-          automaticallyImplyLeading: false,
-          actions: [
-            // View Mode Toggle
-            Consumer(
-              builder: (context, ref, _) {
-                final viewMode = ref.watch(viewModeProvider);
-                return IconButton(
-                  icon: Icon(
-                    viewMode == ViewMode.list ? Icons.grid_view : Icons.view_list,
+        appBar: isSelectionMode
+            ? _buildSelectionAppBar(selectedNotes.length)
+            : AppBar(
+                title: Text(currentFolderName),
+                leading: showMenuButton
+                    ? IconButton(
+                        icon: const Icon(Icons.menu),
+                        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                      )
+                    : null,
+                automaticallyImplyLeading: false,
+                actions: [
+                  // View Mode Toggle
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final viewMode = ref.watch(viewModeProvider);
+                      return IconButton(
+                        icon: Icon(
+                          viewMode == ViewMode.list ? Icons.grid_view : Icons.view_list,
+                        ),
+                        onPressed: () => ref.read(viewModeProvider.notifier).toggle(),
+                        tooltip: viewMode == ViewMode.list ? 'Rasteransicht' : 'Listenansicht',
+                      );
+                    },
                   ),
-                  onPressed: () => ref.read(viewModeProvider.notifier).toggle(),
-                  tooltip: viewMode == ViewMode.list ? 'Rasteransicht' : 'Listenansicht',
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: _openSearch,
-              tooltip: 'Suchen (Ctrl+F)',
-            ),
-            PopupMenuButton<String>(
-              onSelected: _handleMenuAction,
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'sort',
-                  child: ListTile(
-                    leading: Icon(Icons.sort),
-                    title: Text('Sortieren'),
-                    contentPadding: EdgeInsets.zero,
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: _openSearch,
+                    tooltip: 'Suchen (Ctrl+F)',
                   ),
-                ),
-                const PopupMenuItem(
-                  value: 'settings',
-                  child: ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('Einstellungen'),
-                    contentPadding: EdgeInsets.zero,
+                  PopupMenuButton<String>(
+                    onSelected: _handleMenuAction,
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'select',
+                        child: ListTile(
+                          leading: Icon(Icons.checklist),
+                          title: Text('Auswählen'),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'sort',
+                        child: ListTile(
+                          leading: Icon(Icons.sort),
+                          title: Text('Sortieren'),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'settings',
+                        child: ListTile(
+                          leading: Icon(Icons.settings),
+                          title: Text('Einstellungen'),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'shortcuts',
+                        child: ListTile(
+                          leading: Icon(Icons.keyboard),
+                          title: Text('Tastenkürzel'),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const PopupMenuItem(
-                  value: 'shortcuts',
-                  child: ListTile(
-                    leading: Icon(Icons.keyboard),
-                    title: Text('Tastenkürzel'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
         drawer: const FolderDrawer(),
         navigationRail: const FolderRail(),
         permanentDrawer: const FolderDrawer(),
@@ -159,9 +171,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return _buildEmptyState();
     }
 
-    // Drag & Drop nur auf Desktop aktivieren
+    // Drag & Drop nur auf Desktop aktivieren, nicht im Selection Mode
     final layoutType = Breakpoints.getLayoutType(context);
-    final enableDrag = layoutType != LayoutType.compact;
+    final isSelectionMode = ref.watch(selectionModeProvider);
+    final enableDrag = layoutType != LayoutType.compact && !isSelectionMode;
     final viewMode = ref.watch(viewModeProvider);
 
     if (viewMode == ViewMode.grid) {
@@ -178,14 +191,61 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: DraggableNoteCard(
             note: note,
             enabled: enableDrag,
-            child: NoteCard(
-              note: note,
-              onTap: () => _openNote(note),
-              onLongPress: () => _showNoteOptions(note),
-            ),
+            child: _buildSelectableNoteCard(note, isSelectionMode),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSelectableNoteCard(Note note, bool isSelectionMode) {
+    if (!isSelectionMode) {
+      return NoteCard(
+        note: note,
+        onTap: () => _openNote(note),
+        onLongPress: () {
+          ref.read(selectionModeProvider.notifier).enable();
+          ref.read(selectedNotesProvider.notifier).select(note.id);
+        },
+      );
+    }
+
+    final isSelected = ref.watch(selectedNotesProvider).contains(note.id);
+    return Stack(
+      children: [
+        NoteCard(
+          note: note,
+          onTap: () => ref.read(selectedNotesProvider.notifier).toggle(note.id),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Icon(
+                Icons.check,
+                size: 16,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -193,6 +253,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Bestimme Anzahl der Spalten basierend auf Bildschirmbreite
     final width = MediaQuery.of(context).size.width;
     final crossAxisCount = width < 600 ? 2 : (width < 900 ? 3 : 4);
+    final isSelectionMode = ref.watch(selectionModeProvider);
 
     return GridView.builder(
       padding: const EdgeInsets.all(16),
@@ -208,13 +269,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return DraggableNoteCard(
           note: note,
           enabled: enableDrag,
-          child: _NoteGridCard(
-            note: note,
-            onTap: () => _openNote(note),
-            onLongPress: () => _showNoteOptions(note),
-          ),
+          child: _buildSelectableGridCard(note, isSelectionMode),
         );
       },
+    );
+  }
+
+  Widget _buildSelectableGridCard(Note note, bool isSelectionMode) {
+    if (!isSelectionMode) {
+      return _NoteGridCard(
+        note: note,
+        onTap: () => _openNote(note),
+        onLongPress: () {
+          ref.read(selectionModeProvider.notifier).enable();
+          ref.read(selectedNotesProvider.notifier).select(note.id);
+        },
+      );
+    }
+
+    final isSelected = ref.watch(selectedNotesProvider).contains(note.id);
+    return Stack(
+      children: [
+        _NoteGridCard(
+          note: note,
+          onTap: () => ref.read(selectedNotesProvider.notifier).toggle(note.id),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Icon(
+                Icons.check,
+                size: 16,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -255,6 +363,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _handleMenuAction(String action) {
     switch (action) {
+      case 'select':
+        ref.read(selectionModeProvider.notifier).enable();
+        break;
       case 'sort':
         _showSortOptions();
         break;
@@ -267,6 +378,223 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         showKeyboardShortcutsHelp(context);
         break;
     }
+  }
+
+  PreferredSizeWidget _buildSelectionAppBar(int selectedCount) {
+    return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: _exitSelectionMode,
+        tooltip: 'Auswahl beenden',
+      ),
+      title: Text('$selectedCount ausgewählt'),
+      actions: [
+        // Alle auswählen
+        IconButton(
+          icon: const Icon(Icons.select_all),
+          onPressed: _selectAll,
+          tooltip: 'Alle auswählen',
+        ),
+        // Bulk-Aktionen nur wenn mindestens eine Notiz ausgewählt
+        if (selectedCount > 0) ...[
+          IconButton(
+            icon: const Icon(Icons.drive_file_move_outlined),
+            onPressed: _bulkMove,
+            tooltip: 'Verschieben',
+          ),
+          IconButton(
+            icon: const Icon(Icons.archive_outlined),
+            onPressed: _bulkArchive,
+            tooltip: 'Archivieren',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: _bulkDelete,
+            tooltip: 'Löschen',
+          ),
+          PopupMenuButton<String>(
+            onSelected: _handleBulkAction,
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'pin',
+                child: ListTile(
+                  leading: Icon(Icons.push_pin_outlined),
+                  title: Text('Anpinnen'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'unpin',
+                child: ListTile(
+                  leading: Icon(Icons.push_pin),
+                  title: Text('Nicht mehr anpinnen'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'tags',
+                child: ListTile(
+                  leading: Icon(Icons.label_outline),
+                  title: Text('Tags bearbeiten'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _exitSelectionMode() {
+    ref.read(selectionModeProvider.notifier).disable();
+    ref.read(selectedNotesProvider.notifier).clear();
+  }
+
+  void _selectAll() {
+    final notes = ref.read(notesInCurrentFolderProvider).valueOrNull ?? [];
+    ref.read(selectedNotesProvider.notifier).selectAll(notes.map((n) => n.id).toList());
+  }
+
+  void _handleBulkAction(String action) {
+    switch (action) {
+      case 'pin':
+        _bulkPin(true);
+        break;
+      case 'unpin':
+        _bulkPin(false);
+        break;
+      case 'tags':
+        _bulkEditTags();
+        break;
+    }
+  }
+
+  Future<void> _bulkMove() async {
+    final selectedIds = ref.read(selectedNotesProvider);
+    if (selectedIds.isEmpty) return;
+
+    final folders = await ref.read(allFoldersProvider.future);
+    if (!mounted) return;
+
+    final folderId = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('In Ordner verschieben'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: folders.length,
+            itemBuilder: (context, index) {
+              final folder = folders[index];
+              return ListTile(
+                leading: Icon(Icons.folder, color: Color(folder.color)),
+                title: Text(folder.name),
+                onTap: () => Navigator.pop(context, folder.id),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Abbrechen'),
+          ),
+        ],
+      ),
+    );
+
+    if (folderId != null) {
+      final notesDao = ref.read(notesDaoProvider);
+      for (final noteId in selectedIds) {
+        await notesDao.moveNote(noteId, folderId);
+      }
+      _exitSelectionMode();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${selectedIds.length} Notizen verschoben')),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkArchive() async {
+    final selectedIds = ref.read(selectedNotesProvider);
+    if (selectedIds.isEmpty) return;
+
+    final notesDao = ref.read(notesDaoProvider);
+    for (final noteId in selectedIds) {
+      await notesDao.toggleArchive(noteId);
+    }
+    _exitSelectionMode();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${selectedIds.length} Notizen archiviert')),
+      );
+    }
+  }
+
+  Future<void> _bulkDelete() async {
+    final selectedIds = ref.read(selectedNotesProvider);
+    if (selectedIds.isEmpty) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Notizen löschen?'),
+        content: Text('${selectedIds.length} Notizen werden in den Papierkorb verschoben.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Abbrechen'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Löschen'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final notesDao = ref.read(notesDaoProvider);
+      for (final noteId in selectedIds) {
+        await notesDao.moveToTrash(noteId);
+      }
+      _exitSelectionMode();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${selectedIds.length} Notizen gelöscht')),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkPin(bool pin) async {
+    final selectedIds = ref.read(selectedNotesProvider);
+    if (selectedIds.isEmpty) return;
+
+    final notesDao = ref.read(notesDaoProvider);
+    for (final noteId in selectedIds) {
+      final note = await notesDao.getNoteById(noteId);
+      if (note != null && note.isPinned != pin) {
+        await notesDao.togglePin(noteId);
+      }
+    }
+    _exitSelectionMode();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${selectedIds.length} Notizen ${pin ? 'angepinnt' : 'nicht mehr angepinnt'}')),
+      );
+    }
+  }
+
+  Future<void> _bulkEditTags() async {
+    // TODO: Implement bulk tag editing
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tags-Bearbeitung wird implementiert...')),
+    );
   }
 
   void _showSortOptions() {

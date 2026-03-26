@@ -768,8 +768,8 @@
 - [x] 8.5.1 Notiz duplizieren
 - [x] 8.5.2 Notiz als Vorlage speichern
 - [x] 8.5.3 Aus Vorlage erstellen
-- [ ] 8.5.4 Mehrfachauswahl (Notizen)
-- [ ] 8.5.5 Bulk-Aktionen (Löschen, Verschieben, Tags)
+- [x] 8.5.4 Mehrfachauswahl (Notizen)
+- [x] 8.5.5 Bulk-Aktionen (Löschen, Verschieben, Tags)
 
 ### 8.6 Deliverables M8
 - [ ] Vollständige Suchfunktion

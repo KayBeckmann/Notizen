@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../constants/breakpoints.dart';
 import '../models/enums.dart';
 import '../database/database.dart';
+import '../services/browser_title_service.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
 import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider, viewModeProvider, selectionModeProvider, selectedNotesProvider;
@@ -44,6 +45,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     // Aktuellen Ordnernamen ermitteln
     final currentFolderName = _getFolderName(currentFolderId, foldersAsync);
+
+    // Browser-Tab-Titel aktualisieren (nur Web)
+    BrowserTitleService.setFolderTitle(currentFolderName);
 
     // Nur auf compact (Phone) zeigen wir das Menü-Icon
     final showMenuButton = layoutType == LayoutType.compact;

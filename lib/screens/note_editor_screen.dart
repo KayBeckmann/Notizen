@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
 import '../services/export_service.dart';
+import '../services/browser_title_service.dart';
 
 import '../constants/breakpoints.dart';
 import '../database/database.dart';
@@ -147,6 +148,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           _noteTags = tags;
           _isLoading = false;
         });
+        // Browser-Tab-Titel aktualisieren
+        BrowserTitleService.setNoteTitle(note.title);
       }
     } else {
       // Bei neuen Notizen: initiale Werte aus Vorlage verwenden
@@ -160,6 +163,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       setState(() {
         _isLoading = false;
       });
+      // Browser-Tab-Titel für neue Notiz
+      BrowserTitleService.setNoteTitle(widget.initialTitle ?? '');
     }
 
     // Änderungen tracken

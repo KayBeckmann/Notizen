@@ -679,7 +679,7 @@
 
 #### 7.4.2 Web-spezifisch
 - [ ] 7.4.2.1 URL-Routing für Notizen
-- [ ] 7.4.2.2 Browser-Tab-Titel aktualisieren
+- [x] 7.4.2.2 Browser-Tab-Titel aktualisieren
 - [x] 7.4.2.3 Keyboard-Shortcuts ohne Konflikte
 - [x] 7.4.2.4 Responsive für alle Bildschirmgrößen
 

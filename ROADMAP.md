@@ -856,7 +856,7 @@
 - [x] 9.5.2.2 Sync-Animation während Synchronisation
 - [x] 9.5.2.3 Fehler-Indikator
 - [x] 9.5.2.4 Ausstehende Änderungen anzeigen
-- [ ] 9.5.2.5 Sync-Log (Debug)
+- [x] 9.5.2.5 Sync-Log (Debug)
 
 ### 9.6 Offline-First
 - [x] 9.6.1 Alle Operationen lokal zuerst

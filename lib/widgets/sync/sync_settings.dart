@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/sync_provider.dart';
+import 'sync_log_dialog.dart';
 import 'sync_status_indicator.dart';
 
 /// Sync-Einstellungen für den Settings-Screen
@@ -66,6 +67,15 @@ class SyncSettingsSection extends ConsumerWidget {
           ),
 
           const Divider(),
+
+          // Sync-Log anzeigen
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('Sync-Log'),
+            subtitle: const Text('Sync-Aktivitäten anzeigen'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showSyncLogDialog(context),
+          ),
 
           // Verbindung trennen
           ListTile(

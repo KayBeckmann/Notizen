@@ -7,6 +7,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../database/database.dart';
 import 'sync_provider.dart';
 
+/// Log-Eintrag für Sync-Ereignisse
+class SyncLogEntry {
+  final DateTime timestamp;
+  final SyncLogLevel level;
+  final String message;
+  final String? details;
+
+  SyncLogEntry({
+    required this.timestamp,
+    required this.level,
+    required this.message,
+    this.details,
+  });
+}
+
+/// Log-Level für Sync-Ereignisse
+enum SyncLogLevel { info, success, warning, error }
+
 /// Service für die Verwaltung der Synchronisation
 class SyncService extends ChangeNotifier {
   SyncProvider? _provider;
@@ -20,6 +38,10 @@ class SyncService extends ChangeNotifier {
 
   // Queue für Offline-Änderungen
   final Queue<SyncChange> _pendingChanges = Queue();
+
+  // Sync-Log (max. 100 Einträge)
+  final List<SyncLogEntry> _syncLog = [];
+  static const int _maxLogEntries = 100;
 
   // Callbacks
   final List<VoidCallback> _onSyncStartCallbacks = [];
@@ -38,6 +60,28 @@ class SyncService extends ChangeNotifier {
   bool get syncOnlyOnWifi => _syncOnlyOnWifi;
   int get pendingChangesCount => _pendingChanges.length;
   bool get hasPendingChanges => _pendingChanges.isNotEmpty;
+  List<SyncLogEntry> get syncLog => List.unmodifiable(_syncLog);
+
+  /// Log-Eintrag hinzufügen
+  void _log(SyncLogLevel level, String message, [String? details]) {
+    _syncLog.insert(0, SyncLogEntry(
+      timestamp: DateTime.now(),
+      level: level,
+      message: message,
+      details: details,
+    ));
+    // Log-Größe begrenzen
+    while (_syncLog.length > _maxLogEntries) {
+      _syncLog.removeLast();
+    }
+    notifyListeners();
+  }
+
+  /// Log leeren
+  void clearLog() {
+    _syncLog.clear();
+    notifyListeners();
+  }
 
   /// Provider setzen
   Future<void> setProvider(SyncProvider? provider) async {
@@ -50,8 +94,12 @@ class SyncService extends ChangeNotifier {
 
   /// Mit Provider verbinden
   Future<bool> connect() async {
-    if (_provider == null) return false;
+    if (_provider == null) {
+      _log(SyncLogLevel.error, 'Verbindung fehlgeschlagen', 'Kein Provider konfiguriert');
+      return false;
+    }
 
+    _log(SyncLogLevel.info, 'Verbindung wird hergestellt...');
     _status = SyncStatus.syncing;
     _errorMessage = null;
     notifyListeners();
@@ -61,15 +109,18 @@ class SyncService extends ChangeNotifier {
       if (success) {
         _status = SyncStatus.idle;
         _startAutoSync();
+        _log(SyncLogLevel.success, 'Verbindung hergestellt');
       } else {
         _status = SyncStatus.error;
         _errorMessage = 'Verbindung fehlgeschlagen';
+        _log(SyncLogLevel.error, 'Verbindung fehlgeschlagen');
       }
       notifyListeners();
       return success;
     } catch (e) {
       _status = SyncStatus.error;
       _errorMessage = e.toString();
+      _log(SyncLogLevel.error, 'Verbindung fehlgeschlagen', e.toString());
       notifyListeners();
       return false;
     }
@@ -77,28 +128,34 @@ class SyncService extends ChangeNotifier {
 
   /// Verbindung trennen
   Future<void> disconnect() async {
+    _log(SyncLogLevel.info, 'Verbindung wird getrennt...');
     _stopAutoSync();
     if (_provider != null) {
       await _provider!.disconnect();
     }
     _status = SyncStatus.idle;
+    _log(SyncLogLevel.success, 'Verbindung getrennt');
     notifyListeners();
   }
 
   /// Synchronisation starten
   Future<SyncResult> sync() async {
     if (_provider == null) {
+      _log(SyncLogLevel.error, 'Sync fehlgeschlagen', 'Kein Provider konfiguriert');
       return SyncResult.error('Kein Provider konfiguriert');
     }
 
     if (!_provider!.isConnected) {
+      _log(SyncLogLevel.error, 'Sync fehlgeschlagen', 'Nicht verbunden');
       return SyncResult.error('Nicht verbunden');
     }
 
     if (_status == SyncStatus.syncing) {
+      _log(SyncLogLevel.warning, 'Sync übersprungen', 'Synchronisation läuft bereits');
       return SyncResult.error('Synchronisation läuft bereits');
     }
 
+    _log(SyncLogLevel.info, 'Synchronisation gestartet');
     _status = SyncStatus.syncing;
     _errorMessage = null;
     notifyListeners();
@@ -106,17 +163,27 @@ class SyncService extends ChangeNotifier {
 
     try {
       // Zuerst ausstehende lokale Änderungen hochladen
+      if (_pendingChanges.isNotEmpty) {
+        _log(SyncLogLevel.info, 'Lade ${_pendingChanges.length} lokale Änderungen hoch...');
+      }
       await _uploadPendingChanges();
 
       // Dann vollständige Synchronisation durchführen
+      _log(SyncLogLevel.info, 'Hole Remote-Änderungen...');
       final result = await _provider!.sync();
 
       _status = result.status;
       if (result.status == SyncStatus.success) {
         _lastSyncTime = result.timestamp;
         await _saveLastSyncTime();
+        _log(SyncLogLevel.success, 'Synchronisation erfolgreich',
+            '${result.uploadedCount} hochgeladen, ${result.downloadedCount} heruntergeladen');
+      } else if (result.status == SyncStatus.conflict) {
+        _log(SyncLogLevel.warning, 'Konflikte gefunden',
+            '${result.conflicts.length} Konflikte');
       } else if (result.status == SyncStatus.error) {
         _errorMessage = result.errorMessage;
+        _log(SyncLogLevel.error, 'Synchronisation fehlgeschlagen', result.errorMessage);
       }
 
       notifyListeners();
@@ -125,6 +192,7 @@ class SyncService extends ChangeNotifier {
     } catch (e) {
       _status = SyncStatus.error;
       _errorMessage = e.toString();
+      _log(SyncLogLevel.error, 'Synchronisation fehlgeschlagen', e.toString());
       notifyListeners();
 
       final result = SyncResult.error(e.toString());

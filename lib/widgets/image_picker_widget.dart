@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -76,11 +74,11 @@ class ImagePickerWidget extends StatelessWidget {
 
       if (pickedFile == null) return;
 
-      // Bild im Storage speichern
-      final file = File(pickedFile.path);
+      // Bildbytes statt dart:io File verwenden (Web-kompatibel)
+      final bytes = await pickedFile.readAsBytes();
       final extension = pickedFile.path.split('.').last.toLowerCase();
-      final savedPath = await StorageService.instance.saveImageFile(
-        file,
+      final savedPath = await StorageService.instance.saveImageBytes(
+        bytes,
         extension: extension,
       );
 

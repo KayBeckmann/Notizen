@@ -62,19 +62,12 @@ Stream<List<Note>> notesInCurrentFolderRaw(Ref ref) {
 
 /// Stream der Notizen im aktuellen Ordner (sortiert)
 @riverpod
-Stream<List<Note>> notesInCurrentFolder(Ref ref) {
-  final notesAsync = ref.watch(notesInCurrentFolderRawProvider);
+Stream<List<Note>> notesInCurrentFolder(Ref ref) async* {
+  final notes = await ref.watch(notesInCurrentFolderRawProvider.future);
   final sortOrder = ref.watch(sortOrderProvider);
   final sortDirection = ref.watch(sortDirectionProvider);
 
-  return notesAsync.when(
-    data: (notes) {
-      final sortedNotes = _sortNotes(notes, sortOrder, sortDirection);
-      return Stream.value(sortedNotes);
-    },
-    loading: () => const Stream.empty(),
-    error: (e, st) => Stream.error(e, st),
-  );
+  yield _sortNotes(notes, sortOrder, sortDirection);
 }
 
 /// Hilfsfunktion zum Sortieren von Notizen

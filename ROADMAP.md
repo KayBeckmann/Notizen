@@ -772,12 +772,12 @@
 - [x] 8.5.5 Bulk-Aktionen (Löschen, Verschieben, Tags)
 
 ### 8.6 Deliverables M8
-- [ ] Vollständige Suchfunktion
-- [ ] Filter und Sortierung
-- [ ] Export (Markdown, PDF, Text)
-- [ ] Papierkorb mit Wiederherstellung
-- [ ] Archiv
-- [ ] Persistierte Einstellungen
+- [x] Vollständige Suchfunktion
+- [x] Filter und Sortierung
+- [ ] Export (Markdown, PDF, Text) - PDF noch offen
+- [x] Papierkorb mit Wiederherstellung
+- [x] Archiv
+- [x] Persistierte Einstellungen
 
 ---
 

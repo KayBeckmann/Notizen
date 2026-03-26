@@ -862,8 +862,8 @@
 - [x] 9.6.1 Alle Operationen lokal zuerst
 - [x] 9.6.2 Änderungen queuen wenn offline
 - [x] 9.6.3 Bei Verbindung automatisch synchronisieren
-- [ ] 9.6.4 Netzwerkstatus überwachen
-- [ ] 9.6.5 Offline-Indikator anzeigen
+- [x] 9.6.4 Netzwerkstatus überwachen
+- [x] 9.6.5 Offline-Indikator anzeigen
 
 ### 9.7 Deliverables M9
 - [x] Sync-Interface und Logik

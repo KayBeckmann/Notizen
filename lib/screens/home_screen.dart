@@ -362,13 +362,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     } else {
       // Auf Tablet/Desktop: Notiz-Typ-Dialog zeigen
-      final type = await showNoteTypeDialog(context);
-      if (type == null || !mounted) return;
+      final result = await showNoteTypeDialog(context);
+      if (result == null || !mounted) return;
 
       Widget screen;
-      switch (type) {
+      switch (result.type) {
         case ContentType.text:
-          screen = NoteEditorScreen(folderId: folderId);
+          screen = NoteEditorScreen(
+            folderId: folderId,
+            initialTitle: result.template?.titleTemplate,
+            initialContent: result.template?.content,
+          );
           break;
         case ContentType.audio:
           screen = AudioNoteScreen(folderId: folderId);

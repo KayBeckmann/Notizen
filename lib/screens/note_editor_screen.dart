@@ -17,6 +17,7 @@ import '../providers/tags_provider.dart';
 import '../widgets/markdown_preview.dart';
 import '../widgets/markdown_toolbar.dart';
 import '../widgets/tag_dialog.dart';
+import '../widgets/template_dialogs.dart';
 
 /// Editor-Modi
 enum EditorMode { edit, preview, split }
@@ -25,11 +26,15 @@ enum EditorMode { edit, preview, split }
 class NoteEditorScreen extends ConsumerStatefulWidget {
   final String? noteId;
   final String folderId;
+  final String? initialTitle;
+  final String? initialContent;
 
   const NoteEditorScreen({
     super.key,
     this.noteId,
     required this.folderId,
+    this.initialTitle,
+    this.initialContent,
   });
 
   @override
@@ -144,6 +149,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         });
       }
     } else {
+      // Bei neuen Notizen: initiale Werte aus Vorlage verwenden
+      if (widget.initialTitle != null) {
+        _titleController.text = widget.initialTitle!;
+      }
+      if (widget.initialContent != null) {
+        _contentController.text = widget.initialContent!;
+        _lastSavedContent = widget.initialContent!;
+      }
       setState(() {
         _isLoading = false;
       });
@@ -412,6 +425,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 child: ListTile(
                   leading: Icon(Icons.copy),
                   title: Text('In Zwischenablage kopieren'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'save_template',
+                child: ListTile(
+                  leading: Icon(Icons.save_as_outlined),
+                  title: Text('Als Vorlage speichern'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -841,9 +862,29 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       case 'copy':
         _copyToClipboard();
         break;
+      case 'save_template':
+        _saveAsTemplate();
+        break;
       case 'delete':
         _confirmDelete();
         break;
+    }
+  }
+
+  Future<void> _saveAsTemplate() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => SaveAsTemplateDialog(
+        title: _titleController.text.trim(),
+        content: _contentController.text,
+        contentType: 'text',
+      ),
+    );
+
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vorlage gespeichert')),
+      );
     }
   }
 

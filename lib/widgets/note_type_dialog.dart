@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../database/database.dart';
 import '../models/enums.dart';
+import '../providers/templates_provider.dart';
+import 'template_dialogs.dart';
+
+/// Ergebnis der Notiz-Typ-Auswahl
+class NoteTypeResult {
+  final ContentType type;
+  final Template? template;
+
+  NoteTypeResult({required this.type, this.template});
+}
 
 /// Dialog zur Auswahl des Notiz-Typs
-class NoteTypeDialog extends StatelessWidget {
+class NoteTypeDialog extends ConsumerWidget {
   const NoteTypeDialog({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final templatesAsync = ref.watch(allTemplatesProvider);
 
     return Dialog(
       child: Padding(
@@ -32,7 +45,8 @@ class NoteTypeDialog extends StatelessWidget {
                   label: 'Text',
                   description: 'Markdown-Notiz',
                   color: colorScheme.primary,
-                  onTap: () => Navigator.pop(context, ContentType.text),
+                  onTap: () => Navigator.pop(
+                      context, NoteTypeResult(type: ContentType.text)),
                 ),
                 _NoteTypeCard(
                   type: ContentType.audio,
@@ -40,7 +54,8 @@ class NoteTypeDialog extends StatelessWidget {
                   label: 'Sprache',
                   description: 'Audio-Aufnahme',
                   color: colorScheme.error,
-                  onTap: () => Navigator.pop(context, ContentType.audio),
+                  onTap: () => Navigator.pop(
+                      context, NoteTypeResult(type: ContentType.audio)),
                 ),
                 _NoteTypeCard(
                   type: ContentType.image,
@@ -48,7 +63,8 @@ class NoteTypeDialog extends StatelessWidget {
                   label: 'Bild',
                   description: 'Kamera / Galerie',
                   color: colorScheme.tertiary,
-                  onTap: () => Navigator.pop(context, ContentType.image),
+                  onTap: () => Navigator.pop(
+                      context, NoteTypeResult(type: ContentType.image)),
                 ),
                 _NoteTypeCard(
                   type: ContentType.drawing,
@@ -56,9 +72,78 @@ class NoteTypeDialog extends StatelessWidget {
                   label: 'Zeichnung',
                   description: 'Freihand zeichnen',
                   color: colorScheme.secondary,
-                  onTap: () => Navigator.pop(context, ContentType.drawing),
+                  onTap: () => Navigator.pop(
+                      context, NoteTypeResult(type: ContentType.drawing)),
                 ),
               ],
+            ),
+            // Vorlagen-Bereich
+            templatesAsync.when(
+              data: (templates) {
+                if (templates.isEmpty) return const SizedBox.shrink();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Aus Vorlage',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: templates.take(4).map((template) {
+                        return ActionChip(
+                          avatar: Icon(
+                            _getIconData(template.icon),
+                            color: Color(template.color),
+                            size: 18,
+                          ),
+                          label: Text(template.name),
+                          onPressed: () {
+                            final type = ContentType.values.firstWhere(
+                              (t) => t.name == template.contentType,
+                              orElse: () => ContentType.text,
+                            );
+                            Navigator.pop(
+                              context,
+                              NoteTypeResult(type: type, template: template),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    if (templates.length > 4)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: TextButton(
+                          onPressed: () async {
+                            final result = await showDialog<dynamic>(
+                              context: context,
+                              builder: (context) => const SelectTemplateDialog(),
+                            );
+                            if (result is Template && context.mounted) {
+                              final type = ContentType.values.firstWhere(
+                                (t) => t.name == result.contentType,
+                                orElse: () => ContentType.text,
+                              );
+                              Navigator.pop(
+                                context,
+                                NoteTypeResult(type: type, template: result),
+                              );
+                            }
+                          },
+                          child: const Text('Alle Vorlagen anzeigen'),
+                        ),
+                      ),
+                  ],
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
             ),
             const SizedBox(height: 16),
             Align(
@@ -72,6 +157,37 @@ class NoteTypeDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _getIconData(String name) {
+    switch (name) {
+      case 'description':
+        return Icons.description;
+      case 'article':
+        return Icons.article;
+      case 'note':
+        return Icons.note;
+      case 'sticky_note_2':
+        return Icons.sticky_note_2;
+      case 'list_alt':
+        return Icons.list_alt;
+      case 'checklist':
+        return Icons.checklist;
+      case 'assignment':
+        return Icons.assignment;
+      case 'event_note':
+        return Icons.event_note;
+      case 'subject':
+        return Icons.subject;
+      case 'text_snippet':
+        return Icons.text_snippet;
+      case 'format_quote':
+        return Icons.format_quote;
+      case 'code':
+        return Icons.code;
+      default:
+        return Icons.description;
+    }
   }
 }
 
@@ -147,8 +263,8 @@ class _NoteTypeCard extends StatelessWidget {
 }
 
 /// Zeigt den Notiz-Typ-Dialog an
-Future<ContentType?> showNoteTypeDialog(BuildContext context) {
-  return showDialog<ContentType>(
+Future<NoteTypeResult?> showNoteTypeDialog(BuildContext context) {
+  return showDialog<NoteTypeResult>(
     context: context,
     builder: (context) => const NoteTypeDialog(),
   );

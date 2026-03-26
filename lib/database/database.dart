@@ -6,11 +6,12 @@ import 'tables/note_tags.dart';
 import 'tables/notes.dart';
 import 'tables/sync_queue.dart';
 import 'tables/tags.dart';
+import 'tables/templates.dart';
 
 part 'database.g.dart';
 
 /// Hauptdatenbank der Notizen-App
-@DriftDatabase(tables: [Folders, Notes, Tags, NoteTags, SyncQueue, SyncConflicts])
+@DriftDatabase(tables: [Folders, Notes, Tags, NoteTags, SyncQueue, SyncConflicts, Templates])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(connection.openConnection());
 
@@ -18,7 +19,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -38,6 +39,10 @@ class AppDatabase extends _$AppDatabase {
           // Neue Tabellen erstellen
           await m.createTable(syncQueue);
           await m.createTable(syncConflicts);
+        }
+        if (from < 3) {
+          // Migration zu Version 3: Vorlagen
+          await m.createTable(templates);
         }
       },
       beforeOpen: (details) async {

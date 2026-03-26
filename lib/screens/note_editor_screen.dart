@@ -12,6 +12,7 @@ import '../services/export_service.dart';
 import '../constants/breakpoints.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
+import '../providers/notes_provider.dart';
 import '../providers/tags_provider.dart';
 import '../widgets/markdown_preview.dart';
 import '../widgets/markdown_toolbar.dart';
@@ -44,7 +45,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   bool _hasChanges = false;
   bool _isSaving = false;
   Note? _existingNote;
-  EditorMode _editorMode = EditorMode.edit;
+  EditorMode? _editorMode; // Wird beim Laden initialisiert
 
   // Auto-Save
   Timer? _autoSaveTimer;
@@ -207,10 +208,21 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = Breakpoints.isExpanded(context);
+    final savedModeIndex = ref.watch(editorModeIndexProvider);
+    final useSplitOnDesktop = ref.watch(useSplitOnDesktopProvider);
 
-    // Auf Desktop standardmäßig Split-View
-    if (isDesktop && _editorMode == EditorMode.edit && _existingNote != null) {
-      _editorMode = EditorMode.split;
+    // Initialisiere den Editor-Modus beim ersten Build
+    if (_editorMode == null) {
+      if (widget.noteId == null) {
+        // Neue Notiz: Immer Edit-Mode
+        _editorMode = EditorMode.edit;
+      } else if (isDesktop && useSplitOnDesktop) {
+        // Desktop mit aktivierter Split-Präferenz: Split-Mode
+        _editorMode = EditorMode.split;
+      } else {
+        // Ansonsten: gespeicherten Modus verwenden
+        _editorMode = EditorMode.values[savedModeIndex.clamp(0, 2)];
+      }
     }
 
     return PopScope(
@@ -237,7 +249,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           body: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _buildBody(),
-          bottomNavigationBar: _editorMode != EditorMode.preview
+          bottomNavigationBar: _editorMode != null && _editorMode != EditorMode.preview
               ? MarkdownToolbar(
                   controller: _contentController,
                   focusNode: _contentFocusNode,
@@ -275,11 +287,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               tooltip: 'Geteilt',
             ),
           ],
-          selected: {_editorMode},
+          selected: {_editorMode!},
           onSelectionChanged: (modes) {
+            final newMode = modes.first;
             setState(() {
-              _editorMode = modes.first;
+              _editorMode = newMode;
             });
+            // Modus persistieren
+            ref.read(editorModeIndexProvider.notifier).setMode(newMode.index);
           },
           showSelectedIcon: false,
           style: const ButtonStyle(
@@ -480,7 +495,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   }
 
   Widget _buildContentArea() {
-    switch (_editorMode) {
+    switch (_editorMode ?? EditorMode.edit) {
       case EditorMode.edit:
         return _buildEditor();
       case EditorMode.preview:

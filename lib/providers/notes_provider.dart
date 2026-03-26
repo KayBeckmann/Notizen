@@ -162,6 +162,34 @@ Stream<List<Note>> searchResults(Ref ref) {
   return ref.watch(notesDaoProvider).watchSearchNotes(query);
 }
 
+/// Editor-Modus (edit, preview, split) - persistiert
+final editorModeIndexProvider = StateNotifierProvider<EditorModeIndexNotifier, int>((ref) {
+  return EditorModeIndexNotifier();
+});
+
+class EditorModeIndexNotifier extends StateNotifier<int> {
+  EditorModeIndexNotifier() : super(SettingsService.instance.editorModeIndex);
+
+  void setMode(int index) {
+    state = index;
+    SettingsService.instance.setEditorModeIndex(index);
+  }
+}
+
+/// Ob auf Desktop automatisch Split-Mode verwendet werden soll
+final useSplitOnDesktopProvider = StateNotifierProvider<UseSplitOnDesktopNotifier, bool>((ref) {
+  return UseSplitOnDesktopNotifier();
+});
+
+class UseSplitOnDesktopNotifier extends StateNotifier<bool> {
+  UseSplitOnDesktopNotifier() : super(SettingsService.instance.useSplitOnDesktop);
+
+  void setEnabled(bool enabled) {
+    state = enabled;
+    SettingsService.instance.setUseSplitOnDesktop(enabled);
+  }
+}
+
 /// Ansichtsmodus (Liste oder Raster)
 final viewModeProvider = StateNotifierProvider<ViewModeNotifier, ViewMode>((ref) {
   return ViewModeNotifier();

@@ -21,6 +21,7 @@ class SettingsService {
   static const String _sortDirectionKey = 'sort_direction';
   static const String _lastFolderKey = 'last_folder';
   static const String _editorSplitModeKey = 'editor_split_mode';
+  static const String _editorModeKey = 'editor_mode';
   static const String _viewModeKey = 'view_mode';
 
   // --- Sort Order ---
@@ -60,7 +61,7 @@ class SettingsService {
     }
   }
 
-  // --- Editor Split Mode ---
+  // --- Editor Split Mode (deprecated, use editorMode) ---
 
   bool get editorSplitMode {
     return _prefs?.getBool(_editorSplitModeKey) ?? true;
@@ -68,6 +69,26 @@ class SettingsService {
 
   Future<void> setEditorSplitMode(bool enabled) async {
     await _prefs?.setBool(_editorSplitModeKey, enabled);
+  }
+
+  // --- Editor Mode (edit=0, preview=1, split=2) ---
+
+  int get editorModeIndex {
+    return _prefs?.getInt(_editorModeKey) ?? 2; // Default to split
+  }
+
+  Future<void> setEditorModeIndex(int index) async {
+    await _prefs?.setInt(_editorModeKey, index);
+  }
+
+  // --- Use Split Mode on Desktop by default ---
+
+  bool get useSplitOnDesktop {
+    return _prefs?.getBool('use_split_on_desktop') ?? true;
+  }
+
+  Future<void> setUseSplitOnDesktop(bool enabled) async {
+    await _prefs?.setBool('use_split_on_desktop', enabled);
   }
 
   // --- View Mode (List/Grid) ---

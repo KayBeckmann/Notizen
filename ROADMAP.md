@@ -762,7 +762,7 @@
 - [x] 8.4.4 Dynamic Color Präferenz speichern
 - [x] 8.4.5 Sortier-Einstellungen speichern
 - [x] 8.4.6 Letzter geöffneter Ordner speichern
-- [ ] 8.4.7 Editor-Präferenzen (Split-View, etc.)
+- [x] 8.4.7 Editor-Präferenzen (Split-View, etc.)
 
 ### 8.5 Zusätzliche Features
 - [x] 8.5.1 Notiz duplizieren

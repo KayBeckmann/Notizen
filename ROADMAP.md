@@ -707,7 +707,7 @@
 - [x] 8.1.2.1 Nach Ordner filtern
 - [x] 8.1.2.2 Nach Tags filtern (Multi-Select)
 - [x] 8.1.2.3 Nach Notiztyp filtern
-- [ ] 8.1.2.4 Nach Datum filtern (erstellt/geändert)
+- [x] 8.1.2.4 Nach Datum filtern (erstellt/geändert)
 - [x] 8.1.2.5 Filter-Chips anzeigen
 - [x] 8.1.2.6 Filter kombinieren (AND)
 

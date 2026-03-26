@@ -274,6 +274,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               },
             ),
 
+          // Datum-Filter (von)
+          if (filter.dateFrom != null)
+            InputChip(
+              avatar: const Icon(Icons.calendar_today, size: 18),
+              label: Text('Ab ${_formatDate(filter.dateFrom!)}'),
+              onDeleted: () {
+                ref.read(searchFilterProvider.notifier).state =
+                    filter.copyWith(clearDateFrom: true);
+              },
+            ),
+
+          // Datum-Filter (bis)
+          if (filter.dateTo != null)
+            InputChip(
+              avatar: const Icon(Icons.event, size: 18),
+              label: Text('Bis ${_formatDate(filter.dateTo!)}'),
+              onDeleted: () {
+                ref.read(searchFilterProvider.notifier).state =
+                    filter.copyWith(clearDateTo: true);
+              },
+            ),
+
           // Alle Filter löschen
           if (filter.hasFilters)
             ActionChip(
@@ -390,6 +412,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       isScrollControlled: true,
       builder: (context) => const _FilterSheet(),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}.${date.month}.${date.year}';
   }
 
   IconData _getContentTypeIcon(ContentType type) {
@@ -552,6 +578,48 @@ class _FilterSheet extends ConsumerWidget {
 
                     const SizedBox(height: 24),
 
+                    // Datum-Filter
+                    Text(
+                      'Zeitraum',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _DateFilterButton(
+                            label: 'Von',
+                            date: filter.dateFrom,
+                            onDateSelected: (date) {
+                              ref.read(searchFilterProvider.notifier).state =
+                                  filter.copyWith(dateFrom: date);
+                            },
+                            onClear: () {
+                              ref.read(searchFilterProvider.notifier).state =
+                                  filter.copyWith(clearDateFrom: true);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _DateFilterButton(
+                            label: 'Bis',
+                            date: filter.dateTo,
+                            onDateSelected: (date) {
+                              ref.read(searchFilterProvider.notifier).state =
+                                  filter.copyWith(dateTo: date);
+                            },
+                            onClear: () {
+                              ref.read(searchFilterProvider.notifier).state =
+                                  filter.copyWith(clearDateTo: true);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
                     // Tag-Filter
                     Text(
                       'Tags',
@@ -641,5 +709,86 @@ class _FilterSheet extends ConsumerWidget {
       case ContentType.drawing:
         return 'Zeichnung';
     }
+  }
+}
+
+/// Button zum Auswählen eines Datums
+class _DateFilterButton extends StatelessWidget {
+  final String label;
+  final DateTime? date;
+  final void Function(DateTime) onDateSelected;
+  final VoidCallback onClear;
+
+  const _DateFilterButton({
+    required this.label,
+    required this.date,
+    required this.onDateSelected,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasDate = date != null;
+
+    return InkWell(
+      onTap: () => _showDatePicker(context),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: hasDate ? colorScheme.primary : colorScheme.outline,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          color: hasDate ? colorScheme.primaryContainer.withOpacity(0.3) : null,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_today,
+              size: 18,
+              color: hasDate ? colorScheme.primary : colorScheme.outline,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                hasDate ? _formatDate(date!) : label,
+                style: TextStyle(
+                  color: hasDate ? colorScheme.primary : colorScheme.outline,
+                ),
+              ),
+            ),
+            if (hasDate)
+              GestureDetector(
+                onTap: onClear,
+                child: Icon(
+                  Icons.close,
+                  size: 18,
+                  color: colorScheme.outline,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showDatePicker(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: date ?? now,
+      firstDate: DateTime(2000),
+      lastDate: now,
+    );
+
+    if (picked != null) {
+      onDateSelected(picked);
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}.${date.month}.${date.year}';
   }
 }

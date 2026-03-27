@@ -18,4 +18,25 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (m) async {
+        await m.createAll();
+      },
+      onUpgrade: (m, from, to) async {
+        // Da dies ein kompletter Rebuild ist, löschen wir bei Schema-Änderungen 
+        // in der Entwicklungsphase die alten Tabellen und erstellen sie neu.
+        // In einer Produktiv-App sollten hier gezielte Migrationen stehen.
+        for (final table in allTables) {
+          await m.deleteTable(table.actualTableName);
+        }
+        await m.createAll();
+      },
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+    );
+  }
 }

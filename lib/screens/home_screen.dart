@@ -15,11 +15,25 @@ import '../models/enums.dart';
 
 import 'drawing_note_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isSearching = false;
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final selectedFolderId = ref.watch(currentFolderProvider);
     final allFoldersAsync = ref.watch(allFoldersProvider);
     final notesAsync = ref.watch(notesInFolderProvider(selectedFolderId));
@@ -36,12 +50,27 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Suchen...',
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  setState(() {});
+                },
+              )
+            : Text(title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
             onPressed: () {
-              // TODO: Suche
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) _searchController.clear();
+              });
             },
           ),
           IconButton(
@@ -55,15 +84,23 @@ class HomeScreen extends ConsumerWidget {
       drawer: const FolderDrawer(),
       body: notesAsync.when(
         data: (notes) {
-          if (notes.isEmpty) {
+          final filteredNotes = _searchController.text.isEmpty
+              ? notes
+              : notes
+                  .where((n) =>
+                      n.title.toLowerCase().contains(_searchController.text.toLowerCase()) ||
+                      n.content.toLowerCase().contains(_searchController.text.toLowerCase()))
+                  .toList();
+
+          if (filteredNotes.isEmpty) {
             return const Center(
               child: Text('Keine Notizen gefunden'),
             );
           }
           return ListView.builder(
-            itemCount: notes.length,
+            itemCount: filteredNotes.length,
             itemBuilder: (context, index) {
-              final note = notes[index];
+              final note = filteredNotes[index];
               return NoteCard(
                 note: note,
                 onTap: () {

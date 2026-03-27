@@ -7,7 +7,7 @@ class Notes extends Table {
   TextColumn get title => text().withDefault(const Constant(''))();
   TextColumn get content => text().withDefault(const Constant(''))();
   IntColumn get contentType => intEnum<ContentType>()();
-  TextColumn get folderId => text().references(Folders, #id, onDelete: OperationIterable.cascade)();
+  TextColumn get folderId => text().references(Folders, #id, onDelete: KeyAction.cascade)();
   BoolColumn get isPinned => boolean().withDefault(const Constant(false))();
   BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
   BoolColumn get isTrashed => boolean().withDefault(const Constant(false))();

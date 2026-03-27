@@ -5,6 +5,10 @@ import '../widgets/note_card.dart';
 import '../providers/notes_provider.dart';
 import '../providers/folders_provider.dart';
 
+import 'note_editor_screen.dart';
+import '../database/daos/folders_dao.dart';
+import '../providers/database_provider.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -57,7 +61,12 @@ class HomeScreen extends ConsumerWidget {
               return NoteCard(
                 note: note,
                 onTap: () {
-                  // TODO: Notiz öffnen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NoteEditorScreen(note: note),
+                    ),
+                  );
                 },
               );
             },
@@ -67,8 +76,16 @@ class HomeScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Fehler: $err')),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Neue Notiz
+        onPressed: () async {
+          final folderId = selectedFolderId ?? await ref.read(foldersDaoProvider).ensureDefaultFolder();
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NoteEditorScreen(folderId: folderId),
+              ),
+            );
+          }
         },
         child: const Icon(Icons.add),
       ),

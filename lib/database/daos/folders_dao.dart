@@ -17,11 +17,16 @@ class FoldersDao extends DatabaseAccessor<AppDatabase> with _$FoldersDaoMixin {
   Future<bool> updateFolder(FoldersCompanion entry) => update(folders).replace(entry);
   Future<int> deleteFolder(String id) => (delete(folders)..where((tbl) => tbl.id.equals(id))).go();
 
-  Future<void> reorderFolders(List<String> ids) async {
-    await batch((batch) {
-      for (var i = 0; i < ids.length; i++) {
-        batch.update(folders, FoldersCompanion(position: Value(i)), where: (tbl) => tbl.id.equals(ids[i]));
-      }
-    });
+  Future<String> ensureDefaultFolder() async {
+    final existing = await (select(folders)..limit(1)).get();
+    if (existing.isNotEmpty) return existing.first.id;
+
+    final id = 'default';
+    await createFolder(FoldersCompanion.insert(
+      id: id,
+      name: 'Meine Notizen',
+      color: 0xFF6750A4,
+    ));
+    return id;
   }
 }

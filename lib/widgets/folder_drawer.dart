@@ -132,7 +132,7 @@ class FolderDrawerContent extends ConsumerWidget {
           error: (err, stack) => ListTile(title: Text('Fehler: $err')),
         ),
         ListTile(
-          leading: const Icon(Icons.add_tag),
+          leading: const Icon(Icons.add),
           title: const Text('Neuer Tag'),
           onTap: () async {
             // TODO: Tag Dialog

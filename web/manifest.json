@@ -63,22 +63,6 @@
             "purpose": "maskable"
         }
     ],
-    "screenshots": [
-        {
-            "src": "screenshots/desktop.png",
-            "sizes": "1920x1080",
-            "type": "image/png",
-            "form_factor": "wide",
-            "label": "Notizen Desktop Ansicht"
-        },
-        {
-            "src": "screenshots/mobile.png",
-            "sizes": "390x844",
-            "type": "image/png",
-            "form_factor": "narrow",
-            "label": "Notizen Mobile Ansicht"
-        }
-    ],
     "related_applications": [],
     "handle_links": "preferred",
     "launch_handler": {

@@ -13,6 +13,8 @@ import '../widgets/note_type_dialog.dart';
 import 'audio_note_screen.dart';
 import '../models/enums.dart';
 
+import 'drawing_note_screen.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -70,6 +72,9 @@ class HomeScreen extends ConsumerWidget {
                     case ContentType.audio:
                       screen = AudioNoteScreen(note: note);
                       break;
+                    case ContentType.drawing:
+                      screen = DrawingNoteScreen(note: note);
+                      break;
                     case ContentType.text:
                     default:
                       screen = NoteEditorScreen(note: note);
@@ -103,6 +108,9 @@ class HomeScreen extends ConsumerWidget {
           switch (type) {
             case ContentType.audio:
               screen = AudioNoteScreen(folderId: folderId);
+              break;
+            case ContentType.drawing:
+              screen = DrawingNoteScreen(folderId: folderId);
               break;
             case ContentType.text:
             default:

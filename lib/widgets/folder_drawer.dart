@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/folders_provider.dart';
 import '../providers/notes_provider.dart';
+import '../providers/database_provider.dart';
+import '../database/database.dart';
+import 'package:uuid/uuid.dart';
+import 'package:drift/drift.dart';
 
 class FolderDrawer extends ConsumerWidget {
   const FolderDrawer({super.key});
@@ -80,9 +84,32 @@ class FolderDrawer extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.add),
             title: const Text('Neuer Ordner'),
-            onTap: () {
-              // TODO: Neuer Ordner Dialog
-              Navigator.pop(context);
+            onTap: () async {
+              final nameController = TextEditingController();
+              final name = await showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Neuer Ordner'),
+                  content: TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(hintText: 'Name'),
+                    autofocus: true,
+                  ),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+                    TextButton(onPressed: () => Navigator.pop(context, nameController.text), child: const Text('Erstellen')),
+                  ],
+                ),
+              );
+
+              if (name != null && name.isNotEmpty) {
+                await ref.read(foldersDaoProvider).createFolder(FoldersCompanion.insert(
+                      id: const Uuid().v4(),
+                      name: name,
+                      color: Colors.blue.value,
+                    ));
+              }
+              if (context.mounted) Navigator.pop(context);
             },
           ),
         ],

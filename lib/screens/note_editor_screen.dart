@@ -7,6 +7,7 @@ import '../providers/database_provider.dart';
 import '../models/enums.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
+import '../providers/folders_provider.dart';
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
   final Note? note;
@@ -25,6 +26,7 @@ class NoteEditorScreen extends ConsumerStatefulWidget {
 class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   late TextEditingController _titleController;
   late TextEditingController _contentController;
+  String? _selectedFolderId;
   bool _isPreview = false;
 
   @override
@@ -32,6 +34,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     super.initState();
     _titleController = TextEditingController(text: widget.note?.title ?? '');
     _contentController = TextEditingController(text: widget.note?.content ?? '');
+    _selectedFolderId = widget.note?.folderId ?? widget.folderId;
   }
 
   @override
@@ -45,6 +48,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     final title = _titleController.text;
     final content = _contentController.text;
     final notesDao = ref.read(notesDaoProvider);
+    final folderId = _selectedFolderId ?? await ref.read(foldersDaoProvider).ensureDefaultFolder();
 
     if (widget.note == null) {
       if (title.isEmpty && content.isEmpty) return;
@@ -54,7 +58,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         title: drift.Value(title),
         content: drift.Value(content),
         contentType: ContentType.text,
-        folderId: widget.folderId ?? 'default', // TODO: Handle default folder
+        folderId: folderId,
         createdAt: drift.Value(DateTime.now()),
         updatedAt: drift.Value(DateTime.now()),
       );
@@ -63,6 +67,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       final updatedNote = widget.note!.toCompanion(true).copyWith(
         title: drift.Value(title),
         content: drift.Value(content),
+        folderId: drift.Value(folderId),
         updatedAt: drift.Value(DateTime.now()),
       );
       await notesDao.updateNote(updatedNote);
@@ -71,10 +76,35 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final foldersAsync = ref.watch(allFoldersProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notiz bearbeiten'),
         actions: [
+          foldersAsync.when(
+            data: (folders) => DropdownButton<String>(
+              value: _selectedFolderId,
+              icon: const Icon(Icons.folder_outlined),
+              underline: const SizedBox(),
+              onChanged: (value) {
+                setState(() => _selectedFolderId = value);
+              },
+              items: folders.map((f) => DropdownMenuItem(
+                value: f.id,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.folder, color: Color(f.color), size: 18),
+                    const SizedBox(width: 8),
+                    Text(f.name),
+                  ],
+                ),
+              )).toList(),
+            ),
+            loading: () => const SizedBox(),
+            error: (_, __) => const SizedBox(),
+          ),
           IconButton(
             icon: Icon(_isPreview ? Icons.edit : Icons.visibility),
             onPressed: () {

@@ -7,6 +7,7 @@ import '../providers/database_provider.dart';
 import '../database/database.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
+import '../constants/app_constants.dart';
 
 class FolderDrawerContent extends ConsumerWidget {
   const FolderDrawerContent({super.key});
@@ -135,7 +136,64 @@ class FolderDrawerContent extends ConsumerWidget {
           leading: const Icon(Icons.add),
           title: const Text('Neuer Tag'),
           onTap: () async {
-            // TODO: Tag Dialog
+            final nameController = TextEditingController();
+            Color selectedColor = Colors.blue;
+            
+            final result = await showDialog<bool>(
+              context: context,
+              builder: (context) => StatefulBuilder(
+                builder: (context, setDialogState) => AlertDialog(
+                  title: const Text('Neuer Tag'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(hintText: 'Name'),
+                        autofocus: true,
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: AppConstants.tagColors.map((color) {
+                          return InkWell(
+                            onTap: () => setDialogState(() => selectedColor = color),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: selectedColor == color ? Colors.black : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Erstellen'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+
+            if (result == true && nameController.text.isNotEmpty) {
+              await ref.read(tagsDaoProvider).createTag(TagsCompanion.insert(
+                id: const Uuid().v4(),
+                name: nameController.text,
+                color: selectedColor.value,
+              ));
+            }
           },
         ),
         const Divider(),

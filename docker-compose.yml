@@ -1,5 +1,8 @@
 services:
   notizen-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: notizen-app:latest
     ports:
       - "8080:80"

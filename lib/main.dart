@@ -1,54 +1,30 @@
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'constants/app_theme.dart';
-import 'providers/theme_provider.dart';
-import 'screens/home_screen.dart';
-import 'services/settings_service.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Einstellungen initialisieren
-  await SettingsService.instance.init();
-
+void main() {
   runApp(
     const ProviderScope(
-      child: NotizenApp(),
+      child: MyApp(),
     ),
   );
 }
 
-/// Haupt-App Widget
-class NotizenApp extends ConsumerWidget {
-  const NotizenApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeNotifierProvider);
-    final seedColor = ref.watch(seedColorNotifierProvider);
-    final useDynamicColor = ref.watch(useDynamicColorNotifierProvider);
-
-    return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        return MaterialApp(
-          title: 'Notizen',
-          debugShowCheckedModeBanner: false,
-          themeMode: themeMode,
-          theme: AppTheme.lightTheme(
-            dynamicColorScheme: lightDynamic,
-            seedColor: seedColor,
-            useDynamicColor: useDynamicColor,
-          ),
-          darkTheme: AppTheme.darkTheme(
-            dynamicColorScheme: darkDynamic,
-            seedColor: seedColor,
-            useDynamicColor: useDynamicColor,
-          ),
-          home: const HomeScreen(),
-        );
-      },
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Notizen App',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const Scaffold(
+        body: Center(
+          child: Text('Notizen App - M1 Setup Complete'),
+        ),
+      ),
     );
   }
 }

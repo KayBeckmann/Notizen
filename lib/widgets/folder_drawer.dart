@@ -5,7 +5,7 @@ import '../providers/notes_provider.dart';
 import '../providers/database_provider.dart';
 import '../database/database.dart';
 import 'package:uuid/uuid.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide Column;
 
 class FolderDrawer extends ConsumerWidget {
   const FolderDrawer({super.key});
@@ -59,9 +59,14 @@ class FolderDrawer extends ConsumerWidget {
                   .toList(),
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => ListTile(
-              title: Text('Fehler: $err'),
-            ),
+            error: (err, stack) {
+              debugPrint('Fehler im FolderDrawer: $err');
+              return ListTile(
+                leading: const Icon(Icons.error, color: Colors.red),
+                title: const Text('Fehler beim Laden'),
+                subtitle: Text(err.toString(), maxLines: 2, overflow: TextOverflow.ellipsis),
+              );
+            },
           ),
           const Divider(),
           ListTile(

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/folder_drawer.dart';
 import '../widgets/note_card.dart';
+import '../widgets/adaptive_scaffold.dart';
 import '../providers/notes_provider.dart';
 import '../providers/folders_provider.dart';
 
 import 'note_editor_screen.dart';
+import 'settings_screen.dart';
 import '../database/daos/folders_dao.dart';
 import '../providers/database_provider.dart';
 
@@ -48,7 +50,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       });
     }
 
-    return Scaffold(
+    return AdaptiveScaffold(
       appBar: AppBar(
         title: _isSearching
             ? TextField(
@@ -76,12 +78,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // TODO: Einstellungen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
             },
           ),
         ],
       ),
-      drawer: const FolderDrawer(),
+      drawer: const FolderDrawerContent(),
       body: notesAsync.when(
         data: (notes) {
           final filteredNotes = _searchController.text.isEmpty
@@ -93,11 +98,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   .toList();
 
           if (filteredNotes.isEmpty) {
-            return const Center(
-              child: Text('Keine Notizen gefunden'),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.note_alt_outlined, size: 64, color: Theme.of(context).colorScheme.outline.withOpacity(0.5)),
+                  const SizedBox(height: 16),
+                  Text(
+                    _isSearching ? 'Keine Notizen gefunden' : 'In diesem Ordner sind keine Notizen',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.outline),
+                  ),
+                ],
+              ),
             );
           }
-          return ListView.builder(
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(8),
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: MediaQuery.of(context).size.width >= 900 ? 400 : 600,
+              mainAxisExtent: 180,
+            ),
             itemCount: filteredNotes.length,
             itemBuilder: (context, index) {
               final note = filteredNotes[index];
@@ -127,32 +148,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) {
-          debugPrint('Datenbank-Fehler: $err');
-          debugPrint('Stacktrace: $stack');
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  Text('Fehler beim Laden der Notizen:', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Text(err.toString(), textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.invalidate(notesInFolderProvider),
-                    child: const Text('Erneut versuchen'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+        error: (err, stack) => Center(child: Text('Fehler: $err')),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final folderId = selectedFolderId ?? await ref.read(foldersDaoProvider).ensureDefaultFolder();
           if (!context.mounted) return;
@@ -183,7 +181,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             MaterialPageRoute(builder: (context) => screen),
           );
         },
-        child: const Icon(Icons.add),
+        label: const Text('Neue Notiz'),
+        icon: const Icon(Icons.add),
       ),
     );
   }

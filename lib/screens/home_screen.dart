@@ -9,6 +9,10 @@ import 'note_editor_screen.dart';
 import '../database/daos/folders_dao.dart';
 import '../providers/database_provider.dart';
 
+import '../widgets/note_type_dialog.dart';
+import 'audio_note_screen.dart';
+import '../models/enums.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -61,11 +65,19 @@ class HomeScreen extends ConsumerWidget {
               return NoteCard(
                 note: note,
                 onTap: () {
+                  Widget screen;
+                  switch (note.contentType) {
+                    case ContentType.audio:
+                      screen = AudioNoteScreen(note: note);
+                      break;
+                    case ContentType.text:
+                    default:
+                      screen = NoteEditorScreen(note: note);
+                      break;
+                  }
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => NoteEditorScreen(note: note),
-                    ),
+                    MaterialPageRoute(builder: (context) => screen),
                   );
                 },
               );
@@ -78,14 +90,30 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final folderId = selectedFolderId ?? await ref.read(foldersDaoProvider).ensureDefaultFolder();
-          if (context.mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NoteEditorScreen(folderId: folderId),
-              ),
-            );
+          if (!context.mounted) return;
+
+          final type = await showDialog<ContentType>(
+            context: context,
+            builder: (context) => const NoteTypeDialog(),
+          );
+
+          if (type == null || !context.mounted) return;
+
+          Widget screen;
+          switch (type) {
+            case ContentType.audio:
+              screen = AudioNoteScreen(folderId: folderId);
+              break;
+            case ContentType.text:
+            default:
+              screen = NoteEditorScreen(folderId: folderId);
+              break;
           }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => screen),
+          );
         },
         child: const Icon(Icons.add),
       ),

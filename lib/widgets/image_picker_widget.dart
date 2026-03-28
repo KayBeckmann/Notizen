@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -77,12 +78,23 @@ class ImagePickerWidget extends StatelessWidget {
       if (pickedFile == null) return;
 
       // Bild im Storage speichern
-      final file = File(pickedFile.path);
-      final extension = pickedFile.path.split('.').last.toLowerCase();
-      final savedPath = await StorageService.instance.saveImageFile(
-        file,
-        extension: extension,
-      );
+      final String savedPath;
+      if (kIsWeb) {
+        // Web: Bytes lesen und in-memory speichern
+        final bytes = await pickedFile.readAsBytes();
+        final extension = pickedFile.name.split('.').last.toLowerCase();
+        savedPath = StorageService.instance.saveImageBytesForWeb(
+          bytes,
+          extension: extension.isEmpty ? 'jpg' : extension,
+        );
+      } else {
+        final file = File(pickedFile.path);
+        final extension = pickedFile.path.split('.').last.toLowerCase();
+        savedPath = await StorageService.instance.saveImageFile(
+          file,
+          extension: extension,
+        );
+      }
 
       if (context.mounted) {
         Navigator.pop(context);

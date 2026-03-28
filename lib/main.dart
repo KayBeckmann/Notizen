@@ -6,12 +6,14 @@ import 'constants/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
 import 'services/settings_service.dart';
+import 'services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Einstellungen initialisieren
+  // Einstellungen und Storage initialisieren
   await SettingsService.instance.init();
+  await StorageService.instance.init();
 
   runApp(
     const ProviderScope(

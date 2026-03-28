@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
+
+import '../services/storage_service.dart';
 
 /// Vollbild-Bildanzeige mit Zoom
 class ImageViewer extends StatelessWidget {
@@ -43,7 +46,7 @@ class ImageViewer extends StatelessWidget {
       ),
       extendBodyBehindAppBar: true,
       body: PhotoView(
-        imageProvider: FileImage(File(imagePath)),
+        imageProvider: _buildImageProvider(imagePath),
         minScale: PhotoViewComputedScale.contained,
         maxScale: PhotoViewComputedScale.covered * 3,
         initialScale: PhotoViewComputedScale.contained,
@@ -73,6 +76,14 @@ class ImageViewer extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  ImageProvider _buildImageProvider(String path) {
+    if (kIsWeb && StorageService.isWebPath(path)) {
+      final bytes = StorageService.getWebImageBytes(path);
+      if (bytes != null) return MemoryImage(bytes);
+    }
+    return FileImage(File(path));
   }
 
   Future<void> _shareImage(BuildContext context) async {
@@ -145,27 +156,42 @@ class ImagePreview extends StatelessWidget {
               ),
       child: ClipRRect(
         borderRadius: borderRadius ?? BorderRadius.circular(8),
-        child: Image.file(
-          File(imagePath),
-          width: width,
-          height: height,
-          fit: fit,
-          errorBuilder: (context, error, stackTrace) => Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: borderRadius ?? BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.broken_image,
-                color: colorScheme.outline,
-              ),
-            ),
-          ),
-        ),
+        child: _buildImage(context, colorScheme),
       ),
+    );
+  }
+
+  Widget _buildImage(BuildContext context, ColorScheme colorScheme) {
+    Widget errorWidget = Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: borderRadius ?? BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Icon(Icons.broken_image, color: colorScheme.outline),
+      ),
+    );
+
+    if (kIsWeb && StorageService.isWebPath(imagePath)) {
+      final bytes = StorageService.getWebImageBytes(imagePath);
+      if (bytes == null) return errorWidget;
+      return Image.memory(
+        bytes,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, __, ___) => errorWidget,
+      );
+    }
+
+    return Image.file(
+      File(imagePath),
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (_, __, ___) => errorWidget,
     );
   }
 }
@@ -263,7 +289,11 @@ class HeroImageViewer extends StatelessWidget {
         child: Hero(
           tag: heroTag,
           child: PhotoView(
-            imageProvider: FileImage(File(imagePath)),
+            imageProvider: kIsWeb && StorageService.isWebPath(imagePath)
+                ? (StorageService.getWebImageBytes(imagePath) != null
+                    ? MemoryImage(StorageService.getWebImageBytes(imagePath)!)
+                    : FileImage(File(imagePath)) as ImageProvider)
+                : FileImage(File(imagePath)),
             minScale: PhotoViewComputedScale.contained,
             maxScale: PhotoViewComputedScale.covered * 3,
             backgroundDecoration: const BoxDecoration(color: Colors.black),

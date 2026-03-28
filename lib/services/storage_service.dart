@@ -12,6 +12,9 @@ class StorageService {
 
   StorageService._();
 
+  /// Web-spezifischer In-Memory-Cache für Bilder (blob URL → Bytes)
+  static final Map<String, Uint8List> _webImageCache = {};
+
   /// Basis-Verzeichnis der App
   Directory? _appDirectory;
 
@@ -90,6 +93,22 @@ class StorageService {
     await file.writeAsBytes(bytes);
     return targetPath;
   }
+
+  /// Speichert Bild-Bytes für Web (in-memory, nur für aktuelle Session)
+  String saveImageBytesForWeb(Uint8List bytes, {String extension = 'jpg'}) {
+    final id = const Uuid().v4();
+    final key = 'web://$id.$extension';
+    _webImageCache[key] = bytes;
+    return key;
+  }
+
+  /// Gibt Bild-Bytes für einen Web-Pfad zurück
+  static Uint8List? getWebImageBytes(String webPath) {
+    return _webImageCache[webPath];
+  }
+
+  /// Prüft ob ein Pfad ein Web-Pfad ist
+  static bool isWebPath(String path) => path.startsWith('web://');
 
   /// Speichert eine Datei im Zeichnungen-Verzeichnis
   Future<String> saveDrawingFile(File sourceFile, {String? filename}) async {

@@ -32,20 +32,19 @@ String _$notesInCurrentFolderHash() =>
 ///
 /// Copied from [notesInCurrentFolder].
 @ProviderFor(notesInCurrentFolder)
-final notesInCurrentFolderProvider =
-    AutoDisposeStreamProvider<List<Note>>.internal(
-      notesInCurrentFolder,
-      name: r'notesInCurrentFolderProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$notesInCurrentFolderHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final notesInCurrentFolderProvider = StreamProvider<List<Note>>.internal(
+  notesInCurrentFolder,
+  name: r'notesInCurrentFolderProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$notesInCurrentFolderHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef NotesInCurrentFolderRef = AutoDisposeStreamProviderRef<List<Note>>;
+typedef NotesInCurrentFolderRef = StreamProviderRef<List<Note>>;
 String _$pinnedNotesHash() => r'c126e4744be2df27a5e909398f0264b1969ad251';
 
 /// Stream der angepinnten Notizen

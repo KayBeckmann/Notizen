@@ -43,7 +43,11 @@ Stream<List<Note>> allNotes(Ref ref) {
 }
 
 /// Stream der Notizen im aktuellen Ordner (sortiert)
-@riverpod
+/// keepAlive: true verhindert Disposal zwischen Ordner-Wechseln, sodass der
+/// vorherige AsyncData-Wert im AsyncLoading-Zustand erhalten bleibt.
+/// Damit funktioniert skipLoadingOnRefresh (default: true) korrekt und es
+/// gibt keinen weißen Bildschirm beim Ordner-Wechsel.
+@Riverpod(keepAlive: true)
 Stream<List<Note>> notesInCurrentFolder(Ref ref) {
   final folderId = ref.watch(currentFolderProvider);
   final notesDao = ref.watch(notesDaoProvider);

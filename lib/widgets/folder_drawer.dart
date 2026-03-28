@@ -142,7 +142,7 @@ class FolderDrawer extends ConsumerWidget {
                 selected: isSelected,
                 onTap: () {
                   ref.read(currentFolderProvider.notifier).select(folder.id);
-                  Navigator.of(context).pop();
+                  Scaffold.of(context).closeDrawer();
                 },
                 onLongPress: () => _showFolderOptions(context, ref, folder),
               );
@@ -227,7 +227,7 @@ class FolderDrawer extends ConsumerWidget {
         break;
     }
 
-    Navigator.of(context).pop();
+    Scaffold.of(context).closeDrawer();
   }
 
   void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {

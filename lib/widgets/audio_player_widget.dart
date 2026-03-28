@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Widget für Audio-Wiedergabe
@@ -75,8 +76,11 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
       }
     });
 
-    // Audio-Source setzen
-    await _player.setSourceDeviceFile(widget.audioPath);
+    // Audio-Source setzen: Web nutzt UrlSource (blob-URLs), Native DeviceFileSource
+    final source = kIsWeb
+        ? UrlSource(widget.audioPath)
+        : DeviceFileSource(widget.audioPath);
+    await _player.setSource(source);
   }
 
   @override
@@ -392,7 +396,10 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
     if (_isPlaying) {
       await _player.pause();
     } else {
-      await _player.play(DeviceFileSource(widget.audioPath));
+      final source = kIsWeb
+          ? UrlSource(widget.audioPath)
+          : DeviceFileSource(widget.audioPath);
+      await _player.play(source);
     }
   }
 }

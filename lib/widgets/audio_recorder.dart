@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
 
@@ -192,16 +193,23 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
       return;
     }
 
-    // Temporären Pfad generieren
-    _recordingPath = '${StorageService.instance.tempPath}/${StorageService.instance.generateFilename('m4a')}';
+    // Auf Web: Pfad wird vom Browser ignoriert; auf Native: temp-Pfad verwenden
+    final String recordPath;
+    if (kIsWeb) {
+      recordPath = 'recording.webm'; // Wird ignoriert, aber Parameter ist required
+      _recordingPath = null;
+    } else {
+      recordPath = '${StorageService.instance.tempPath}/${StorageService.instance.generateFilename('m4a')}';
+      _recordingPath = recordPath;
+    }
 
     await _recorder.start(
-      const RecordConfig(
-        encoder: AudioEncoder.aacLc,
+      RecordConfig(
+        encoder: kIsWeb ? AudioEncoder.opus : AudioEncoder.aacLc,
         bitRate: 128000,
         sampleRate: 44100,
       ),
-      path: _recordingPath!,
+      path: recordPath,
     );
 
     setState(() {
@@ -237,14 +245,16 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
     final path = await _recorder.stop();
 
     if (path != null && mounted) {
-      // Datei in das Audio-Verzeichnis verschieben
-      final file = File(path);
-      final finalPath = await StorageService.instance.saveAudioFile(file);
-
-      // Temporäre Datei löschen
-      await file.delete();
-
-      widget.onRecordingComplete(finalPath);
+      if (kIsWeb) {
+        // Auf Web gibt stop() eine blob-URL zurück — direkt verwenden
+        widget.onRecordingComplete(path);
+      } else {
+        // Auf Native: Datei in das Audio-Verzeichnis verschieben
+        final file = File(path);
+        final finalPath = await StorageService.instance.saveAudioFile(file);
+        await file.delete();
+        widget.onRecordingComplete(finalPath);
+      }
     }
 
     setState(() {
@@ -258,8 +268,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
     _timer?.cancel();
     await _recorder.stop();
 
-    // Temporäre Datei löschen falls vorhanden
-    if (_recordingPath != null) {
+    // Temporäre Datei löschen falls vorhanden (nur auf Native)
+    if (!kIsWeb && _recordingPath != null) {
       final file = File(_recordingPath!);
       if (await file.exists()) {
         await file.delete();

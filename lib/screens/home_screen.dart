@@ -204,13 +204,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSelectableNoteCard(Note note, bool isSelectionMode) {
     if (!isSelectionMode) {
-      return NoteCard(
-        note: note,
-        onTap: () => _openNote(note),
-        onLongPress: () {
-          ref.read(selectionModeProvider.notifier).enable();
-          ref.read(selectedNotesProvider.notifier).select(note.id);
-        },
+      return GestureDetector(
+        onSecondaryTapUp: (_) => _showNoteOptions(note),
+        child: NoteCard(
+          note: note,
+          onTap: () => _openNote(note),
+          onLongPress: () {
+            ref.read(selectionModeProvider.notifier).enable();
+            ref.read(selectedNotesProvider.notifier).select(note.id);
+          },
+        ),
       );
     }
 
@@ -281,13 +284,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSelectableGridCard(Note note, bool isSelectionMode) {
     if (!isSelectionMode) {
-      return _NoteGridCard(
-        note: note,
-        onTap: () => _openNote(note),
-        onLongPress: () {
-          ref.read(selectionModeProvider.notifier).enable();
-          ref.read(selectedNotesProvider.notifier).select(note.id);
-        },
+      return GestureDetector(
+        onSecondaryTapUp: (_) => _showNoteOptions(note),
+        child: _NoteGridCard(
+          note: note,
+          onTap: () => _openNote(note),
+          onLongPress: () {
+            ref.read(selectionModeProvider.notifier).enable();
+            ref.read(selectedNotesProvider.notifier).select(note.id);
+          },
+        ),
       );
     }
 
@@ -781,7 +787,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               title: const Text('Verschieben'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Show folder picker
+                _moveNote(note);
               },
             ),
             ListTile(
@@ -796,6 +802,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _moveNote(Note note) async {
+    final folders = await ref.read(allFoldersProvider.future);
+    if (!mounted) return;
+
+    final folderId = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('In Ordner verschieben'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: folders.length,
+            itemBuilder: (context, index) {
+              final folder = folders[index];
+              final isCurrent = folder.id == note.folderId;
+              return ListTile(
+                leading: Icon(Icons.folder, color: Color(folder.color)),
+                title: Text(folder.name),
+                trailing: isCurrent ? const Icon(Icons.check) : null,
+                onTap: isCurrent ? null : () => Navigator.pop(context, folder.id),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Abbrechen'),
+          ),
+        ],
+      ),
+    );
+
+    if (folderId != null && mounted) {
+      await ref.read(notesDaoProvider).moveNote(note.id, folderId);
+      final folder = folders.firstWhere((f) => f.id == folderId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Nach "${folder.name}" verschoben')),
+        );
+      }
+    }
   }
 
   void _duplicateNote(Note note) async {

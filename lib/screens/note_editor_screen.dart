@@ -13,6 +13,7 @@ import '../services/browser_title_service.dart';
 import '../constants/breakpoints.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
+import '../providers/folders_provider.dart';
 import '../providers/notes_provider.dart';
 import '../providers/tags_provider.dart';
 import '../widgets/markdown_preview.dart';
@@ -924,11 +925,54 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     }
   }
 
-  void _showMoveDialog() {
-    // TODO: Implement folder picker dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Verschieben wird implementiert...')),
+  Future<void> _showMoveDialog() async {
+    if (_existingNote == null) return;
+
+    final folders = await ref.read(allFoldersProvider.future);
+    if (!mounted) return;
+
+    final folderId = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('In Ordner verschieben'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: folders.length,
+            itemBuilder: (context, index) {
+              final folder = folders[index];
+              final isCurrent = folder.id == _existingNote!.folderId;
+              return ListTile(
+                leading: Icon(Icons.folder, color: Color(folder.color)),
+                title: Text(folder.name),
+                trailing: isCurrent ? const Icon(Icons.check) : null,
+                onTap: isCurrent ? null : () => Navigator.pop(context, folder.id),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Abbrechen'),
+          ),
+        ],
+      ),
     );
+
+    if (folderId != null && mounted) {
+      await ref.read(notesDaoProvider).moveNote(_existingNote!.id, folderId);
+      setState(() {
+        _existingNote = _existingNote!.copyWith(folderId: folderId);
+      });
+      if (mounted) {
+        final folder = folders.firstWhere((f) => f.id == folderId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Nach "${folder.name}" verschoben')),
+        );
+      }
+    }
   }
 
   Future<void> _exportAsMarkdown() async {

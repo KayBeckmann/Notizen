@@ -42,39 +42,28 @@ Stream<List<Note>> allNotes(Ref ref) {
   return ref.watch(notesDaoProvider).watchAllNotes();
 }
 
-/// Stream der Notizen im aktuellen Ordner (unsortiert)
-@riverpod
-Stream<List<Note>> notesInCurrentFolderRaw(Ref ref) {
-  final folderId = ref.watch(currentFolderProvider);
-  final notesDao = ref.watch(notesDaoProvider);
-
-  if (folderId == null) {
-    return notesDao.watchAllNotes();
-  } else if (folderId == '_pinned') {
-    return notesDao.watchPinnedNotes();
-  } else if (folderId == '_archived') {
-    return notesDao.watchArchivedNotes();
-  } else if (folderId == '_trash') {
-    return notesDao.watchTrashedNotes();
-  }
-  return notesDao.watchNotesByFolder(folderId);
-}
-
 /// Stream der Notizen im aktuellen Ordner (sortiert)
 @riverpod
 Stream<List<Note>> notesInCurrentFolder(Ref ref) {
-  final notesAsync = ref.watch(notesInCurrentFolderRawProvider);
+  final folderId = ref.watch(currentFolderProvider);
+  final notesDao = ref.watch(notesDaoProvider);
   final sortOrder = ref.watch(sortOrderProvider);
   final sortDirection = ref.watch(sortDirectionProvider);
 
-  return notesAsync.when(
-    data: (notes) {
-      final sortedNotes = _sortNotes(notes, sortOrder, sortDirection);
-      return Stream.value(sortedNotes);
-    },
-    loading: () => const Stream.empty(),
-    error: (e, st) => Stream.error(e, st),
-  );
+  final Stream<List<Note>> rawStream;
+  if (folderId == null) {
+    rawStream = notesDao.watchAllNotes();
+  } else if (folderId == '_pinned') {
+    rawStream = notesDao.watchPinnedNotes();
+  } else if (folderId == '_archived') {
+    rawStream = notesDao.watchArchivedNotes();
+  } else if (folderId == '_trash') {
+    rawStream = notesDao.watchTrashedNotes();
+  } else {
+    rawStream = notesDao.watchNotesByFolder(folderId);
+  }
+
+  return rawStream.map((notes) => _sortNotes(notes, sortOrder, sortDirection));
 }
 
 /// Hilfsfunktion zum Sortieren von Notizen

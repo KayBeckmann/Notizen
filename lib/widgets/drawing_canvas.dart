@@ -13,6 +13,9 @@ class DrawingCanvas extends StatefulWidget {
   final bool showGrid;
   final Color? gridColor;
 
+  /// Optionales Hintergrundbild (für "Auf Bild zeichnen")
+  final ui.Image? backgroundImage;
+
   const DrawingCanvas({
     super.key,
     required this.drawing,
@@ -20,6 +23,7 @@ class DrawingCanvas extends StatefulWidget {
     required this.onDrawingChanged,
     this.showGrid = false,
     this.gridColor,
+    this.backgroundImage,
   });
 
   @override
@@ -43,6 +47,7 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
             currentStroke: _currentStroke,
             showGrid: widget.showGrid,
             gridColor: widget.gridColor ?? Colors.grey.withValues(alpha: 0.2),
+            backgroundImage: widget.backgroundImage,
           ),
           size: Size.infinite,
         ),
@@ -130,19 +135,35 @@ class DrawingPainter extends CustomPainter {
   final DrawingStroke? currentStroke;
   final bool showGrid;
   final Color gridColor;
+  final ui.Image? backgroundImage;
+
+  /// Wenn false, wird kein Hintergrund gezeichnet (für Overlay-Modus)
+  final bool drawBackground;
 
   DrawingPainter({
     required this.drawing,
     this.currentStroke,
     this.showGrid = false,
     required this.gridColor,
+    this.backgroundImage,
+    this.drawBackground = true,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Hintergrund
-    final bgPaint = Paint()..color = drawing.backgroundColor;
-    canvas.drawRect(Offset.zero & size, bgPaint);
+    if (backgroundImage != null) {
+      // Hintergrundbild skaliert auf Canvas-Größe zeichnen
+      paintImage(
+        canvas: canvas,
+        rect: Offset.zero & size,
+        image: backgroundImage!,
+        fit: BoxFit.contain,
+      );
+    } else if (drawBackground) {
+      // Farbiger Hintergrund
+      final bgPaint = Paint()..color = drawing.backgroundColor;
+      canvas.drawRect(Offset.zero & size, bgPaint);
+    }
 
     // Raster
     if (showGrid) {
@@ -300,7 +321,8 @@ class DrawingPainter extends CustomPainter {
   bool shouldRepaint(DrawingPainter oldDelegate) {
     return drawing != oldDelegate.drawing ||
         currentStroke != oldDelegate.currentStroke ||
-        showGrid != oldDelegate.showGrid;
+        showGrid != oldDelegate.showGrid ||
+        backgroundImage != oldDelegate.backgroundImage;
   }
 }
 

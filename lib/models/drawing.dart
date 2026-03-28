@@ -128,10 +128,14 @@ class Drawing {
   final Color backgroundColor;
   final Size? canvasSize;
 
+  /// Optionaler Hintergrundbild-Pfad (für "Auf Bild zeichnen")
+  final String? backgroundImagePath;
+
   const Drawing({
     this.strokes = const [],
     this.backgroundColor = Colors.white,
     this.canvasSize,
+    this.backgroundImagePath,
   });
 
   /// Erstellt eine Kopie mit geänderten Werten
@@ -139,11 +143,16 @@ class Drawing {
     List<DrawingStroke>? strokes,
     Color? backgroundColor,
     Size? canvasSize,
+    String? backgroundImagePath,
+    bool clearBackgroundImage = false,
   }) {
     return Drawing(
       strokes: strokes ?? this.strokes,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       canvasSize: canvasSize ?? this.canvasSize,
+      backgroundImagePath: clearBackgroundImage
+          ? null
+          : (backgroundImagePath ?? this.backgroundImagePath),
     );
   }
 
@@ -175,6 +184,8 @@ class Drawing {
       'canvasSize': canvasSize != null
           ? {'width': canvasSize!.width, 'height': canvasSize!.height}
           : null,
+      if (backgroundImagePath != null)
+        'backgroundImagePath': backgroundImagePath,
     });
   }
 
@@ -200,6 +211,7 @@ class Drawing {
                 (json['canvasSize']['height'] as num).toDouble(),
               )
             : null,
+        backgroundImagePath: json['backgroundImagePath'] as String?,
       );
     } catch (e) {
       return const Drawing();

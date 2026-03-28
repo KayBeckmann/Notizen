@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:drift/drift.dart' hide Column;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -23,10 +25,14 @@ class DrawingNoteScreen extends ConsumerStatefulWidget {
   final String? noteId;
   final String folderId;
 
+  /// Optionaler Hintergrundbild-Pfad (für "Auf Bild zeichnen")
+  final String? backgroundImagePath;
+
   const DrawingNoteScreen({
     super.key,
     this.noteId,
     required this.folderId,
+    this.backgroundImagePath,
   });
 
   @override
@@ -54,6 +60,9 @@ class _DrawingNoteScreenState extends ConsumerState<DrawingNoteScreen> {
   // Raster
   bool _showGrid = false;
 
+  // Hintergrundbild
+  ui.Image? _backgroundImage;
+
   @override
   void initState() {
     super.initState();
@@ -68,27 +77,67 @@ class _DrawingNoteScreenState extends ConsumerState<DrawingNoteScreen> {
   }
 
   Future<void> _loadNote() async {
+    // Hintergrundbild laden (von Parameter oder aus gespeicherter Zeichnung)
+    String? imagePath = widget.backgroundImagePath;
+
     if (widget.noteId != null) {
       final note = await ref.read(notesDaoProvider).getNoteById(widget.noteId!);
       if (note != null && mounted) {
+        Drawing drawing = const Drawing();
+        if (note.drawingData != null && note.drawingData!.isNotEmpty) {
+          drawing = Drawing.fromJson(note.drawingData!);
+          imagePath ??= drawing.backgroundImagePath;
+        }
         setState(() {
           _existingNote = note;
           _titleController.text = note.title;
-          if (note.drawingData != null && note.drawingData!.isNotEmpty) {
-            _drawing = Drawing.fromJson(note.drawingData!);
-          }
+          _drawing = drawing;
           _undoStack.add(_drawing);
           _isLoading = false;
         });
       }
     } else {
+      // Neues Zeichnen mit optionalem Hintergrundbild
+      if (imagePath != null) {
+        _drawing = Drawing(backgroundImagePath: imagePath);
+      }
       setState(() {
         _undoStack.add(_drawing);
         _isLoading = false;
       });
     }
 
+    // Hintergrundbild als ui.Image laden
+    if (imagePath != null) {
+      _loadBackgroundImage(imagePath);
+    }
+
     _titleController.addListener(_onChanged);
+  }
+
+  Future<void> _loadBackgroundImage(String path) async {
+    try {
+      Uint8List? bytes;
+      if (kIsWeb && StorageService.isWebPath(path)) {
+        bytes = StorageService.getWebImageBytes(path);
+      } else if (!kIsWeb) {
+        final file = File(path);
+        if (await file.exists()) {
+          bytes = await file.readAsBytes();
+        }
+      }
+      if (bytes == null || !mounted) return;
+
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      if (mounted) {
+        setState(() {
+          _backgroundImage = frame.image;
+        });
+      }
+    } catch (e) {
+      debugPrint('Fehler beim Laden des Hintergrundbildes: $e');
+    }
   }
 
   void _onChanged() {
@@ -155,7 +204,10 @@ class _DrawingNoteScreenState extends ConsumerState<DrawingNoteScreen> {
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
-              _onDrawingChanged(Drawing(backgroundColor: _drawing.backgroundColor));
+              _onDrawingChanged(Drawing(
+                backgroundColor: _drawing.backgroundColor,
+                backgroundImagePath: _drawing.backgroundImagePath,
+              ));
             },
             child: const Text('Löschen'),
           ),
@@ -328,6 +380,7 @@ class _DrawingNoteScreenState extends ConsumerState<DrawingNoteScreen> {
                 settings: _settings,
                 onDrawingChanged: _onDrawingChanged,
                 showGrid: _showGrid,
+                backgroundImage: _backgroundImage,
               ),
             ),
           ),
@@ -386,7 +439,11 @@ class _DrawingNoteScreenState extends ConsumerState<DrawingNoteScreen> {
         NotesCompanion.insert(
           id: noteId,
           folderId: widget.folderId,
-          title: Value(title.isEmpty ? 'Zeichnung' : title),
+          title: Value(title.isEmpty
+              ? (_drawing.backgroundImagePath != null
+                  ? 'Bildnotiz mit Zeichnung'
+                  : 'Zeichnung')
+              : title),
           contentType: Value(ContentType.drawing.name),
           drawingData: Value(drawingJson),
           createdAt: now,

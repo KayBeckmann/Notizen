@@ -857,24 +857,23 @@ void _showNoteOptions(Note note) {
               ref.read(notesDaoProvider).togglePin(note.id);
             },
           ),
-...
-            ListTile(
-              leading: Icon(
-                note.isArchived ? Icons.unarchive_outlined : Icons.archive_outlined,
-              ),
-              title: Text(note.isArchived ? 'Aus Archiv wiederherstellen' : 'Archivieren'),
-              onTap: () {
-                Navigator.pop(context);
-                ref.read(notesDaoProvider).toggleArchive(note.id);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(note.isArchived
-                        ? 'Aus Archiv wiederhergestellt'
-                        : 'In Archiv verschoben'),
-                  ),
-                );
-              },
+          ListTile(
+            leading: Icon(
+              note.isArchived ? Icons.unarchive_outlined : Icons.archive_outlined,
             ),
+            title: Text(note.isArchived ? 'Aus Archiv wiederherstellen' : 'Archivieren'),
+            onTap: () {
+              Navigator.pop(context);
+              ref.read(notesDaoProvider).toggleArchive(note.id);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(note.isArchived
+                      ? 'Aus Archiv wiederhergestellt'
+                      : 'In Archiv verschoben'),
+                ),
+              );
+            },
+          ),
             ListTile(
               leading: const Icon(Icons.copy_outlined),
               title: const Text('Duplizieren'),

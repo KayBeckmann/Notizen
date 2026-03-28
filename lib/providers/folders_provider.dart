@@ -32,7 +32,7 @@ class CurrentFolder extends _$CurrentFolder {
   String? build() {
     // Letzten Ordner aus Einstellungen laden
     final lastFolder = SettingsService.instance.lastFolder;
-    return lastFolder ?? 'default';
+    return lastFolder;
   }
 
   void select(String? folderId) {

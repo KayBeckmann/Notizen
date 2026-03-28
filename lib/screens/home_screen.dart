@@ -137,6 +137,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         navigationRail: const FolderRail(),
         permanentDrawer: const FolderDrawer(),
         body: notesAsync.when(
+          skipLoadingOnReload: true,
           data: (notes) => _buildNotesList(notes),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => Center(

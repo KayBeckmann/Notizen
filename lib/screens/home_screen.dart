@@ -731,13 +731,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _openNote(Note note) {
+    Widget screen;
+    switch (note.contentType) {
+      case 'audio':
+        screen = AudioNoteScreen(noteId: note.id, folderId: note.folderId);
+        break;
+      case 'image':
+        screen = ImageNoteScreen(noteId: note.id, folderId: note.folderId);
+        break;
+      case 'drawing':
+        screen = DrawingNoteScreen(noteId: note.id, folderId: note.folderId);
+        break;
+      default:
+        screen = NoteEditorScreen(noteId: note.id, folderId: note.folderId);
+    }
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => NoteEditorScreen(
-          noteId: note.id,
-          folderId: note.folderId,
-        ),
-      ),
+      MaterialPageRoute(builder: (context) => screen),
     );
   }
 

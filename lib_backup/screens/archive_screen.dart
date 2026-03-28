@@ -5,41 +5,25 @@ import 'package:intl/intl.dart';
 import '../database/database.dart';
 import '../providers/database_provider.dart';
 
-/// Provider für Papierkorb-Notizen
-final trashedNotesProvider = StreamProvider<List<Note>>((ref) {
-  return ref.watch(notesDaoProvider).watchTrashedNotes();
+/// Provider für archivierte Notizen
+final archivedNotesProvider = StreamProvider<List<Note>>((ref) {
+  return ref.watch(notesDaoProvider).watchArchivedNotes();
 });
 
-/// Papierkorb-Bildschirm
-class TrashScreen extends ConsumerWidget {
-  const TrashScreen({super.key});
+/// Archiv-Bildschirm
+class ArchiveScreen extends ConsumerWidget {
+  const ArchiveScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final trashedNotesAsync = ref.watch(trashedNotesProvider);
+    final archivedNotesAsync = ref.watch(archivedNotesProvider);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Papierkorb'),
-        actions: [
-          trashedNotesAsync.when(
-            data: (notes) => notes.isNotEmpty
-                ? TextButton.icon(
-                    onPressed: () => _confirmEmptyTrash(context, ref),
-                    icon: const Icon(Icons.delete_forever),
-                    label: const Text('Papierkorb leeren'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: colorScheme.error,
-                    ),
-                  )
-                : const SizedBox.shrink(),
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
-        ],
+        title: const Text('Archiv'),
       ),
-      body: trashedNotesAsync.when(
+      body: archivedNotesAsync.when(
         data: (notes) {
           if (notes.isEmpty) {
             return Center(
@@ -47,20 +31,20 @@ class TrashScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.delete_outline,
+                    Icons.archive_outlined,
                     size: 80,
                     color: colorScheme.outline,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Papierkorb ist leer',
+                    'Archiv ist leer',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: colorScheme.outline,
                         ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Gelöschte Notizen werden hier angezeigt',
+                    'Archivierte Notizen werden hier angezeigt',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: colorScheme.outline,
                         ),
@@ -75,27 +59,18 @@ class TrashScreen extends ConsumerWidget {
               // Info-Banner
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.all(16),
                 color: colorScheme.surfaceContainerHighest,
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: colorScheme.outline, size: 20),
+                    Icon(Icons.info_outline, color: colorScheme.outline),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Notizen werden nach 30 Tagen automatisch gelöscht',
+                        'Archivierte Notizen erscheinen nicht in der Hauptansicht',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => _confirmEmptyTrash(context, ref),
-                      icon: const Icon(Icons.delete_forever, size: 18),
-                      label: const Text('Leeren'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: colorScheme.error,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
                       ),
                     ),
                   ],
@@ -109,10 +84,10 @@ class TrashScreen extends ConsumerWidget {
                   itemCount: notes.length,
                   itemBuilder: (context, index) {
                     final note = notes[index];
-                    return _TrashNoteCard(
+                    return _ArchiveNoteCard(
                       note: note,
-                      onRestore: () => _restoreNote(context, ref, note),
-                      onDelete: () => _confirmDeletePermanently(context, ref, note),
+                      onUnarchive: () => _unarchiveNote(context, ref, note),
+                      onDelete: () => _confirmDelete(context, ref, note),
                     );
                   },
                 ),
@@ -126,62 +101,30 @@ class TrashScreen extends ConsumerWidget {
     );
   }
 
-  void _confirmEmptyTrash(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.delete_forever, color: Colors.red),
-        title: const Text('Papierkorb leeren?'),
-        content: const Text(
-          'Alle Notizen im Papierkorb werden unwiderruflich gelöscht. '
-          'Diese Aktion kann nicht rückgängig gemacht werden.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(notesDaoProvider).emptyTrash();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Papierkorb geleert')),
-              );
-            },
-            child: const Text('Leeren'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _restoreNote(BuildContext context, WidgetRef ref, Note note) {
-    ref.read(notesDaoProvider).restoreFromTrash(note.id);
+  void _unarchiveNote(BuildContext context, WidgetRef ref, Note note) {
+    ref.read(notesDaoProvider).toggleArchive(note.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('„${note.title.isEmpty ? 'Notiz' : note.title}" wiederhergestellt'),
+        content: Text(
+            '„${note.title.isEmpty ? 'Notiz' : note.title}" wiederhergestellt'),
         action: SnackBarAction(
           label: 'Rückgängig',
           onPressed: () {
-            ref.read(notesDaoProvider).moveToTrash(note.id);
+            ref.read(notesDaoProvider).toggleArchive(note.id);
           },
         ),
       ),
     );
   }
 
-  void _confirmDeletePermanently(BuildContext context, WidgetRef ref, Note note) {
+  void _confirmDelete(BuildContext context, WidgetRef ref, Note note) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.delete_forever, color: Colors.red),
-        title: const Text('Endgültig löschen?'),
+        icon: const Icon(Icons.delete_outline),
+        title: const Text('In Papierkorb verschieben?'),
         content: Text(
-          '„${note.title.isEmpty ? 'Notiz' : note.title}" wird unwiderruflich gelöscht.',
+          '„${note.title.isEmpty ? 'Notiz' : note.title}" wird in den Papierkorb verschoben.',
         ),
         actions: [
           TextButton(
@@ -189,17 +132,14 @@ class TrashScreen extends ConsumerWidget {
             child: const Text('Abbrechen'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
             onPressed: () {
               Navigator.pop(context);
-              ref.read(notesDaoProvider).deleteNote(note.id);
+              ref.read(notesDaoProvider).moveToTrash(note.id);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notiz endgültig gelöscht')),
+                const SnackBar(content: Text('In Papierkorb verschoben')),
               );
             },
-            child: const Text('Löschen'),
+            child: const Text('Verschieben'),
           ),
         ],
       ),
@@ -207,14 +147,14 @@ class TrashScreen extends ConsumerWidget {
   }
 }
 
-class _TrashNoteCard extends StatelessWidget {
+class _ArchiveNoteCard extends StatelessWidget {
   final Note note;
-  final VoidCallback onRestore;
+  final VoidCallback onUnarchive;
   final VoidCallback onDelete;
 
-  const _TrashNoteCard({
+  const _ArchiveNoteCard({
     required this.note,
-    required this.onRestore,
+    required this.onUnarchive,
     required this.onDelete,
   });
 
@@ -222,11 +162,6 @@ class _TrashNoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    // Berechne verbleibende Tage
-    final trashedAt = note.trashedAt ?? DateTime.now();
-    final deleteAt = trashedAt.add(const Duration(days: 30));
-    final daysRemaining = deleteAt.difference(DateTime.now()).inDays;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -252,12 +187,9 @@ class _TrashNoteCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Gelöscht: ${_formatDate(trashedAt)} • '
-                        'Noch $daysRemaining Tage',
+                        'Archiviert: ${_formatDate(note.updatedAt)}',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: daysRemaining <= 7
-                              ? colorScheme.error
-                              : colorScheme.outline,
+                          color: colorScheme.outline,
                         ),
                       ),
                     ],
@@ -266,6 +198,19 @@ class _TrashNoteCard extends StatelessWidget {
               ],
             ),
 
+            // Vorschau des Inhalts
+            if (note.content.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                note.content,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+
             const SizedBox(height: 12),
 
             // Aktionen
@@ -273,14 +218,14 @@ class _TrashNoteCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton.icon(
-                  onPressed: onRestore,
-                  icon: const Icon(Icons.restore),
+                  onPressed: onUnarchive,
+                  icon: const Icon(Icons.unarchive_outlined),
                   label: const Text('Wiederherstellen'),
                 ),
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: onDelete,
-                  icon: Icon(Icons.delete_forever, color: colorScheme.error),
+                  icon: Icon(Icons.delete_outline, color: colorScheme.error),
                   label: Text(
                     'Löschen',
                     style: TextStyle(color: colorScheme.error),

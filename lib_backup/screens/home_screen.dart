@@ -52,8 +52,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Nur auf compact (Phone) zeigen wir das Menü-Icon
     final showMenuButton = layoutType == LayoutType.compact;
 
-    // FAB auf allen Layouts zeigen, außer im Selection Mode oder im Papierkorb
-    final showFab = !isSelectionMode && currentFolderId != '_trash';
+    // FAB auf allen Layouts zeigen, außer im Selection Mode
+    final showFab = !isSelectionMode;
 
     return AppShortcuts(
       onNewNote: _createNewNote,
@@ -76,21 +76,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     : null,
                 automaticallyImplyLeading: false,
                 actions: [
-                  if (currentFolderId == '_trash')
-                    notesAsync.when(
-                      data: (notes) => notes.isNotEmpty
-                          ? TextButton.icon(
-                              onPressed: () => _confirmEmptyTrash(context, ref),
-                              icon: const Icon(Icons.delete_forever),
-                              label: const Text('Leeren'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Theme.of(context).colorScheme.error,
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
-                    ),
                   // View Mode Toggle
                   Consumer(
                     builder: (context, ref, _) {
@@ -152,7 +137,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         navigationRail: const FolderRail(),
         permanentDrawer: const FolderDrawer(),
         body: notesAsync.when(
-          skipLoadingOnReload: true,
           data: (notes) => _buildNotesList(notes),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => Center(
@@ -220,16 +204,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSelectableNoteCard(Note note, bool isSelectionMode) {
     if (!isSelectionMode) {
-      return GestureDetector(
-        onSecondaryTapUp: (_) => _showNoteOptions(note),
-        child: NoteCard(
-          note: note,
-          onTap: () => _openNote(note),
-          onLongPress: () {
-            ref.read(selectionModeProvider.notifier).enable();
-            ref.read(selectedNotesProvider.notifier).select(note.id);
-          },
-        ),
+      return NoteCard(
+        note: note,
+        onTap: () => _openNote(note),
+        onLongPress: () {
+          ref.read(selectionModeProvider.notifier).enable();
+          ref.read(selectedNotesProvider.notifier).select(note.id);
+        },
       );
     }
 
@@ -300,16 +281,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSelectableGridCard(Note note, bool isSelectionMode) {
     if (!isSelectionMode) {
-      return GestureDetector(
-        onSecondaryTapUp: (_) => _showNoteOptions(note),
-        child: _NoteGridCard(
-          note: note,
-          onTap: () => _openNote(note),
-          onLongPress: () {
-            ref.read(selectionModeProvider.notifier).enable();
-            ref.read(selectedNotesProvider.notifier).select(note.id);
-          },
-        ),
+      return _NoteGridCard(
+        note: note,
+        onTap: () => _openNote(note),
+        onLongPress: () {
+          ref.read(selectionModeProvider.notifier).enable();
+          ref.read(selectedNotesProvider.notifier).select(note.id);
+        },
       );
     }
 
@@ -353,66 +331,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildEmptyState() {
-    final currentFolderId = ref.watch(currentFolderProvider);
-    final isTrash = currentFolderId == '_trash';
-
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            isTrash ? Icons.delete_outline : Icons.note_add_outlined,
+            Icons.note_add_outlined,
             size: 80,
             color: Theme.of(context).colorScheme.outline,
           ),
           const SizedBox(height: 16),
           Text(
-            isTrash ? 'Papierkorb ist leer' : 'Keine Notizen',
+            'Keine Notizen',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            isTrash
-                ? 'Gelöschte Notizen werden hier angezeigt'
-                : 'Tippe auf + um eine neue Notiz zu erstellen',
+            'Tippe auf + um eine neue Notiz zu erstellen',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmEmptyTrash(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.delete_forever, color: Colors.red),
-        title: const Text('Papierkorb leeren?'),
-        content: const Text(
-          'Alle Notizen im Papierkorb werden unwiderruflich gelöscht. '
-          'Diese Aktion kann nicht rückgängig gemacht werden.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(notesDaoProvider).emptyTrash();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Papierkorb geleert')),
-              );
-            },
-            child: const Text('Leeren'),
           ),
         ],
       ),
@@ -784,31 +724,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _openNote(Note note) {
-    if (note.isTrashed) {
-      _showNoteOptions(note);
-      return;
-    }
-
-    Widget screen;
-    switch (note.contentType) {
-      case 'audio':
-        screen = AudioNoteScreen(noteId: note.id, folderId: note.folderId);
-        break;
-      case 'image':
-        screen = ImageNoteScreen(noteId: note.id, folderId: note.folderId);
-        break;
-      case 'drawing':
-        screen = DrawingNoteScreen(noteId: note.id, folderId: note.folderId);
-        break;
-      default:
-        screen = NoteEditorScreen(noteId: note.id, folderId: note.folderId);
-    }
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => screen),
+      MaterialPageRoute(
+        builder: (context) => NoteEditorScreen(
+          noteId: note.id,
+          folderId: note.folderId,
+        ),
+      ),
     );
   }
-void _showNoteOptions(Note note) {
-  if (note.isTrashed) {
+
+  void _showNoteOptions(Note note) {
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -816,48 +742,15 @@ void _showNoteOptions(Note note) {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.restore),
-              title: const Text('Wiederherstellen'),
+              leading: Icon(
+                note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+              ),
+              title: Text(note.isPinned ? 'Nicht mehr anpinnen' : 'Anpinnen'),
               onTap: () {
                 Navigator.pop(context);
-                ref.read(notesDaoProvider).restoreFromTrash(note.id);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Notiz wiederhergestellt')),
-                );
+                ref.read(notesDaoProvider).togglePin(note.id);
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.delete_forever, color: Colors.red),
-              title: const Text('Endgültig löschen', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                _confirmDeletePermanently(note);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-    return;
-  }
-
-  showModalBottomSheet(
-    context: context,
-    builder: (context) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: Icon(
-              note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-            ),
-            title: Text(note.isPinned ? 'Nicht mehr anpinnen' : 'Anpinnen'),
-            onTap: () {
-              Navigator.pop(context);
-              ref.read(notesDaoProvider).togglePin(note.id);
-            },
-          ),
-...
             ListTile(
               leading: Icon(
                 note.isArchived ? Icons.unarchive_outlined : Icons.archive_outlined,
@@ -888,7 +781,7 @@ void _showNoteOptions(Note note) {
               title: const Text('Verschieben'),
               onTap: () {
                 Navigator.pop(context);
-                _moveNote(note);
+                // TODO: Show folder picker
               },
             ),
             ListTile(
@@ -903,51 +796,6 @@ void _showNoteOptions(Note note) {
         ),
       ),
     );
-  }
-
-  Future<void> _moveNote(Note note) async {
-    final folders = await ref.read(allFoldersProvider.future);
-    if (!mounted) return;
-
-    final folderId = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('In Ordner verschieben'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: folders.length,
-            itemBuilder: (context, index) {
-              final folder = folders[index];
-              final isCurrent = folder.id == note.folderId;
-              return ListTile(
-                leading: Icon(Icons.folder, color: Color(folder.color)),
-                title: Text(folder.name),
-                trailing: isCurrent ? const Icon(Icons.check) : null,
-                onTap: isCurrent ? null : () => Navigator.pop(context, folder.id),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
-          ),
-        ],
-      ),
-    );
-
-    if (folderId != null && mounted) {
-      await ref.read(notesDaoProvider).moveNote(note.id, folderId);
-      final folder = folders.firstWhere((f) => f.id == folderId);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Nach "${folder.name}" verschoben')),
-        );
-      }
-    }
   }
 
   void _duplicateNote(Note note) async {
@@ -966,38 +814,6 @@ void _showNoteOptions(Note note) {
         );
       }
     }
-  }
-
-  void _confirmDeletePermanently(Note note) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.delete_forever, color: Colors.red),
-        title: const Text('Endgültig löschen?'),
-        content: Text(
-          '„${note.title.isEmpty ? 'Notiz' : note.title}" wird unwiderruflich gelöscht.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(notesDaoProvider).deleteNote(note.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notiz endgültig gelöscht')),
-              );
-            },
-            child: const Text('Löschen'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _confirmDelete(Note note) {

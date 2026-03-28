@@ -14,6 +14,7 @@ Eine plattformübergreifende Notiz-App mit Flutter und Material Design 3.
   - Verschachtelte Ordnerstruktur
   - Tags für flexible Kategorisierung
   - Volltextsuche
+  - Papierkorb & Archiv (mit "Papierkorb leeren" Funktion)
 
 - **Design**
   - Material Design 3 (Material You)
@@ -86,16 +87,16 @@ lib/
 ## Roadmap
 
 - [x] Projektplanung
-- [ ] Grundstruktur & Setup
-- [ ] Datenmodelle & Datenbank
-- [ ] Basis-UI mit Material Design 3
-- [ ] Notiz-Editor mit Markdown
-- [ ] Sprachnotizen
-- [ ] Bildnotizen
-- [ ] Zeichenfunktion
+- [x] Grundstruktur & Setup
+- [x] Datenmodelle & Datenbank
+- [x] Basis-UI mit Material Design 3
+- [x] Notiz-Editor mit Markdown
+- [x] Sprachnotizen
+- [x] Bildnotizen
+- [x] Zeichenfunktion
 - [ ] Android Widgets
 - [ ] Multi-Plattform Testing
-- [ ] Cloud-Sync
+- [x] Cloud-Sync (Nextcloud & REST API implementiert, Google Drive geplant)
 
 ## Lizenz
 

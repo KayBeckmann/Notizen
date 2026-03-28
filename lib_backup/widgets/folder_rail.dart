@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../database/database.dart';
 import '../providers/folders_provider.dart';
-import '../providers/tags_provider.dart';
 import '../providers/notes_provider.dart';
 import 'folder_dialog.dart';
 

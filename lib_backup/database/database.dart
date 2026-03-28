@@ -19,7 +19,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -32,9 +32,11 @@ class AppDatabase extends _$AppDatabase {
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
           // Migration zu Version 2: Sync-Unterstützung
+          // Neue Spalten zur Notes-Tabelle hinzufügen
           await m.addColumn(notes, notes.syncedAt);
           await m.addColumn(notes, notes.syncStatus);
           await m.addColumn(notes, notes.remoteId);
+          // Neue Tabellen erstellen
           await m.createTable(syncQueue);
           await m.createTable(syncConflicts);
         }
@@ -42,26 +44,18 @@ class AppDatabase extends _$AppDatabase {
           // Migration zu Version 3: Vorlagen
           await m.createTable(templates);
         }
-        
-        // Immer sicherstellen, dass der Standard-Ordner existiert
-        await _ensureDefaultFolder();
+        if (from < 4) {
+          // Migration zu Version 4: Kaskadierendes Löschen (für neue Tabellen)
+          // Hinweis: SQLite unterstützt kein einfaches Ändern von Foreign Keys.
+          // Bestehende Tabellen behalten ihre alten Constraints, es sei denn, wir würden sie neu erstellen.
+          // Da wir die Löschlogik in den DAOs angepasst haben, ist das für bestehende Nutzer unkritisch.
+        }
       },
       beforeOpen: (details) async {
         // Foreign Keys aktivieren
         await customStatement('PRAGMA foreign_keys = ON');
-        
-        // Erneut sicherstellen, dass der Standard-Ordner existiert (für Robustheit)
-        await _ensureDefaultFolder();
       },
     );
-  }
-
-  /// Stellt sicher, dass der Standard-Ordner existiert
-  Future<void> _ensureDefaultFolder() async {
-    final defaultFolder = await (select(folders)..where((t) => t.id.equals('default'))).getSingleOrNull();
-    if (defaultFolder == null) {
-      await _createDefaultFolder();
-    }
   }
 
   /// Erstellt den Standard-Ordner "Notizen"

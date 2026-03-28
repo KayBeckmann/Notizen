@@ -25,13 +25,10 @@ class TrashScreen extends ConsumerWidget {
         actions: [
           trashedNotesAsync.when(
             data: (notes) => notes.isNotEmpty
-                ? TextButton.icon(
-                    onPressed: () => _confirmEmptyTrash(context, ref),
+                ? IconButton(
                     icon: const Icon(Icons.delete_forever),
-                    label: const Text('Papierkorb leeren'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: colorScheme.error,
-                    ),
+                    onPressed: () => _confirmEmptyTrash(context, ref),
+                    tooltip: 'Papierkorb leeren',
                   )
                 : const SizedBox.shrink(),
             loading: () => const SizedBox.shrink(),
@@ -75,11 +72,11 @@ class TrashScreen extends ConsumerWidget {
               // Info-Banner
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.all(16),
                 color: colorScheme.surfaceContainerHighest,
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: colorScheme.outline, size: 20),
+                    Icon(Icons.info_outline, color: colorScheme.outline),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -87,15 +84,6 @@ class TrashScreen extends ConsumerWidget {
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => _confirmEmptyTrash(context, ref),
-                      icon: const Icon(Icons.delete_forever, size: 18),
-                      label: const Text('Leeren'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: colorScheme.error,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
                       ),
                     ),
                   ],

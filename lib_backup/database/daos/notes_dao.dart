@@ -1,23 +1,20 @@
 import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 
 import '../database.dart';
-import '../tables/notes.dart';
-
 import '../tables/note_tags.dart';
-import '../tables/tags.dart';
+import '../tables/notes.dart';
 
 part 'notes_dao.g.dart';
 
 /// Data Access Object für Notizen
-@DriftAccessor(tables: [Notes, Tags, NoteTags])
+@DriftAccessor(tables: [Notes, NoteTags])
 class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   NotesDao(super.db);
 
-  /// Stream aller Notizen (archivierte und gelöschte Notizen ausschließen)
+  /// Stream aller Notizen (nicht im Papierkorb)
   Stream<List<Note>> watchAllNotes() {
     return (select(notes)
-          ..where((t) => t.isTrashed.equals(false) & t.isArchived.equals(false))
+          ..where((t) => t.isTrashed.equals(false))
           ..orderBy([
             (t) => OrderingTerm.desc(t.isPinned),
             (t) => OrderingTerm.desc(t.updatedAt),
@@ -25,51 +22,16 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
         .watch();
   }
 
-  /// Stream der Notizen in einem Ordner (archivierte und gelöschte Notizen ausschließen)
+  /// Stream der Notizen in einem Ordner
   Stream<List<Note>> watchNotesByFolder(String folderId) {
     return (select(notes)
-          ..where((t) =>
-              t.folderId.equals(folderId) &
-              t.isTrashed.equals(false) &
-              t.isArchived.equals(false))
+          ..where(
+              (t) => t.folderId.equals(folderId) & t.isTrashed.equals(false))
           ..orderBy([
             (t) => OrderingTerm.desc(t.isPinned),
             (t) => OrderingTerm.desc(t.updatedAt),
           ]))
         .watch();
-  }
-
-  /// Stream der Notizen mit einem bestimmten Tag
-  Stream<List<Note>> watchNotesByTag(String tagId) {
-    final query = select(notes).join([
-      innerJoin(noteTags, noteTags.noteId.equalsExp(notes.id)),
-    ])
-      ..where(noteTags.tagId.equals(tagId) & notes.isTrashed.equals(false))
-      ..orderBy([
-        OrderingTerm.desc(notes.isPinned),
-        OrderingTerm.desc(notes.updatedAt),
-      ]);
-
-    return query.watch().map((rows) {
-      return rows.map((row) => row.readTable(notes)).toList();
-    });
-  }
-
-  /// Stream der Notizanzahl pro Tag
-  Stream<Map<String, int>> watchNoteCountsByTag() {
-    final query = select(noteTags).join([
-      innerJoin(notes, notes.id.equalsExp(noteTags.noteId)),
-    ])
-      ..where(notes.isTrashed.equals(false));
-
-    return query.watch().map((rows) {
-      final counts = <String, int>{};
-      for (final row in rows) {
-        final tagId = row.readTable(noteTags).tagId;
-        counts[tagId] = (counts[tagId] ?? 0) + 1;
-      }
-      return counts;
-    });
   }
 
   /// Stream der angepinnten Notizen
@@ -139,15 +101,8 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   }
 
   /// Neue Notiz erstellen
-  Future<void> createNote(NotesCompanion note) async {
-    debugPrint('DB: Creating note with folderId: ${note.folderId.value}');
-    try {
-      await into(notes).insert(note);
-      debugPrint('DB: Note created successfully');
-    } catch (e) {
-      debugPrint('DB ERROR creating note: $e');
-      rethrow;
-    }
+  Future<void> createNote(NotesCompanion note) {
+    return into(notes).insert(note);
   }
 
   /// Notiz aktualisieren
@@ -156,8 +111,11 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   }
 
   /// Notiz endgültig löschen
-  Future<void> deleteNote(String id) {
-    return (delete(notes)..where((t) => t.id.equals(id))).go();
+  Future<void> deleteNote(String id) async {
+    // Manuell Tags löschen, um Foreign Key Constraints zu vermeiden
+    await (delete(noteTags)..where((t) => t.noteId.equals(id))).go();
+    // Notiz selbst löschen
+    await (delete(notes)..where((t) => t.id.equals(id))).go();
   }
 
   /// Notiz in den Papierkorb verschieben
@@ -183,8 +141,18 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   }
 
   /// Papierkorb leeren
-  Future<void> emptyTrash() {
-    return (delete(notes)..where((t) => t.isTrashed.equals(true))).go();
+  Future<void> emptyTrash() async {
+    // Erst alle IDs der Notizen im Papierkorb holen
+    final trashedNotes =
+        await (select(notes)..where((t) => t.isTrashed.equals(true))).get();
+    final trashedIds = trashedNotes.map((n) => n.id).toList();
+
+    if (trashedIds.isNotEmpty) {
+      // Tags für alle betroffenen Notizen löschen
+      await (delete(noteTags)..where((t) => t.noteId.isIn(trashedIds))).go();
+      // Notizen selbst löschen
+      await (delete(notes)..where((t) => t.isTrashed.equals(true))).go();
+    }
   }
 
   /// Alte Einträge im Papierkorb löschen (älter als 30 Tage)

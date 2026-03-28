@@ -4,13 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../database/database.dart';
+import '../models/drawing.dart';
 import '../models/enums.dart';
 import '../providers/database_provider.dart';
 import '../services/storage_service.dart';
+import '../widgets/drawing_canvas.dart';
 import '../widgets/image_picker_widget.dart';
 import '../widgets/image_viewer.dart';
+import 'image_annotation_screen.dart';
 
-/// Screen für Bild-Notizen
+/// Screen für Bild-Notizen (mit optionaler Zeichnung)
 class ImageNoteScreen extends ConsumerStatefulWidget {
   final String? noteId;
   final String folderId;
@@ -33,6 +36,7 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
   bool _hasChanges = false;
   Note? _existingNote;
   String? _imagePath;
+  Drawing _drawing = const Drawing();
 
   @override
   void initState() {
@@ -49,13 +53,19 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
 
   Future<void> _loadNote() async {
     if (widget.noteId != null) {
-      final note = await ref.read(notesDaoProvider).getNoteById(widget.noteId!);
+      final note =
+          await ref.read(notesDaoProvider).getNoteById(widget.noteId!);
       if (note != null && mounted) {
+        Drawing drawing = const Drawing();
+        if (note.drawingData != null && note.drawingData!.isNotEmpty) {
+          drawing = Drawing.fromJson(note.drawingData!);
+        }
         setState(() {
           _existingNote = note;
           _titleController.text = note.title;
           _descriptionController.text = note.content;
           _imagePath = note.mediaPath;
+          _drawing = drawing;
           _isLoading = false;
         });
       }
@@ -63,12 +73,27 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
       setState(() {
         _isLoading = false;
       });
-      // Direkt Bildauswahl öffnen
       _pickImage();
     }
 
     _titleController.addListener(_onChanged);
     _descriptionController.addListener(_onChanged);
+  }
+
+  Future<void> _reloadDrawing() async {
+    if (_existingNote == null) return;
+    final note =
+        await ref.read(notesDaoProvider).getNoteById(_existingNote!.id);
+    if (note != null && mounted) {
+      Drawing drawing = const Drawing();
+      if (note.drawingData != null && note.drawingData!.isNotEmpty) {
+        drawing = Drawing.fromJson(note.drawingData!);
+      }
+      setState(() {
+        _existingNote = note;
+        _drawing = drawing;
+      });
+    }
   }
 
   void _onChanged() {
@@ -117,6 +142,14 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
           itemBuilder: (context) => [
             if (_imagePath != null) ...[
               const PopupMenuItem(
+                value: 'annotate',
+                child: ListTile(
+                  leading: Icon(Icons.draw),
+                  title: Text('Auf Bild zeichnen'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
                 value: 'replace',
                 child: ListTile(
                   leading: Icon(Icons.swap_horiz),
@@ -148,7 +181,6 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Titel
           TextField(
             controller: _titleController,
             style: Theme.of(context).textTheme.headlineSmall,
@@ -161,18 +193,14 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
           const Divider(),
           const SizedBox(height: 16),
 
-          // Bild-Bereich
           if (_imagePath != null) ...[
             GestureDetector(
-              onTap: () => _viewImage(),
+              onTap: _viewImage,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: ImagePreview(
-                    imagePath: _imagePath!,
-                    fit: BoxFit.cover,
-                  ),
+                  child: _buildImageWithOverlay(),
                 ),
               ),
             ),
@@ -185,7 +213,13 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
                   icon: const Icon(Icons.fullscreen),
                   label: const Text('Vollbild'),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: _openAnnotation,
+                  icon: const Icon(Icons.draw),
+                  label: const Text('Zeichnen'),
+                ),
+                const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: _pickImage,
                   icon: const Icon(Icons.swap_horiz),
@@ -193,12 +227,30 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
                 ),
               ],
             ),
+            if (_drawing.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.draw,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Zeichnung vorhanden',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
           ] else
             _buildImagePlaceholder(),
 
           const SizedBox(height: 24),
 
-          // Beschreibung
           Text(
             'Beschreibung (optional)',
             style: Theme.of(context).textTheme.titleMedium,
@@ -219,6 +271,27 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
     );
   }
 
+  /// Bild mit Zeichnungs-Overlay (wenn Zeichnung vorhanden)
+  Widget _buildImageWithOverlay() {
+    if (_drawing.isEmpty) {
+      return ImagePreview(imagePath: _imagePath!, fit: BoxFit.cover);
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ImagePreview(imagePath: _imagePath!, fit: BoxFit.cover),
+        CustomPaint(
+          painter: DrawingPainter(
+            drawing: _drawing,
+            gridColor: Colors.transparent,
+            drawBackground: false,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildImagePlaceholder() {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -229,32 +302,28 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: colorScheme.outline,
-            style: BorderStyle.solid,
-          ),
+          border: Border.all(color: colorScheme.outline),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.add_photo_alternate_outlined,
-              size: 64,
-              color: colorScheme.outline,
-            ),
+            Icon(Icons.add_photo_alternate_outlined,
+                size: 64, color: colorScheme.outline),
             const SizedBox(height: 16),
             Text(
               'Bild hinzufügen',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.outline,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: colorScheme.outline),
             ),
             const SizedBox(height: 8),
             Text(
               'Kamera oder Galerie',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.outline,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: colorScheme.outline),
             ),
           ],
         ),
@@ -265,42 +334,60 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
   Future<void> _pickImage() async {
     final path = await showImagePickerDialog(context);
     if (path != null) {
-      // Altes Bild löschen falls vorhanden
       if (_imagePath != null && _imagePath != _existingNote?.mediaPath) {
         await StorageService.instance.deleteFile(_imagePath!);
       }
-
       setState(() {
         _imagePath = path;
         _hasChanges = true;
       });
-
-      // Auto-Titel wenn leer
       if (_titleController.text.isEmpty) {
         final now = DateTime.now();
         _titleController.text =
             'Bild ${now.day}.${now.month}.${now.year} ${now.hour}:${now.minute.toString().padLeft(2, '0')}';
       }
     } else if (_imagePath == null && _existingNote == null) {
-      // Abgebrochen ohne Bild bei neuer Notiz
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+      if (mounted) Navigator.of(context).pop();
     }
   }
 
   void _viewImage() {
     if (_imagePath == null) return;
-
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ImageViewer(
           imagePath: _imagePath!,
-          title: _titleController.text.isNotEmpty ? _titleController.text : null,
+          title: _titleController.text.isNotEmpty
+              ? _titleController.text
+              : null,
         ),
       ),
     );
+  }
+
+  Future<void> _openAnnotation() async {
+    if (_imagePath == null) return;
+
+    // Notiz muss zuerst gespeichert sein, damit wir eine noteId haben
+    if (_existingNote == null) {
+      await _saveNoteData();
+      if (_existingNote == null) return; // Speichern fehlgeschlagen
+    }
+
+    if (!mounted) return;
+    final annotated = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ImageAnnotationScreen(noteId: _existingNote!.id),
+      ),
+    );
+
+    // Zeichnung neu laden nach Rückkehr
+    if (annotated == true && mounted) {
+      await _reloadDrawing();
+    }
   }
 
   Future<bool?> _showUnsavedChangesDialog() {
@@ -323,13 +410,9 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
     );
   }
 
-  Future<void> _saveNote() async {
-    if (_imagePath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bitte erst ein Bild auswählen')),
-      );
-      return;
-    }
+  /// Speichert die Notiz (ohne zu navigieren)
+  Future<void> _saveNoteData() async {
+    if (_imagePath == null) return;
 
     final title = _titleController.text.trim();
     final description = _descriptionController.text.trim();
@@ -345,10 +428,12 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
           updatedAt: now,
         ),
       );
+      setState(() => _hasChanges = false);
     } else {
+      final id = const Uuid().v4();
       await notesDao.createNote(
         NotesCompanion.insert(
-          id: const Uuid().v4(),
+          id: id,
           folderId: widget.folderId,
           title: Value(title.isEmpty ? 'Bildnotiz' : title),
           content: Value(description),
@@ -358,19 +443,33 @@ class _ImageNoteScreenState extends ConsumerState<ImageNoteScreen> {
           updatedAt: now,
         ),
       );
+      final note = await notesDao.getNoteById(id);
+      if (mounted) {
+        setState(() {
+          _existingNote = note;
+          _hasChanges = false;
+        });
+      }
     }
+  }
 
-    setState(() {
-      _hasChanges = false;
-    });
-
-    if (mounted) {
-      Navigator.of(context).pop();
+  /// Speichert und schließt den Screen
+  Future<void> _saveNote() async {
+    if (_imagePath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bitte erst ein Bild auswählen')),
+      );
+      return;
     }
+    await _saveNoteData();
+    if (mounted) Navigator.of(context).pop();
   }
 
   void _handleMenuAction(String action) {
     switch (action) {
+      case 'annotate':
+        _openAnnotation();
+        break;
       case 'replace':
         _pickImage();
         break;

@@ -96,6 +96,35 @@ class RestApiSyncProvider implements SyncProvider {
   }
 
   @override
+  Future<Map<String, dynamic>> syncAll({
+    required int lastSyncTimestamp,
+    required List<Map<String, dynamic>> localChanges,
+  }) async {
+    if (!_connected || _serverUrl == null) {
+      throw Exception('Nicht verbunden');
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(_buildUrl('/api/v1/sync/sync')),
+        headers: _authHeaders,
+        body: json.encode({
+          'last_sync_timestamp': lastSyncTimestamp,
+          'changes': localChanges,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('Sync fehlgeschlagen: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Verbindungsfehler beim Sync: $e');
+    }
+  }
+
+  @override
   Future<SyncResult> sync() async {
     if (!_connected) {
       return SyncResult.error('Nicht verbunden');

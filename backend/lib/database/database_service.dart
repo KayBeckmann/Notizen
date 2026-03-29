@@ -72,6 +72,29 @@ class DatabaseService {
     }
   }
 
+  /// Holt ein einzelnes Item nach ID
+  Map<String, dynamic>? getItemById(String id) {
+    final results = _db.select('SELECT id, type, data, updated_at, deleted FROM sync_items WHERE id = ?', [id]);
+    if (results.isEmpty) return null;
+    
+    final row = results.first;
+    return {
+      'id': row['id'],
+      'type': row['type'],
+      'data': row['data'],
+      'updated_at': row['updated_at'],
+      'deleted': row['deleted'] == 1,
+    };
+  }
+
+  /// Markiert ein Item als gelöscht (Tombstone)
+  void markDeleted(String id) {
+    _db.execute(
+      'UPDATE sync_items SET deleted = 1, updated_at = ? WHERE id = ?',
+      [DateTime.now().millisecondsSinceEpoch, id],
+    );
+  }
+
   void close() {
     _db.dispose();
   }

@@ -13,7 +13,50 @@ class SyncHandler {
     router.post('/pull', _pullHandler);
     router.post('/push', _pushHandler);
     router.post('/sync', _syncHandler);
+    
+    // REST Endpunkte für Notizen (Kompatibilität)
+    router.get('/notes', _getNotesHandler);
+    router.get('/notes/<id>', _getNoteHandler);
+    router.post('/notes', _upsertNoteHandler);
+    router.delete('/notes/<id>', _deleteNoteHandler);
+    
     return router;
+  }
+
+  Future<Response> _getNotesHandler(Request req) async {
+    final lastSync = int.tryParse(req.url.queryParameters['since'] ?? '0') ?? 0;
+    final changes = _db.getChangesSince(lastSync);
+    // Nur Notizen filtern
+    final notes = changes.where((c) => c['type'] == 'note').toList();
+    return Response.ok(json.encode(notes), headers: {'content-type': 'application/json'});
+  }
+
+  Future<Response> _getNoteHandler(Request req, String id) async {
+    final item = _db.getItemById(id);
+    if (item == null) return Response.notFound('Notiz nicht gefunden');
+    return Response.ok(json.encode(item), headers: {'content-type': 'application/json'});
+  }
+
+  Future<Response> _upsertNoteHandler(Request req) async {
+    final body = await req.readAsString();
+    final data = json.decode(body) as Map<String, dynamic>;
+    
+    // In das generische Format umwandeln
+    final item = {
+      'id': data['id'],
+      'type': 'note',
+      'data': body,
+      'updated_at': DateTime.now().millisecondsSinceEpoch,
+      'deleted': false,
+    };
+    
+    _db.upsertItems([item]);
+    return Response.ok(json.encode({'status': 'ok'}));
+  }
+
+  Future<Response> _deleteNoteHandler(Request req, String id) async {
+    _db.markDeleted(id);
+    return Response.ok(json.encode({'status': 'ok'}));
   }
 
   /// Voller Sync: Push lokale Änderungen, Pull Remote Änderungen

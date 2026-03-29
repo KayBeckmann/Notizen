@@ -124,6 +124,14 @@ abstract class SyncProvider {
   /// Vollständige Synchronisation durchführen
   Future<SyncResult> sync();
 
+  /// Alle Objekte (Notizen, Ordner, Tags) synchronisieren
+  /// [lastSyncTimestamp] Zeitstempel des letzten erfolgreichen Syncs
+  /// [localChanges] Liste der lokalen Änderungen seit dem letzten Sync
+  Future<Map<String, dynamic>> syncAll({
+    required int lastSyncTimestamp,
+    required List<Map<String, dynamic>> localChanges,
+  });
+
   /// Einzelne Notiz hochladen
   Future<bool> uploadNote(Note note);
 

@@ -27,6 +27,9 @@ class RestApiSyncProvider implements SyncProvider {
   @override
   DateTime? get lastSyncTime => _lastSyncTime;
 
+  @override
+  bool get supportsSyncAll => true;
+
   /// Konfiguration setzen
   void configure({
     required String serverUrl,
@@ -247,7 +250,7 @@ class RestApiSyncProvider implements SyncProvider {
           return SyncChange(
             id: change['noteId'] as String,
             type: 'note',
-            action: _parseChangeType(change['type'] as String),
+            action: _parseChangeAction(change['type'] as String),
             timestamp: DateTime.parse(change['timestamp'] as String),
             data: change['note'] as Map<String, dynamic>?,
           );

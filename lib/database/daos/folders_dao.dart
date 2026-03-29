@@ -61,7 +61,7 @@ class FoldersDao extends DatabaseAccessor<AppDatabase> with _$FoldersDaoMixin {
 
   /// Neuen Ordner erstellen
   Future<String> createFolder(FoldersCompanion folder) async {
-    final id = folder.id.value;
+    final id = folder.id.value as String;
     await into(folders).insert(folder);
     final createdFolder = await getFolderById(id);
     if (createdFolder != null) {

@@ -114,6 +114,9 @@ abstract class SyncProvider {
   /// Letzter erfolgreicher Sync-Zeitpunkt
   DateTime? get lastSyncTime;
 
+  /// Ob der Provider den neuen generischen Delta-Sync unterstützt
+  bool get supportsSyncAll;
+
   /// Verbindung zum Cloud-Dienst herstellen
   Future<bool> connect();
 

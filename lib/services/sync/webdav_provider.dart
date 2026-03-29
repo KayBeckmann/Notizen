@@ -31,6 +31,9 @@ class WebDAVSyncProvider implements SyncProvider {
   @override
   DateTime? get lastSyncTime => _lastSyncTime;
 
+  @override
+  bool get supportsSyncAll => false;
+
   /// Konfiguration setzen
   void configure({
     required String serverUrl,

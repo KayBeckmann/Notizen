@@ -164,14 +164,14 @@ class SyncService extends ChangeNotifier {
     _notifySyncStart();
 
     try {
-      if (_provider is RestApiSyncProvider) {
+      if (_provider != null && _provider!.supportsSyncAll) {
         // Optimierter Delta-Sync für das eigene Backend
         final localChanges = _pendingChanges.map((c) => {
           'id': c.id,
           'type': c.type,
           'action': c.action.name,
           'updated_at': c.timestamp.millisecondsSinceEpoch,
-          'data': c.data != null ? json.encode(c.data) : null,
+          'data': c.data != null ? jsonEncode(c.data) : null,
         }).toList();
 
         final response = await _provider!.syncAll(
@@ -229,7 +229,7 @@ class SyncService extends ChangeNotifier {
       final type = map['type'] as String;
       final isDeleted = map['deleted'] as bool;
       final dataStr = map['data'] as String;
-      final data = json.decode(dataStr) as Map<String, dynamic>;
+      final data = jsonDecode(dataStr) as Map<String, dynamic>;
 
       if (isDeleted) {
         // Lokal löschen

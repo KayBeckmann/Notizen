@@ -2,7 +2,7 @@ services:
   homepage:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - "${HOMEPAGE_PORT:-80}:80"
     volumes:
       - ./homepage:/usr/share/nginx/html:ro
     restart: unless-stopped
@@ -13,7 +13,7 @@ services:
       dockerfile: Dockerfile
     image: notizen-app:latest
     ports:
-      - "8080:80"
+      - "${APP_PORT:-8080}:80"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
@@ -30,7 +30,7 @@ services:
       - .:/app
       - flutter_pub_cache:/root/.pub-cache
     ports:
-      - "8081:8080"
+      - "${DEV_PORT:-8081}:8080"
     command: flutter run -d web-server --web-port=8080 --web-hostname=0.0.0.0
     profiles:
       - dev

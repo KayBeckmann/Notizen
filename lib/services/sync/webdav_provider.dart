@@ -144,10 +144,10 @@ class WebDAVSyncProvider implements SyncProvider {
 
       // 3. Remote-Änderungen herunterladen
       for (final change in remoteChanges) {
-        if (change.type == SyncChangeType.deleted) {
+        if (change.action == SyncChangeType.deleted) {
           // TODO: Lokal löschen
-        } else {
-          final note = await downloadNote(change.noteId);
+        } else if (change.type == 'note') {
+          final note = await downloadNote(change.id);
           if (note != null) {
             downloaded++;
           }

@@ -146,7 +146,8 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   Future<String> createNote(NotesCompanion note) async {
     debugPrint('DB: Creating note with folderId: ${note.folderId.value}');
     try {
-      final id = await into(notes).insert(note);
+      final id = note.id.value;
+      await into(notes).insert(note);
       final createdNote = await getNoteById(id);
       if (createdNote != null) {
         syncService?.queueNoteChange(createdNote, SyncChangeType.created);

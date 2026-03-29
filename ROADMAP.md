@@ -833,10 +833,10 @@
 
 #### 9.4 Eigener Server (Dart REST API)
 - [x] 9.4.1 Backend-Struktur und Docker-Setup (Dart Shelf)
-- [ ] 9.4.2 API-Spezifikation und Auth-System
-- [ ] 9.4.3 Datenbank-Synchronisations-Logik (Delta-Sync)
-- [ ] 9.4.4 Mediendateien-Management im Backend
-- [ ] 9.4.5 Integration in die Flutter-App (Client)
+- [x] 9.4.2 API-Spezifikation und Delta-Sync Endpunkt
+- [x] 9.4.3 Datenbank-Synchronisations-Logik (SQLite im Backend)
+- [x] 9.4.4 Integration in die Flutter-App (Delta-Sync für Notizen, Ordner, Tags)
+- [ ] 9.4.5 Mediendateien-Management im Backend
 
 
 ### 9.5 Sync-UI

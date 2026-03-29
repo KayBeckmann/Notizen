@@ -5,6 +5,7 @@ import '../database/database.dart';
 import '../database/daos/folders_dao.dart';
 import '../database/daos/notes_dao.dart';
 import '../database/daos/tags_dao.dart';
+import 'sync_provider.dart';
 
 part 'database_provider.g.dart';
 

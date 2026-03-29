@@ -245,14 +245,13 @@ class RestApiSyncProvider implements SyncProvider {
         return data.map((item) {
           final change = item as Map<String, dynamic>;
           return SyncChange(
-            noteId: change['noteId'] as String,
-            type: _parseChangeType(change['type'] as String),
+            id: change['noteId'] as String,
+            type: 'note',
+            action: _parseChangeType(change['type'] as String),
             timestamp: DateTime.parse(change['timestamp'] as String),
-            note: change['note'] != null
-                ? _noteFromJson(change['note'] as Map<String, dynamic>)
-                : null,
+            data: change['note'] as Map<String, dynamic>?,
           );
-        }).toList();
+        }).cast<SyncChange>().toList();
       }
       return [];
     } catch (e) {
@@ -355,7 +354,7 @@ class RestApiSyncProvider implements SyncProvider {
     await prefs.setInt(_prefsKeyLastSync, _lastSyncTime!.millisecondsSinceEpoch);
   }
 
-  SyncChangeType _parseChangeType(String type) {
+  SyncChangeType _parseChangeAction(String type) {
     switch (type) {
       case 'created':
         return SyncChangeType.created;

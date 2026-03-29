@@ -277,6 +277,17 @@ class SyncService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Löschung zur Sync-Queue hinzufügen
+  void queueDeletion(String id, String type) {
+    _pendingChanges.add(SyncChange(
+      id: id,
+      type: type,
+      action: SyncChangeType.deleted,
+      timestamp: DateTime.now(),
+    ));
+    notifyListeners();
+  }
+
   /// Ordner zur Sync-Queue hinzufügen
   void queueFolderChange(Folder folder, SyncChangeType action) {
     _pendingChanges.add(SyncChange(

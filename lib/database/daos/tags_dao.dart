@@ -54,7 +54,8 @@ class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
 
   /// Neuen Tag erstellen
   Future<String> createTag(TagsCompanion tag) async {
-    final id = await into(tags).insert(tag);
+    final id = tag.id.value;
+    await into(tags).insert(tag);
     final createdTag = await getTagById(id);
     if (createdTag != null) {
       syncService?.queueTagChange(createdTag, SyncChangeType.created);

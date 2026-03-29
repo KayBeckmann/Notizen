@@ -130,7 +130,9 @@ abstract class SyncProvider {
   Future<Map<String, dynamic>> syncAll({
     required int lastSyncTimestamp,
     required List<Map<String, dynamic>> localChanges,
-  });
+  }) {
+    throw UnimplementedError('syncAll ist für diesen Provider nicht implementiert');
+  }
 
   /// Einzelne Notiz hochladen
   Future<bool> uploadNote(Note note);

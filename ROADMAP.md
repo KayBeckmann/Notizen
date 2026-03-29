@@ -831,14 +831,13 @@
 - [x] 9.3.6 Dateien hochladen/herunterladen
 - [x] 9.3.7 Änderungen synchronisieren
 
-### 9.4 Eigener Server (REST API)
-- [x] 9.4.1 API-Spezifikation definieren
-- [x] 9.4.2 Server-URL Eingabe
-- [x] 9.4.3 API-Key oder JWT-Auth
-- [x] 9.4.4 HTTP-Client implementieren
-- [x] 9.4.5 CRUD-Endpunkte ansprechen
-- [x] 9.4.6 Mediendateien-Upload
-- [x] 9.4.7 Sync-Endpunkt (Delta-Sync)
+#### 9.4 Eigener Server (Dart REST API)
+- [x] 9.4.1 Backend-Struktur und Docker-Setup (Dart Shelf)
+- [ ] 9.4.2 API-Spezifikation und Auth-System
+- [ ] 9.4.3 Datenbank-Synchronisations-Logik (Delta-Sync)
+- [ ] 9.4.4 Mediendateien-Management im Backend
+- [ ] 9.4.5 Integration in die Flutter-App (Client)
+
 
 ### 9.5 Sync-UI
 #### 9.5.1 Einstellungen

@@ -18,7 +18,7 @@ RUN dart compile exe bin/server.dart -o bin/server
 FROM debian:bookworm-slim
 
 # Notwendige Bibliotheken für SQLite
-RUN apt-get update && apt-get install -y libsqlite3-0 ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libsqlite3-dev ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # App kopieren
 COPY --from=build /app/bin/server /app/bin/server

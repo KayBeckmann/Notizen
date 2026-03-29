@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'constants/app_theme.dart';
 import 'providers/notes_provider.dart';
@@ -12,6 +16,21 @@ import 'services/widget_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Minimale Fenstergröße für Desktop setzen
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    await windowManager.ensureInitialized();
+    WindowOptions windowOptions = const WindowOptions(
+      size: Size(1024, 768),
+      minimumSize: Size(800, 600),
+      center: true,
+      title: 'Notizen',
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
   // Einstellungen und Storage initialisieren
   await SettingsService.instance.init();

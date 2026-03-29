@@ -654,10 +654,10 @@
 - [x] 7.3.1.6 Shortcuts-Hilfe Dialog
 
 #### 7.3.2 Responsive Layout
-- [ ] 7.3.2.1 Drei-Spalten-Layout (Ordner | Liste | Editor)
-- [ ] 7.3.2.2 Resizable Panels
-- [ ] 7.3.2.3 Collapse/Expand Sidebar
-- [ ] 7.3.2.4 Minimale Fenstergrößen
+- [x] 7.3.2.1 Drei-Spalten-Layout (Ordner | Liste | Editor)
+- [x] 7.3.2.2 Resizable Panels
+- [x] 7.3.2.3 Collapse/Expand Sidebar
+- [x] 7.3.2.4 Minimale Fenstergrößen
 
 #### 7.3.3 Drag & Drop
 - [x] 7.3.3.1 Notizen zwischen Ordnern ziehen

@@ -42,6 +42,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final layoutType = Breakpoints.getLayoutType(context);
     final isSelectionMode = ref.watch(selectionModeProvider);
     final selectedNotes = ref.watch(selectedNotesProvider);
+    final selectedNoteId = ref.watch(selectedNoteProvider);
+
+    // Ausgewählte Notiz für Desktop/Tablet (3. Spalte) ermitteln
+    Widget? secondaryBody;
+    if ((layoutType == LayoutType.expanded || layoutType == LayoutType.large) &&
+        selectedNoteId != null &&
+        notesAsync.hasValue) {
+      final notes = notesAsync.value!;
+      final selectedNote = notes.where((n) => n.id == selectedNoteId).firstOrNull;
+      
+      if (selectedNote != null) {
+        switch (selectedNote.contentType) {
+          case 'audio':
+            secondaryBody = AudioNoteScreen(noteId: selectedNote.id, folderId: selectedNote.folderId);
+            break;
+          case 'image':
+            secondaryBody = ImageNoteScreen(noteId: selectedNote.id, folderId: selectedNote.folderId);
+            break;
+          case 'drawing':
+            secondaryBody = DrawingNoteScreen(noteId: selectedNote.id, folderId: selectedNote.folderId);
+            break;
+          default:
+            secondaryBody = NoteEditorScreen(noteId: selectedNote.id, folderId: selectedNote.folderId);
+        }
+      }
+    }
 
     // Aktuellen Ordnernamen ermitteln
     final currentFolderName = _getFolderName(currentFolderId, foldersAsync);
@@ -64,6 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       onHelp: () => showKeyboardShortcutsHelp(context),
       child: AdaptiveScaffold(
         scaffoldKey: _scaffoldKey,
+        secondaryBody: secondaryBody,
         appBar: isSelectionMode
             ? _buildSelectionAppBar(selectedNotes.length)
             : AppBar(
@@ -786,6 +813,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _openNote(Note note) {
     if (note.isTrashed) {
       _showNoteOptions(note);
+      return;
+    }
+
+    final layoutType = Breakpoints.getLayoutType(context);
+    if (layoutType == LayoutType.expanded || layoutType == LayoutType.large) {
+      ref.read(selectedNoteProvider.notifier).select(note.id);
       return;
     }
 

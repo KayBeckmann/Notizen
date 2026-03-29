@@ -3,32 +3,21 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-// Router-Konfiguration
-final _router = Router()
-  ..get('/', _rootHandler)
-  ..get('/health', _healthHandler)
-  ..mount('/api/v1/', _apiProvider());
-
-Response _rootHandler(Request req) {
-  return Response.ok('Notizen Sync Backend läuft.\n');
-}
-
-Response _healthHandler(Request req) {
-  return Response.ok('{"status": "ok"}', headers: {'content-type': 'application/json'});
-}
-
-Router _apiProvider() {
-  final router = Router();
-  
-  // TODO: Auth & Sync Endpunkte implementieren
-  router.get('sync', (Request req) {
-    return Response.ok('{"message": "Sync API bereit"}', headers: {'content-type': 'application/json'});
-  });
-
-  return router;
-}
+import '../lib/database/database_service.dart';
+import '../lib/api/sync_handler.dart';
 
 void main(List<String> args) async {
+  // Pfad zur Datenbank aus Umgebungsvariable oder Standard
+  final dbPath = Platform.environment['DB_PATH'] ?? 'data/sync.db';
+  final db = DatabaseService(dbPath);
+  final syncHandler = SyncHandler(db);
+
+  // Router-Konfiguration
+  final router = Router()
+    ..get('/', (Request req) => Response.ok('Notizen Sync Backend läuft.\n'))
+    ..get('/health', (Request req) => Response.ok('{"status": "ok"}', headers: {'content-type': 'application/json'}))
+    ..mount('/api/v1/sync/', syncHandler.router.call);
+
   // Port aus Umgebungsvariable oder Standard 8080
   final port = int.parse(Platform.environment['PORT'] ?? '8080');
   
@@ -38,7 +27,7 @@ void main(List<String> args) async {
   // Pipeline konfigurieren
   final handler = const Pipeline()
       .addMiddleware(logRequests())
-      .addHandler(_router.call);
+      .addHandler(router.call);
 
   // Server starten
   final server = await serve(handler, ip, port);

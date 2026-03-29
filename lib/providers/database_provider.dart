@@ -31,5 +31,8 @@ NotesDao notesDao(Ref ref) {
 /// TagsDao Provider
 @riverpod
 TagsDao tagsDao(Ref ref) {
-  return TagsDao(ref.watch(databaseProvider));
+  return TagsDao(
+    ref.watch(databaseProvider),
+    syncService: ref.watch(syncServiceProvider),
+  );
 }

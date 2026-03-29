@@ -3,12 +3,16 @@ import 'package:drift/drift.dart';
 import '../database.dart';
 import '../tables/folders.dart';
 
+import '../../services/sync/sync.dart';
+
 part 'folders_dao.g.dart';
 
 /// Data Access Object für Ordner
 @DriftAccessor(tables: [Folders])
 class FoldersDao extends DatabaseAccessor<AppDatabase> with _$FoldersDaoMixin {
-  FoldersDao(super.db);
+  final SyncService? syncService;
+
+  FoldersDao(super.db, {this.syncService});
 
   /// Stream aller Ordner
   Stream<List<Folder>> watchAllFolders() {
@@ -56,13 +60,22 @@ class FoldersDao extends DatabaseAccessor<AppDatabase> with _$FoldersDaoMixin {
   }
 
   /// Neuen Ordner erstellen
-  Future<void> createFolder(FoldersCompanion folder) {
-    return into(folders).insert(folder);
+  Future<String> createFolder(FoldersCompanion folder) async {
+    final id = await into(folders).insert(folder);
+    final createdFolder = await getFolderById(id);
+    if (createdFolder != null) {
+      syncService?.queueFolderChange(createdFolder, SyncChangeType.created);
+    }
+    return id;
   }
 
   /// Ordner aktualisieren
-  Future<bool> updateFolder(Folder folder) {
-    return update(folders).replace(folder);
+  Future<bool> updateFolder(Folder folder) async {
+    final success = await update(folders).replace(folder);
+    if (success) {
+      syncService?.queueFolderChange(folder, SyncChangeType.updated);
+    }
+    return success;
   }
 
   /// Ordner löschen (kaskadierend mit Unterordnern)
@@ -76,30 +89,41 @@ class FoldersDao extends DatabaseAccessor<AppDatabase> with _$FoldersDaoMixin {
 
     // Dann den Ordner selbst löschen
     await (delete(folders)..where((t) => t.id.equals(id))).go();
+    syncService?.queueDeletion(id, 'folder');
   }
 
   /// Ordner verschieben
   Future<void> moveFolder(String id, String? newParentId) async {
     final folder = await getFolderById(id);
     if (folder != null) {
+      final now = DateTime.now();
       await (update(folders)..where((t) => t.id.equals(id))).write(
         FoldersCompanion(
           parentId: Value(newParentId),
-          updatedAt: Value(DateTime.now()),
+          updatedAt: Value(now),
         ),
       );
+      final updatedFolder = await getFolderById(id);
+      if (updatedFolder != null) {
+        syncService?.queueFolderChange(updatedFolder, SyncChangeType.updated);
+      }
     }
   }
 
   /// Ordner neu sortieren
   Future<void> reorderFolders(List<String> ids) async {
+    final now = DateTime.now();
     for (var i = 0; i < ids.length; i++) {
       await (update(folders)..where((t) => t.id.equals(ids[i]))).write(
         FoldersCompanion(
           position: Value(i),
-          updatedAt: Value(DateTime.now()),
+          updatedAt: Value(now),
         ),
       );
+      final updatedFolder = await getFolderById(ids[i]);
+      if (updatedFolder != null) {
+        syncService?.queueFolderChange(updatedFolder, SyncChangeType.updated);
+      }
     }
   }
 

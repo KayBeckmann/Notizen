@@ -82,16 +82,18 @@ enum ConflictResolution {
 
 /// Änderung die synchronisiert werden muss
 class SyncChange {
-  final String noteId;
-  final SyncChangeType type;
+  final String id;
+  final String type; // 'note', 'folder', 'tag'
+  final SyncChangeType action;
   final DateTime timestamp;
-  final Note? note;
+  final Map<String, dynamic>? data;
 
   SyncChange({
-    required this.noteId,
+    required this.id,
     required this.type,
+    required this.action,
     required this.timestamp,
-    this.note,
+    this.data,
   });
 }
 

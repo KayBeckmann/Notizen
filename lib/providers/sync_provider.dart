@@ -1,11 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'database_provider.dart';
 import '../services/connectivity_service.dart';
 import '../services/sync/sync.dart';
 
 /// Provider für den SyncService
 final syncServiceProvider = Provider<SyncService>((ref) {
-  final service = SyncService();
+  final service = SyncService(ref.watch(databaseProvider));
 
   // Einstellungen beim Start laden
   service.loadSettings();

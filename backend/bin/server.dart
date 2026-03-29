@@ -4,6 +4,7 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../lib/database/database_service.dart';
+import '../lib/api/auth_handler.dart';
 import '../lib/api/sync_handler.dart';
 
 void main(List<String> args) async {
@@ -46,12 +47,14 @@ void main(List<String> args) async {
 }
 
 Future<void> _startServer(DatabaseService db) async {
+  final authHandler = AuthHandler(db);
   final syncHandler = SyncHandler(db);
 
   // Router-Konfiguration
   final router = Router()
     ..get('/', (Request req) => Response.ok('Notizen Sync Backend läuft.\n'))
     ..get('/health', (Request req) => Response.ok('{"status": "ok"}', headers: {'content-type': 'application/json'}))
+    ..mount('/api/v1/auth/', authHandler.router.call)
     ..mount('/api/v1/sync/', syncHandler.router.call);
 
   // Port aus Umgebungsvariable oder Standard 8080

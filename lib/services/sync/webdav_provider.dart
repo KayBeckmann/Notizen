@@ -171,6 +171,14 @@ class WebDAVSyncProvider implements SyncProvider {
   }
 
   @override
+  Future<Map<String, dynamic>> syncAll({
+    required int lastSyncTimestamp,
+    required List<Map<String, dynamic>> localChanges,
+  }) {
+    throw UnimplementedError('syncAll ist für WebDAV aktuell nicht implementiert');
+  }
+
+  @override
   Future<bool> uploadNote(Note note) async {
     if (!_connected) return false;
 

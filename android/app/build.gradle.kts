@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.kaybeckmann.notizen"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

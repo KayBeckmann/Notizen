@@ -46,6 +46,29 @@ void main(List<String> args) async {
   await _startServer(db);
 }
 
+/// CORS Middleware für Cross-Origin Requests (Web-Browser)
+Middleware corsMiddleware() {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization, Accept',
+    'Access-Control-Max-Age': '86400',
+  };
+
+  return (Handler innerHandler) {
+    return (Request request) async {
+      // Handle preflight OPTIONS request
+      if (request.method == 'OPTIONS') {
+        return Response.ok('', headers: corsHeaders);
+      }
+
+      // Add CORS headers to actual response
+      final response = await innerHandler(request);
+      return response.change(headers: {...response.headers, ...corsHeaders});
+    };
+  };
+}
+
 Future<void> _startServer(DatabaseService db) async {
   final authHandler = AuthHandler(db);
   final syncHandler = SyncHandler(db);
@@ -59,12 +82,13 @@ Future<void> _startServer(DatabaseService db) async {
 
   // Port aus Umgebungsvariable oder Standard 8080
   final port = int.parse(Platform.environment['PORT'] ?? '8080');
-  
+
   // IP-Adresse binden (0.0.0.0 für Docker)
   final ip = InternetAddress.anyIPv4;
 
-  // Pipeline konfigurieren
+  // Pipeline konfigurieren mit CORS-Support
   final handler = const Pipeline()
+      .addMiddleware(corsMiddleware())
       .addMiddleware(logRequests())
       .addHandler(router.call);
 

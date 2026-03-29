@@ -10,31 +10,75 @@ class DatabaseService {
   }
 
   void _initialize() {
-    // Sync Items Tabelle
-    // - id: UUID der Notiz/Ordner/Tag
-    // - type: 'note', 'folder', 'tag'
-    // - data: JSON-Blob der Daten
-    // - updated_at: Zeitstempel der letzten Änderung (für Delta-Sync)
-    // - deleted: Flag für gelöschte Einträge (Tombstones)
+    // Users Tabelle
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        api_key TEXT UNIQUE NOT NULL,
+        created_at INTEGER NOT NULL
+      )
+    ''');
+
+    // Sync Items Tabelle (erweitert um user_id)
     _db.execute('''
       CREATE TABLE IF NOT EXISTS sync_items (
-        id TEXT PRIMARY KEY,
+        id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
         type TEXT NOT NULL,
         data TEXT NOT NULL,
         updated_at INTEGER NOT NULL,
-        deleted INTEGER DEFAULT 0
+        deleted INTEGER DEFAULT 0,
+        PRIMARY KEY (id, user_id),
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
 
     // Index für schnelleres Abrufen von Änderungen
-    _db.execute('CREATE INDEX IF NOT EXISTS idx_updated_at ON sync_items(updated_at)');
+    _db.execute('CREATE INDEX IF NOT EXISTS idx_updated_at_user ON sync_items(user_id, updated_at)');
   }
 
-  /// Holt alle Änderungen seit einem bestimmten Zeitstempel
-  List<Map<String, dynamic>> getChangesSince(int timestamp) {
+  /// Erstellt einen neuen Benutzer und gibt den API-Key zurück
+  String createUser(String username) {
+    final userId = DateTime.now().millisecondsSinceEpoch.toString(); // Einfache ID
+    final apiKey = _generateApiKey();
+    
+    _db.execute(
+      'INSERT INTO users (id, username, api_key, created_at) VALUES (?, ?, ?, ?)',
+      [userId, username, apiKey, DateTime.now().millisecondsSinceEpoch],
+    );
+    
+    return apiKey;
+  }
+
+  /// Validiert einen API-Key und gibt die User-ID zurück
+  String? validateApiKey(String apiKey) {
+    final result = _db.select('SELECT id FROM users WHERE api_key = ?', [apiKey]);
+    if (result.isEmpty) return null;
+    return result.first['id'] as String;
+  }
+
+  /// Holt alle Benutzernamen (für CLI)
+  List<Map<String, dynamic>> getUsers() {
+    final results = _db.select('SELECT username, api_key FROM users');
+    return results.map((row) => {
+      'username': row['username'],
+      'api_key': row['api_key'],
+    }).toList();
+  }
+
+  String _generateApiKey() {
+    // Einfache API-Key Generierung
+    final chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rnd = DateTime.now().microsecondsSinceEpoch;
+    return List.generate(32, (index) => chars[(rnd + index) % chars.length]).join();
+  }
+
+  /// Holt alle Änderungen seit einem bestimmten Zeitstempel für einen Benutzer
+  List<Map<String, dynamic>> getChangesSince(String userId, int timestamp) {
     final ResultSet results = _db.select(
-      'SELECT id, type, data, updated_at, deleted FROM sync_items WHERE updated_at > ?',
-      [timestamp],
+      'SELECT id, type, data, updated_at, deleted FROM sync_items WHERE user_id = ? AND updated_at > ?',
+      [userId, timestamp],
     );
 
     return results.map((row) => {
@@ -46,10 +90,10 @@ class DatabaseService {
     }).toList();
   }
 
-  /// Speichert oder aktualisiert eine Liste von Sync-Items
-  void upsertItems(List<Map<String, dynamic>> items) {
+  /// Speichert oder aktualisiert eine Liste von Sync-Items für einen Benutzer
+  void upsertItems(String userId, List<Map<String, dynamic>> items) {
     final stmt = _db.prepare(
-      'INSERT OR REPLACE INTO sync_items (id, type, data, updated_at, deleted) VALUES (?, ?, ?, ?, ?)'
+      'INSERT OR REPLACE INTO sync_items (id, user_id, type, data, updated_at, deleted) VALUES (?, ?, ?, ?, ?, ?)'
     );
 
     try {
@@ -57,6 +101,7 @@ class DatabaseService {
       for (final item in items) {
         stmt.execute([
           item['id'],
+          userId,
           item['type'],
           item['data'],
           item['updated_at'],
@@ -72,9 +117,9 @@ class DatabaseService {
     }
   }
 
-  /// Holt ein einzelnes Item nach ID
-  Map<String, dynamic>? getItemById(String id) {
-    final results = _db.select('SELECT id, type, data, updated_at, deleted FROM sync_items WHERE id = ?', [id]);
+  /// Holt ein einzelnes Item nach ID für einen Benutzer
+  Map<String, dynamic>? getItemById(String userId, String id) {
+    final results = _db.select('SELECT id, type, data, updated_at, deleted FROM sync_items WHERE user_id = ? AND id = ?', [userId, id]);
     if (results.isEmpty) return null;
     
     final row = results.first;
@@ -87,11 +132,11 @@ class DatabaseService {
     };
   }
 
-  /// Markiert ein Item als gelöscht (Tombstone)
-  void markDeleted(String id) {
+  /// Markiert ein Item als gelöscht (Tombstone) für einen Benutzer
+  void markDeleted(String userId, String id) {
     _db.execute(
-      'UPDATE sync_items SET deleted = 1, updated_at = ? WHERE id = ?',
-      [DateTime.now().millisecondsSinceEpoch, id],
+      'UPDATE sync_items SET deleted = 1, updated_at = ? WHERE user_id = ? AND id = ?',
+      [DateTime.now().millisecondsSinceEpoch, userId, id],
     );
   }
 

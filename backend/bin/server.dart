@@ -9,7 +9,43 @@ import '../lib/api/sync_handler.dart';
 void main(List<String> args) async {
   // Pfad zur Datenbank aus Umgebungsvariable oder Standard
   final dbPath = Platform.environment['DB_PATH'] ?? 'data/sync.db';
+  
+  // Sicherstellen, dass das Verzeichnis existiert
+  final dbDir = Directory(dbPath).parent;
+  if (!dbDir.existsSync()) {
+    dbDir.createSync(recursive: true);
+  }
+  
   final db = DatabaseService(dbPath);
+
+  // CLI Befehle verarbeiten
+  if (args.isNotEmpty) {
+    if (args[0] == 'adduser' && args.length > 1) {
+      final username = args[1];
+      try {
+        final apiKey = db.createUser(username);
+        print('Benutzer $username erfolgreich erstellt.');
+        print('API-Key: $apiKey');
+        print('WICHTIG: Speichere diesen Key gut auf, er wird nur einmal angezeigt!');
+      } catch (e) {
+        print('Fehler beim Erstellen des Benutzers: $e');
+      }
+      return;
+    } else if (args[0] == 'listusers') {
+      final users = db.getUsers();
+      print('Registrierte Benutzer:');
+      for (final user in users) {
+        print('- ${user['username']} (Key: ${user['api_key']})');
+      }
+      return;
+    }
+  }
+
+  // Nur starten wenn kein CLI Befehl verarbeitet wurde
+  await _startServer(db);
+}
+
+Future<void> _startServer(DatabaseService db) async {
   final syncHandler = SyncHandler(db);
 
   // Router-Konfiguration
@@ -32,4 +68,5 @@ void main(List<String> args) async {
   // Server starten
   final server = await serve(handler, ip, port);
   print('Server gestartet auf port ${server.port}');
+  print('Benutze "dart bin/server.dart adduser <name>" um einen neuen User anzulegen.');
 }

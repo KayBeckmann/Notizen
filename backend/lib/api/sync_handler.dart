@@ -10,6 +10,19 @@ class SyncHandler {
 
   Router get router {
     final router = Router();
+    
+    // Middleware für alle Routen in diesem Handler
+    final pipeline = const Pipeline()
+        .addMiddleware(_authMiddleware())
+        .addHandler(_router.call);
+        
+    router.all('/<ignored|.*>', pipeline);
+    
+    return router;
+  }
+
+  Router get _router {
+    final router = Router();
     router.post('/pull', _pullHandler);
     router.post('/push', _pushHandler);
     router.post('/sync', _syncHandler);
@@ -23,21 +36,48 @@ class SyncHandler {
     return router;
   }
 
+  /// Middleware zur Validierung des API-Keys
+  Middleware _authMiddleware() {
+    return (Handler innerHandler) {
+      return (Request req) async {
+        final authHeader = req.headers['Authorization'];
+        if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+          return Response.forbidden(json.encode({'error': 'Fehlender oder ungültiger Authorization Header'}));
+        }
+
+        final apiKey = authHeader.substring(7);
+        final userId = _db.validateApiKey(apiKey);
+        
+        if (userId == null) {
+          return Response.forbidden(json.encode({'error': 'Ungültiger API-Key'}));
+        }
+
+        // User-ID im Kontext speichern
+        return innerHandler(req.change(context: {'userId': userId}));
+      };
+    };
+  }
+
+  String _getUserId(Request req) => req.context['userId'] as String;
+
   Future<Response> _getNotesHandler(Request req) async {
+    final userId = _getUserId(req);
     final lastSync = int.tryParse(req.url.queryParameters['since'] ?? '0') ?? 0;
-    final changes = _db.getChangesSince(lastSync);
+    final changes = _db.getChangesSince(userId, lastSync);
     // Nur Notizen filtern
     final notes = changes.where((c) => c['type'] == 'note').toList();
     return Response.ok(json.encode(notes), headers: {'content-type': 'application/json'});
   }
 
   Future<Response> _getNoteHandler(Request req, String id) async {
-    final item = _db.getItemById(id);
+    final userId = _getUserId(req);
+    final item = _db.getItemById(userId, id);
     if (item == null) return Response.notFound('Notiz nicht gefunden');
     return Response.ok(json.encode(item), headers: {'content-type': 'application/json'});
   }
 
   Future<Response> _upsertNoteHandler(Request req) async {
+    final userId = _getUserId(req);
     final body = await req.readAsString();
     final data = json.decode(body) as Map<String, dynamic>;
     
@@ -50,18 +90,20 @@ class SyncHandler {
       'deleted': false,
     };
     
-    _db.upsertItems([item]);
+    _db.upsertItems(userId, [item]);
     return Response.ok(json.encode({'status': 'ok'}));
   }
 
   Future<Response> _deleteNoteHandler(Request req, String id) async {
-    _db.markDeleted(id);
+    final userId = _getUserId(req);
+    _db.markDeleted(userId, id);
     return Response.ok(json.encode({'status': 'ok'}));
   }
 
   /// Voller Sync: Push lokale Änderungen, Pull Remote Änderungen
   Future<Response> _syncHandler(Request req) async {
     try {
+      final userId = _getUserId(req);
       final body = await req.readAsString();
       final data = json.decode(body) as Map<String, dynamic>;
       
@@ -72,11 +114,11 @@ class SyncHandler {
 
       // 1. Lokale Änderungen vom Client in Server-DB speichern
       if (changes.isNotEmpty) {
-        _db.upsertItems(changes);
+        _db.upsertItems(userId, changes);
       }
 
       // 2. Änderungen vom Server seit lastSyncTimestamp abrufen
-      final serverChanges = _db.getChangesSince(lastSyncTimestamp);
+      final serverChanges = _db.getChangesSince(userId, lastSyncTimestamp);
       
       // 3. Neue Synchronisationszeit ermitteln (jetzt)
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -94,15 +136,17 @@ class SyncHandler {
   }
 
   Future<Response> _pullHandler(Request req) async {
+    final userId = _getUserId(req);
     final lastSync = int.tryParse(req.url.queryParameters['since'] ?? '0') ?? 0;
-    final changes = _db.getChangesSince(lastSync);
+    final changes = _db.getChangesSince(userId, lastSync);
     return Response.ok(json.encode(changes), headers: {'content-type': 'application/json'});
   }
 
   Future<Response> _pushHandler(Request req) async {
+    final userId = _getUserId(req);
     final body = await req.readAsString();
     final items = (json.decode(body) as List).cast<Map<String, dynamic>>();
-    _db.upsertItems(items);
+    _db.upsertItems(userId, items);
     return Response.ok(json.encode({'status': 'ok'}));
   }
 }

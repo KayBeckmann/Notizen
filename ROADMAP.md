@@ -14,9 +14,9 @@
 | M4 | Markdown-Editor | Erledigt |
 | M5 | Medien-Integration | Erledigt |
 | M6 | Zeichenfunktion | Erledigt |
-| M7 | Plattform-Features | Erledigt |
+| M7 | Plattform-Features | Teilweise |
 | M8 | Zusatzfunktionen | Erledigt |
-| M9 | Cloud-Sync | In Arbeit |
+| M9 | Cloud-Sync | Erledigt |
 | M10 | Release & Polish | Ausstehend |
 
 ---

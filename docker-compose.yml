@@ -1,4 +1,12 @@
 services:
+  homepage:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./homepage:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
   notizen-web:
     build:
       context: .

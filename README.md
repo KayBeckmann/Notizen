@@ -29,18 +29,18 @@ Eine plattformübergreifende Notiz-App mit Flutter und Material Design 3.
   - Linux
   - Web
 
-- **Sync (geplant)**
+- **Sync (geplant/teilweise implementiert)**
   - Google Drive
-  - Nextcloud
-  - NAS / eigener Server (Dart-basiertes Backend)
+  - Nextcloud / WebDAV
+  - Eigener Sync-Server (in Dart inklusive Docker-Setup)
 
 ## Tech Stack
 
 - **Framework:** Flutter
-- **Backend:** Dart (Shelf)
+- **Backend:** Dart (Shelf) & SQLite
 - **State Management:** Riverpod
-- **Datenbank:** Drift (SQLite) / SQLite (Backend)
-- **Design:** Material Design 3
+- **Datenbank:** Drift (SQLite)
+- **Deployment:** Docker & Docker Compose
 
 ## Installation
 

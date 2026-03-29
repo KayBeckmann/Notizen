@@ -27,8 +27,5 @@ COPY --from=build /app/bin/server /app/bin/server
 RUN mkdir -p /app/data
 VOLUME /app/data
 
-# Port festlegen
-EXPOSE 8080
-
 # App starten
 CMD ["/app/bin/server"]

@@ -28,9 +28,9 @@ services:
       dockerfile: Dockerfile
     image: notizen-backend:latest
     ports:
-      - "${BACKEND_PORT:-3000}:8080"
+      - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}"
     environment:
-      - PORT=8080
+      - PORT=${BACKEND_PORT:-3000}
       - DB_PATH=/app/data/sync.db
     volumes:
       - backend_data:/app/data

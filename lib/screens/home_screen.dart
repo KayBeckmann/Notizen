@@ -8,7 +8,7 @@ import '../database/database.dart';
 import '../services/browser_title_service.dart';
 import '../providers/database_provider.dart';
 import '../providers/folders_provider.dart';
-import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider, viewModeProvider, selectionModeProvider, selectedNotesProvider;
+import '../providers/notes_provider.dart' show notesInCurrentFolderProvider, sortOrderProvider, sortDirectionProvider, viewModeProvider, selectionModeProvider, selectedNotesProvider, selectedNoteProvider;
 import '../widgets/adaptive_scaffold.dart';
 import '../widgets/drag_and_drop.dart';
 import '../widgets/folder_drawer.dart';

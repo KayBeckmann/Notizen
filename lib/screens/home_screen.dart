@@ -767,47 +767,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _createNewNote() async {
     final folderId = ref.read(currentFolderProvider) ?? 'default';
 
-    // Zeige Notiz-Typ-Dialog auf Desktop, gehe direkt zu Text auf Mobile
+    // Zeige Notiz-Typ-Dialog auf allen Geräten
+    final result = await showNoteTypeDialog(context);
+    if (result == null || !mounted) return;
+
     final layoutType = Breakpoints.getLayoutType(context);
-
-    if (layoutType == LayoutType.compact) {
-      // Auf Mobile: Direkt Textnotiz erstellen
-      if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => NoteEditorScreen(folderId: folderId),
-          ),
-        );
+    
+    // Auf Desktop/Web (expanded/large) im 3-Spalten-Layout öffnen, falls es eine Textnotiz ist
+    // Andere Typen (Audio, Image, Drawing) haben aktuell eigene Screens
+    if (layoutType == LayoutType.expanded || layoutType == LayoutType.large) {
+      if (result.type == ContentType.text) {
+        // Für neue Textnotiz im Split-View selektieren wir nichts, sondern pushen
+        // oder wir implementieren eine "New Note" State. 
+        // Vorerst pushen wir auch hier, damit der Screen sauber initialisiert wird.
       }
-    } else {
-      // Auf Tablet/Desktop: Notiz-Typ-Dialog zeigen
-      final result = await showNoteTypeDialog(context);
-      if (result == null || !mounted) return;
-
-      Widget screen;
-      switch (result.type) {
-        case ContentType.text:
-          screen = NoteEditorScreen(
-            folderId: folderId,
-            initialTitle: result.template?.titleTemplate,
-            initialContent: result.template?.content,
-          );
-          break;
-        case ContentType.audio:
-          screen = AudioNoteScreen(folderId: folderId);
-          break;
-        case ContentType.image:
-          screen = ImageNoteScreen(folderId: folderId);
-          break;
-        case ContentType.drawing:
-          screen = DrawingNoteScreen(folderId: folderId);
-          break;
-      }
-
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => screen),
-      );
     }
+
+    Widget screen;
+    switch (result.type) {
+      case ContentType.text:
+        screen = NoteEditorScreen(
+          folderId: folderId,
+          initialTitle: result.template?.titleTemplate,
+          initialContent: result.template?.content,
+        );
+        break;
+      case ContentType.audio:
+        screen = AudioNoteScreen(folderId: folderId);
+        break;
+      case ContentType.image:
+        screen = ImageNoteScreen(folderId: folderId);
+        break;
+      case ContentType.drawing:
+        screen = DrawingNoteScreen(folderId: folderId);
+        break;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => screen),
+    );
   }
 
   void _openNote(Note note) {

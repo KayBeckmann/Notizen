@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FEF7FF"
+    android:padding="12dp"
+    android:id="@+id/widget_root">
+
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Keine Notiz"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#1D1B20"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/widget_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Tippe hier, um die App zu öffnen."
+        android:textSize="14sp"
+        android:textColor="#49454F"
+        android:maxLines="4"
+        android:ellipsize="end" />
+
+</LinearLayout>

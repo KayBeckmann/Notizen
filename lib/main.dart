@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'constants/app_theme.dart';
+import 'providers/notes_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
 import 'services/settings_service.dart';
 import 'services/storage_service.dart';
+import 'services/widget_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +16,7 @@ void main() async {
   // Einstellungen und Storage initialisieren
   await SettingsService.instance.init();
   await StorageService.instance.init();
+  await WidgetService.init();
 
   runApp(
     const ProviderScope(
@@ -28,6 +31,14 @@ class NotizenApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Widget bei Änderungen der Notizen aktualisieren
+    ref.listen(allNotesProvider, (previous, next) {
+      next.whenData((notes) {
+        final latestNote = notes.isNotEmpty ? notes.first : null;
+        WidgetService.updateWidgetWithLatestNote(latestNote);
+      });
+    });
+
     final themeMode = ref.watch(themeModeNotifierProvider);
     final seedColor = ref.watch(seedColorNotifierProvider);
     final useDynamicColor = ref.watch(useDynamicColorNotifierProvider);

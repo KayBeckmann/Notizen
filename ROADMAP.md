@@ -613,15 +613,15 @@
 
 ### 7.1 Android Home-Widgets
 #### 7.1.1 Setup
-- [ ] 7.1.1.1 `home_widget` Package konfigurieren
-- [ ] 7.1.1.2 Native Android-Widget Code (Kotlin)
-- [ ] 7.1.1.3 Widget-Provider registrieren
-- [ ] 7.1.1.4 Widget-Layouts erstellen (XML)
+- [x] 7.1.1.1 `home_widget` Package konfigurieren
+- [x] 7.1.1.2 Native Android-Widget Code (Kotlin)
+- [x] 7.1.1.3 Widget-Provider registrieren
+- [x] 7.1.1.4 Widget-Layouts erstellen (XML)
 
 #### 7.1.2 Kleines Widget (2x1)
-- [ ] 7.1.2.1 Einzelne Notiz-Vorschau
-- [ ] 7.1.2.2 Titel anzeigen
-- [ ] 7.1.2.3 Tap öffnet Notiz
+- [x] 7.1.2.1 Einzelne Notiz-Vorschau
+- [x] 7.1.2.2 Titel anzeigen
+- [x] 7.1.2.3 Tap öffnet Notiz
 
 #### 7.1.3 Mittleres Widget (4x2)
 - [ ] 7.1.3.1 Liste der letzten 3-5 Notizen

@@ -7,16 +7,12 @@ import '../tables/notes.dart';
 import '../tables/note_tags.dart';
 import '../tables/tags.dart';
 
-import '../../services/sync/sync.dart';
-
 part 'notes_dao.g.dart';
 
 /// Data Access Object für Notizen
 @DriftAccessor(tables: [Notes, Tags, NoteTags])
 class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
-  final SyncService? syncService;
-
-  NotesDao(super.db, {this.syncService});
+  NotesDao(super.db);
 
   /// Stream aller Notizen (archivierte und gelöschte Notizen ausschließen)
   Stream<List<Note>> watchAllNotes() {
@@ -148,10 +144,6 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
     try {
       final id = note.id.value as String;
       await into(notes).insert(note);
-      final createdNote = await getNoteById(id);
-      if (createdNote != null) {
-        syncService?.queueNoteChange(createdNote, SyncChangeType.created);
-      }
       debugPrint('DB: Note created successfully');
       return id;
     } catch (e) {
@@ -162,17 +154,12 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
 
   /// Notiz aktualisieren
   Future<bool> updateNote(Note note) async {
-    final success = await update(notes).replace(note);
-    if (success) {
-      syncService?.queueNoteChange(note, SyncChangeType.updated);
-    }
-    return success;
+    return await update(notes).replace(note);
   }
 
   /// Notiz endgültig löschen
   Future<void> deleteNote(String id) async {
     await (delete(notes)..where((t) => t.id.equals(id))).go();
-    syncService?.queueNoteDeletion(id);
   }
 
   /// Notiz in den Papierkorb verschieben
@@ -185,10 +172,6 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
         updatedAt: Value(now),
       ),
     );
-    final note = await getNoteById(id);
-    if (note != null) {
-      syncService?.queueNoteChange(note, SyncChangeType.updated);
-    }
   }
 
   /// Notiz aus dem Papierkorb wiederherstellen
@@ -201,37 +184,20 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
         updatedAt: Value(now),
       ),
     );
-    final note = await getNoteById(id);
-    if (note != null) {
-      syncService?.queueNoteChange(note, SyncChangeType.updated);
-    }
   }
 
   /// Papierkorb leeren
   Future<void> emptyTrash() async {
-    final trashedNotes = await (select(notes)..where((t) => t.isTrashed.equals(true))).get();
     await (delete(notes)..where((t) => t.isTrashed.equals(true))).go();
-    for (final note in trashedNotes) {
-      syncService?.queueNoteDeletion(note.id);
-    }
   }
 
   /// Alte Einträge im Papierkorb löschen (älter als 30 Tage)
   Future<void> cleanupTrash() async {
     final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-    final oldNotes = await (select(notes)
-          ..where((t) =>
-              t.isTrashed.equals(true) & t.trashedAt.isSmallerThanValue(thirtyDaysAgo)))
-        .get();
-    
     await (delete(notes)
           ..where((t) =>
               t.isTrashed.equals(true) & t.trashedAt.isSmallerThanValue(thirtyDaysAgo)))
         .go();
-
-    for (final note in oldNotes) {
-      syncService?.queueNoteDeletion(note.id);
-    }
   }
 
   /// Notiz in anderen Ordner verschieben
@@ -243,10 +209,6 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
         updatedAt: Value(now),
       ),
     );
-    final note = await getNoteById(id);
-    if (note != null) {
-      syncService?.queueNoteChange(note, SyncChangeType.updated);
-    }
   }
 
   /// Anpinnen umschalten
@@ -260,10 +222,6 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
           updatedAt: Value(now),
         ),
       );
-      final updatedNote = await getNoteById(id);
-      if (updatedNote != null) {
-        syncService?.queueNoteChange(updatedNote, SyncChangeType.updated);
-      }
     }
   }
 
@@ -278,10 +236,6 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
           updatedAt: Value(now),
         ),
       );
-      final updatedNote = await getNoteById(id);
-      if (updatedNote != null) {
-        syncService?.queueNoteChange(updatedNote, SyncChangeType.updated);
-      }
     }
   }
 

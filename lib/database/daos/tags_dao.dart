@@ -4,16 +4,12 @@ import '../database.dart';
 import '../tables/note_tags.dart';
 import '../tables/tags.dart';
 
-import '../../services/sync/sync.dart';
-
 part 'tags_dao.g.dart';
 
 /// Data Access Object für Tags
 @DriftAccessor(tables: [Tags, NoteTags])
 class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
-  final SyncService? syncService;
-
-  TagsDao(super.db, {this.syncService});
+  TagsDao(super.db);
 
   /// Stream aller Tags
   Stream<List<Tag>> watchAllTags() {
@@ -56,27 +52,18 @@ class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
   Future<String> createTag(TagsCompanion tag) async {
     final id = tag.id.value as String;
     await into(tags).insert(tag);
-    final createdTag = await getTagById(id);
-    if (createdTag != null) {
-      syncService?.queueTagChange(createdTag, SyncChangeType.created);
-    }
     return id;
   }
 
   /// Tag aktualisieren
   Future<bool> updateTag(Tag tag) async {
-    final success = await update(tags).replace(tag);
-    if (success) {
-      syncService?.queueTagChange(tag, SyncChangeType.updated);
-    }
-    return success;
+    return await update(tags).replace(tag);
   }
 
   /// Tag löschen (entfernt auch alle Verknüpfungen)
   Future<void> deleteTag(String id) async {
     await (delete(noteTags)..where((t) => t.tagId.equals(id))).go();
     await (delete(tags)..where((t) => t.id.equals(id))).go();
-    syncService?.queueDeletion(id, 'tag');
   }
 
   /// Tag einer Notiz zuweisen
@@ -104,12 +91,6 @@ class TagsDao extends DatabaseAccessor<AppDatabase> with _$TagsDaoMixin {
       await addTagToNote(noteId, tagId);
     }
 
-    // Die Notiz selbst als geändert markieren für Sync
-    // Wir holen uns die Notiz über das AppDatabase Objekt
-    final note = await (select(db.notes)..where((t) => t.id.equals(noteId))).getSingleOrNull();
-    if (note != null) {
-      syncService?.queueNoteChange(note, SyncChangeType.updated);
-    }
   }
 
   /// Anzahl der Notizen mit einem Tag

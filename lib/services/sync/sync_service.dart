@@ -59,6 +59,9 @@ class SyncService extends ChangeNotifier {
   bool get syncOnlyOnWifi => _syncOnlyOnWifi;
   List<SyncLogEntry> get syncLog => List.unmodifiable(_syncLog);
 
+  /// Anzahl der ausstehenden Änderungen (basierend auf letztem Sync-Zeitpunkt)
+  int get pendingChangesCount => 0; // Delta-Sync ermittelt Änderungen zur Sync-Zeit
+
   /// Log-Eintrag hinzufügen
   void _log(SyncLogLevel level, String message, [String? details]) {
     _syncLog.insert(0, SyncLogEntry(

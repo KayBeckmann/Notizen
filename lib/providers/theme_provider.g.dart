@@ -14,14 +14,14 @@ String _$themeModeNotifierHash() => r'8a659900e44dd8004fb460d066213c9b5db7ad81';
 @ProviderFor(ThemeModeNotifier)
 final themeModeNotifierProvider =
     AutoDisposeNotifierProvider<ThemeModeNotifier, ThemeMode>.internal(
-      ThemeModeNotifier.new,
-      name: r'themeModeNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$themeModeNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  ThemeModeNotifier.new,
+  name: r'themeModeNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$themeModeNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$ThemeModeNotifier = AutoDisposeNotifier<ThemeMode>;
 String _$seedColorNotifierHash() => r'f145468f3a7619f4192eba3effd5766c5813d4dd';
@@ -32,14 +32,14 @@ String _$seedColorNotifierHash() => r'f145468f3a7619f4192eba3effd5766c5813d4dd';
 @ProviderFor(SeedColorNotifier)
 final seedColorNotifierProvider =
     AutoDisposeNotifierProvider<SeedColorNotifier, Color>.internal(
-      SeedColorNotifier.new,
-      name: r'seedColorNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$seedColorNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  SeedColorNotifier.new,
+  name: r'seedColorNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$seedColorNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$SeedColorNotifier = AutoDisposeNotifier<Color>;
 String _$useDynamicColorNotifierHash() =>
@@ -51,14 +51,14 @@ String _$useDynamicColorNotifierHash() =>
 @ProviderFor(UseDynamicColorNotifier)
 final useDynamicColorNotifierProvider =
     AutoDisposeNotifierProvider<UseDynamicColorNotifier, bool>.internal(
-      UseDynamicColorNotifier.new,
-      name: r'useDynamicColorNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$useDynamicColorNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  UseDynamicColorNotifier.new,
+  name: r'useDynamicColorNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$useDynamicColorNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$UseDynamicColorNotifier = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint

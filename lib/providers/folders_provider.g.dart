@@ -15,9 +15,8 @@ String _$allFoldersHash() => r'c0c7ba97a9dd46a814a238f843ec55e48600408e';
 final allFoldersProvider = AutoDisposeStreamProvider<List<Folder>>.internal(
   allFolders,
   name: r'allFoldersProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$allFoldersHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$allFoldersHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -34,9 +33,8 @@ String _$rootFoldersHash() => r'16dab4910e04a3c4184c235b25ba34ddddfde552';
 final rootFoldersProvider = AutoDisposeStreamProvider<List<Folder>>.internal(
   rootFolders,
   name: r'rootFoldersProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$rootFoldersHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$rootFoldersHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -85,15 +83,21 @@ class ChildFoldersFamily extends Family<AsyncValue<List<Folder>>> {
   /// Stream der Kind-Ordner
   ///
   /// Copied from [childFolders].
-  ChildFoldersProvider call(String parentId) {
-    return ChildFoldersProvider(parentId);
+  ChildFoldersProvider call(
+    String parentId,
+  ) {
+    return ChildFoldersProvider(
+      parentId,
+    );
   }
 
   @override
   ChildFoldersProvider getProviderOverride(
     covariant ChildFoldersProvider provider,
   ) {
-    return call(provider.parentId);
+    return call(
+      provider.parentId,
+    );
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -118,19 +122,24 @@ class ChildFoldersProvider extends AutoDisposeStreamProvider<List<Folder>> {
   /// Stream der Kind-Ordner
   ///
   /// Copied from [childFolders].
-  ChildFoldersProvider(String parentId)
-    : this._internal(
-        (ref) => childFolders(ref as ChildFoldersRef, parentId),
-        from: childFoldersProvider,
-        name: r'childFoldersProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$childFoldersHash,
-        dependencies: ChildFoldersFamily._dependencies,
-        allTransitiveDependencies:
-            ChildFoldersFamily._allTransitiveDependencies,
-        parentId: parentId,
-      );
+  ChildFoldersProvider(
+    String parentId,
+  ) : this._internal(
+          (ref) => childFolders(
+            ref as ChildFoldersRef,
+            parentId,
+          ),
+          from: childFoldersProvider,
+          name: r'childFoldersProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$childFoldersHash,
+          dependencies: ChildFoldersFamily._dependencies,
+          allTransitiveDependencies:
+              ChildFoldersFamily._allTransitiveDependencies,
+          parentId: parentId,
+        );
 
   ChildFoldersProvider._internal(
     super._createNotifier, {
@@ -206,9 +215,8 @@ String _$folderTreeHash() => r'901409d0a0169e890ff8f627997687b66aee440c';
 final folderTreeProvider = AutoDisposeFutureProvider<List<FolderNode>>.internal(
   folderTree,
   name: r'folderTreeProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$folderTreeHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$folderTreeHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -216,22 +224,22 @@ final folderTreeProvider = AutoDisposeFutureProvider<List<FolderNode>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FolderTreeRef = AutoDisposeFutureProviderRef<List<FolderNode>>;
-String _$currentFolderHash() => r'0cb12f8844e0742b97571cab1e3de09572e77924';
+String _$currentFolderHash() => r'751acbf6d04437b9fddc7e18da01a774a4863c16';
 
-/// Aktuell ausgewählter Ordner
+/// Aktuell ausgewählter Ordner (persistiert)
 ///
 /// Copied from [CurrentFolder].
 @ProviderFor(CurrentFolder)
 final currentFolderProvider =
     AutoDisposeNotifierProvider<CurrentFolder, String?>.internal(
-      CurrentFolder.new,
-      name: r'currentFolderProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$currentFolderHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  CurrentFolder.new,
+  name: r'currentFolderProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$currentFolderHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$CurrentFolder = AutoDisposeNotifier<String?>;
 // ignore_for_file: type=lint

@@ -15,9 +15,8 @@ String _$databaseHash() => r'd66464688f3f3beae31aa517238455b4413086f1';
 final databaseProvider = Provider<AppDatabase>.internal(
   database,
   name: r'databaseProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$databaseHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$databaseHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -34,9 +33,8 @@ String _$foldersDaoHash() => r'fee4cdef35629aa0a8792b064aea2a8d1af2fcfb';
 final foldersDaoProvider = AutoDisposeProvider<FoldersDao>.internal(
   foldersDao,
   name: r'foldersDaoProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$foldersDaoHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$foldersDaoHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -53,9 +51,8 @@ String _$notesDaoHash() => r'c2c519d8df605d549fc600081eb2ab1ed371da76';
 final notesDaoProvider = AutoDisposeProvider<NotesDao>.internal(
   notesDao,
   name: r'notesDaoProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$notesDaoHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$notesDaoHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -63,7 +60,7 @@ final notesDaoProvider = AutoDisposeProvider<NotesDao>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef NotesDaoRef = AutoDisposeProviderRef<NotesDao>;
-String _$tagsDaoHash() => r'aca26f11c60c8ef8541f82750f62944b8744165f';
+String _$tagsDaoHash() => r'64c017bae60cf248404d5b94ec750bc4d14e394e';
 
 /// TagsDao Provider
 ///
@@ -72,9 +69,8 @@ String _$tagsDaoHash() => r'aca26f11c60c8ef8541f82750f62944b8744165f';
 final tagsDaoProvider = AutoDisposeProvider<TagsDao>.internal(
   tagsDao,
   name: r'tagsDaoProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$tagsDaoHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$tagsDaoHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

@@ -6,4 +6,6 @@ part of 'notes_dao.dart';
 mixin _$NotesDaoMixin on DatabaseAccessor<AppDatabase> {
   $FoldersTable get folders => attachedDatabase.folders;
   $NotesTable get notes => attachedDatabase.notes;
+  $TagsTable get tags => attachedDatabase.tags;
+  $NoteTagsTable get noteTags => attachedDatabase.noteTags;
 }

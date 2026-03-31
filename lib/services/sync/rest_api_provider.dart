@@ -31,12 +31,14 @@ class RestApiSyncProvider implements SyncProvider {
   bool get supportsSyncAll => true;
 
   /// Konfiguration setzen
-  void configure({
+  Future<void> configure({
     required String serverUrl,
     required String apiKey,
-  }) {
+  }) async {
     _serverUrl = serverUrl.endsWith('/') ? serverUrl.substring(0, serverUrl.length - 1) : serverUrl;
     _apiKey = apiKey;
+    _connected = true;
+    await _saveCredentials();
   }
 
   /// Auth Header erstellen
@@ -94,6 +96,7 @@ class RestApiSyncProvider implements SyncProvider {
 
       return response.statusCode == 200;
     } catch (e) {
+      print('DEBUG: testConnection error: $e');
       return false;
     }
   }

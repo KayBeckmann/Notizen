@@ -15,9 +15,8 @@ String _$allTagsHash() => r'33dbc634616fb3a666b88284a7ada8ee3f148288';
 final allTagsProvider = AutoDisposeStreamProvider<List<Tag>>.internal(
   allTags,
   name: r'allTagsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$allTagsHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$allTagsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -66,15 +65,21 @@ class TagsForNoteFamily extends Family<AsyncValue<List<Tag>>> {
   /// Stream der Tags einer bestimmten Notiz
   ///
   /// Copied from [tagsForNote].
-  TagsForNoteProvider call(String noteId) {
-    return TagsForNoteProvider(noteId);
+  TagsForNoteProvider call(
+    String noteId,
+  ) {
+    return TagsForNoteProvider(
+      noteId,
+    );
   }
 
   @override
   TagsForNoteProvider getProviderOverride(
     covariant TagsForNoteProvider provider,
   ) {
-    return call(provider.noteId);
+    return call(
+      provider.noteId,
+    );
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -99,18 +104,24 @@ class TagsForNoteProvider extends AutoDisposeStreamProvider<List<Tag>> {
   /// Stream der Tags einer bestimmten Notiz
   ///
   /// Copied from [tagsForNote].
-  TagsForNoteProvider(String noteId)
-    : this._internal(
-        (ref) => tagsForNote(ref as TagsForNoteRef, noteId),
-        from: tagsForNoteProvider,
-        name: r'tagsForNoteProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$tagsForNoteHash,
-        dependencies: TagsForNoteFamily._dependencies,
-        allTransitiveDependencies: TagsForNoteFamily._allTransitiveDependencies,
-        noteId: noteId,
-      );
+  TagsForNoteProvider(
+    String noteId,
+  ) : this._internal(
+          (ref) => tagsForNote(
+            ref as TagsForNoteRef,
+            noteId,
+          ),
+          from: tagsForNoteProvider,
+          name: r'tagsForNoteProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$tagsForNoteHash,
+          dependencies: TagsForNoteFamily._dependencies,
+          allTransitiveDependencies:
+              TagsForNoteFamily._allTransitiveDependencies,
+          noteId: noteId,
+        );
 
   TagsForNoteProvider._internal(
     super._createNotifier, {
@@ -169,14 +180,33 @@ mixin TagsForNoteRef on AutoDisposeStreamProviderRef<List<Tag>> {
 }
 
 class _TagsForNoteProviderElement
-    extends AutoDisposeStreamProviderElement<List<Tag>>
-    with TagsForNoteRef {
+    extends AutoDisposeStreamProviderElement<List<Tag>> with TagsForNoteRef {
   _TagsForNoteProviderElement(super.provider);
 
   @override
   String get noteId => (origin as TagsForNoteProvider).noteId;
 }
 
+String _$noteCountsByTagHash() => r'8999c17081b873e9b0aa5a92affee3d4b7ebd26f';
+
+/// Notizanzahl pro Tag
+///
+/// Copied from [noteCountsByTag].
+@ProviderFor(noteCountsByTag)
+final noteCountsByTagProvider =
+    AutoDisposeStreamProvider<Map<String, int>>.internal(
+  noteCountsByTag,
+  name: r'noteCountsByTagProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$noteCountsByTagHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NoteCountsByTagRef = AutoDisposeStreamProviderRef<Map<String, int>>;
 String _$selectedTagHash() => r'85063674780d99a18a3fa0c8e632ed1877847aac';
 
 /// Aktuell ausgewählter Tag zum Filtern
@@ -185,14 +215,13 @@ String _$selectedTagHash() => r'85063674780d99a18a3fa0c8e632ed1877847aac';
 @ProviderFor(SelectedTag)
 final selectedTagProvider =
     AutoDisposeNotifierProvider<SelectedTag, String?>.internal(
-      SelectedTag.new,
-      name: r'selectedTagProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$selectedTagHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  SelectedTag.new,
+  name: r'selectedTagProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$selectedTagHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$SelectedTag = AutoDisposeNotifier<String?>;
 // ignore_for_file: type=lint

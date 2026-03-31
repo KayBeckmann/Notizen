@@ -8,6 +8,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'constants/app_theme.dart';
 import 'providers/notes_provider.dart';
+import 'providers/sync_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
 import 'services/settings_service.dart';
@@ -50,6 +51,9 @@ class NotizenApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Automatischer Sync bei Änderungen triggern
+    ref.watch(syncTriggerProvider);
+
     // Widget bei Änderungen der Notizen aktualisieren
     ref.listen(allNotesProvider, (previous, next) {
       next.whenData((notes) {

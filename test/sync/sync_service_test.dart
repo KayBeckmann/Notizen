@@ -110,4 +110,35 @@ void main() {
     expect(note, isNotNull);
     expect(note!.title, 'Remote Note');
   });
+
+  test('triggerSync debounces multiple calls', () async {
+    when(() => mockProvider.syncAll(
+      lastSyncTimestamp: any(named: 'lastSyncTimestamp'),
+      localChanges: any(named: 'localChanges'),
+    )).thenAnswer((_) async {
+      return {
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'changes': [],
+      };
+    });
+
+    // Mehrmals triggern
+    syncService.triggerSync();
+    syncService.triggerSync();
+    syncService.triggerSync();
+
+    // Kurz warten (weniger als Debounce-Zeit von 3s)
+    await Future.delayed(const Duration(milliseconds: 500));
+    verifyNever(() => mockProvider.syncAll(
+      lastSyncTimestamp: any(named: 'lastSyncTimestamp'),
+      localChanges: any(named: 'localChanges'),
+    ));
+
+    // Länger warten (mehr als 3s)
+    await Future.delayed(const Duration(milliseconds: 3000));
+    verify(() => mockProvider.syncAll(
+      lastSyncTimestamp: any(named: 'lastSyncTimestamp'),
+      localChanges: any(named: 'localChanges'),
+    )).called(1);
+  });
 }

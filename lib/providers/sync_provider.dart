@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'database_provider.dart';
+import 'notes_provider.dart';
+import 'folders_provider.dart';
+import 'tags_provider.dart';
 import '../services/connectivity_service.dart';
 import '../services/sync/sync.dart';
 
@@ -16,6 +19,30 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   });
 
   return service;
+});
+
+/// Provider der auf Datenbankänderungen lauscht und den Sync triggert
+final syncTriggerProvider = Provider<void>((ref) {
+  final syncService = ref.watch(syncServiceProvider);
+  
+  // Lausche auf alle relevanten Datenquellen
+  ref.listen(allNotesProvider, (previous, next) {
+    if (previous != null && next is AsyncData) {
+      syncService.triggerSync();
+    }
+  });
+
+  ref.listen(allFoldersProvider, (previous, next) {
+    if (previous != null && next is AsyncData) {
+      syncService.triggerSync();
+    }
+  });
+
+  ref.listen(allTagsProvider, (previous, next) {
+    if (previous != null && next is AsyncData) {
+      syncService.triggerSync();
+    }
+  });
 });
 
 /// Provider für den Sync-Status

@@ -138,6 +138,22 @@ class SyncService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Timer? _debounceTimer;
+
+  /// Triggered Sync mit Debounce (verzögert den Sync um 3 Sekunden)
+  void triggerSync() {
+    if (!_autoSyncEnabled || _provider == null || !_provider!.isConnected) {
+      return;
+    }
+
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 3), () {
+      if (_status != SyncStatus.syncing) {
+        sync();
+      }
+    });
+  }
+
   /// Synchronisation starten
   Future<SyncResult> sync() async {
     if (_provider == null) {

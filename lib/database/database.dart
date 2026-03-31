@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'connection/connection.dart' as connection;
+import 'daos/sync_dao.dart';
 import 'tables/folders.dart';
 import 'tables/note_tags.dart';
 import 'tables/notes.dart';
@@ -11,7 +12,10 @@ import 'tables/templates.dart';
 part 'database.g.dart';
 
 /// Hauptdatenbank der Notizen-App
-@DriftDatabase(tables: [Folders, Notes, Tags, NoteTags, SyncQueue, SyncConflicts, Templates])
+@DriftDatabase(
+  tables: [Folders, Notes, Tags, NoteTags, SyncQueue, SyncConflicts, Templates],
+  daos: [SyncDao],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(connection.openConnection());
 

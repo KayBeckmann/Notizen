@@ -1,180 +1,73 @@
 import 'dart:convert';
-
 import 'package:drift/drift.dart';
-
 import '../database.dart';
-import '../tables/notes.dart';
 import '../tables/sync_queue.dart';
+import '../tables/notes.dart';
+import '../tables/folders.dart';
+import '../tables/tags.dart';
 
 part 'sync_dao.g.dart';
 
-/// DAO für Sync-bezogene Datenbankoperationen
-@DriftAccessor(tables: [Notes, SyncQueue, SyncConflicts])
+@DriftAccessor(tables: [SyncQueue, SyncConflicts, Notes, Folders, Tags])
 class SyncDao extends DatabaseAccessor<AppDatabase> with _$SyncDaoMixin {
-  SyncDao(super.db);
+  SyncDao(AppDatabase db) : super(db);
 
-  // ==================== Sync Queue ====================
-
-  /// Alle ausstehenden Sync-Einträge abrufen
-  Future<List<SyncQueueData>> getPendingChanges() {
-    return (select(syncQueue)..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
-  }
-
-  /// Stream aller ausstehenden Sync-Einträge
-  Stream<List<SyncQueueData>> watchPendingChanges() {
-    return (select(syncQueue)..orderBy([(t) => OrderingTerm.asc(t.id)])).watch();
-  }
-
-  /// Anzahl der ausstehenden Änderungen
-  Future<int> getPendingChangesCount() async {
-    final count = countAll();
-    final query = selectOnly(syncQueue)..addColumns([count]);
-    final result = await query.getSingle();
-    return result.read(count) ?? 0;
-  }
-
-  /// Änderung zur Queue hinzufügen
-  Future<int> queueChange({
+  /// Fügt eine Änderung zur Queue hinzu
+  Future<int> addToQueue({
     required String noteId,
     required String changeType,
-    Note? note,
-  }) {
+    Map<String, dynamic>? noteData,
+  }) async {
     return into(syncQueue).insert(
       SyncQueueCompanion.insert(
         noteId: noteId,
         changeType: changeType,
         timestamp: DateTime.now(),
-        noteData: note != null ? Value(_noteToJson(note)) : const Value.absent(),
+        noteData: noteData != null ? Value(jsonEncode(noteData)) : const Value.absent(),
       ),
     );
   }
 
-  /// Änderung aus Queue entfernen
+  /// Holt alle ausstehenden Änderungen
+  Future<List<SyncQueueData>> getPendingChanges() {
+    return (select(syncQueue)..orderBy([(t) => OrderingTerm(expression: t.id, mode: OrderingMode.asc)])).get();
+  }
+
+  /// Entfernt eine Änderung aus der Queue
   Future<int> removeFromQueue(int id) {
     return (delete(syncQueue)..where((t) => t.id.equals(id))).go();
   }
 
-  /// Alle Änderungen für eine Notiz aus Queue entfernen
-  Future<int> removeNoteFromQueue(String noteId) {
-    return (delete(syncQueue)..where((t) => t.noteId.equals(noteId))).go();
-  }
-
-  /// Queue leeren
+  /// Leert die Queue
   Future<int> clearQueue() {
     return delete(syncQueue).go();
   }
 
-  /// Retry-Count erhöhen
-  Future<bool> incrementRetryCount(int id, String? error) async {
-    final updated = await (update(syncQueue)..where((t) => t.id.equals(id))).write(
+  /// Fehler für eine Änderung aktualisieren
+  Future<void> updateError(int id, String error) {
+    return (update(syncQueue)..where((t) => t.id.equals(id))).write(
       SyncQueueCompanion(
-        retryCount: syncQueue.retryCount + const Constant(1),
         lastError: Value(error),
-      ),
-    );
-    return updated > 0;
-  }
-
-  // ==================== Sync Status ====================
-
-  /// Notizen mit Sync-Status "pending" abrufen
-  Future<List<Note>> getUnsyncedNotes() {
-    return (select(notes)
-          ..where((t) => t.syncStatus.equals('pending'))
-          ..orderBy([(t) => OrderingTerm.asc(t.updatedAt)]))
-        .get();
-  }
-
-  /// Notizen die seit einem bestimmten Zeitpunkt geändert wurden
-  Future<List<Note>> getNotesModifiedSince(DateTime since) {
-    return (select(notes)..where((t) => t.updatedAt.isBiggerThanValue(since))).get();
-  }
-
-  /// Sync-Status einer Notiz aktualisieren
-  Future<bool> updateSyncStatus(
-    String noteId, {
-    required String status,
-    DateTime? syncedAt,
-    String? remoteId,
-  }) async {
-    final updated = await (update(notes)..where((t) => t.id.equals(noteId))).write(
-      NotesCompanion(
-        syncStatus: Value(status),
-        syncedAt: syncedAt != null ? Value(syncedAt) : const Value.absent(),
-        remoteId: remoteId != null ? Value(remoteId) : const Value.absent(),
-      ),
-    );
-    return updated > 0;
-  }
-
-  /// Mehrere Notizen als synchronisiert markieren
-  Future<void> markAsSynced(List<String> noteIds, DateTime syncedAt) async {
-    await batch((batch) {
-      for (final noteId in noteIds) {
-        batch.update(
-          notes,
-          NotesCompanion(
-            syncStatus: const Value('synced'),
-            syncedAt: Value(syncedAt),
-          ),
-          where: (t) => t.id.equals(noteId),
-        );
-      }
-    });
-  }
-
-  /// Alle Notizen auf "pending" setzen (z.B. nach Reconnect)
-  Future<int> resetAllSyncStatus() {
-    return (update(notes)).write(
-      const NotesCompanion(
-        syncStatus: Value('pending'),
+        retryCount: Value((select(syncQueue)..where((t) => t.id.equals(id))).getSingle().then((v) => v.retryCount + 1) as int? ?? 0),
       ),
     );
   }
 
-  // ==================== Konflikte ====================
-
-  /// Alle ungelösten Konflikte abrufen
-  Future<List<SyncConflict>> getUnresolvedConflicts() {
-    return (select(syncConflicts)
-          ..where((t) => t.resolved.equals(false))
-          ..orderBy([(t) => OrderingTerm.desc(t.detectedAt)]))
-        .get();
-  }
-
-  /// Stream der ungelösten Konflikte
-  Stream<List<SyncConflict>> watchUnresolvedConflicts() {
-    return (select(syncConflicts)
-          ..where((t) => t.resolved.equals(false))
-          ..orderBy([(t) => OrderingTerm.desc(t.detectedAt)]))
-        .watch();
-  }
-
-  /// Anzahl der ungelösten Konflikte
-  Future<int> getConflictCount() async {
-    final count = countAll();
-    final query = selectOnly(syncConflicts)
-      ..where(syncConflicts.resolved.equals(false))
-      ..addColumns([count]);
-    final result = await query.getSingle();
-    return result.read(count) ?? 0;
-  }
-
-  /// Konflikt speichern
-  Future<int> saveConflict({
-    required String id,
+  /// Einen Konflikt speichern
+  Future<int> addConflict({
     required String noteId,
-    required Note localNote,
-    required Note remoteNote,
+    required Map<String, dynamic> localData,
+    required Map<String, dynamic> remoteData,
     required DateTime localModified,
     required DateTime remoteModified,
-  }) {
+  }) async {
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
     return into(syncConflicts).insert(
       SyncConflictsCompanion.insert(
         id: id,
         noteId: noteId,
-        localData: _noteToJson(localNote),
-        remoteData: _noteToJson(remoteNote),
+        localData: jsonEncode(localData),
+        remoteData: jsonEncode(remoteData),
         localModified: localModified,
         remoteModified: remoteModified,
         detectedAt: DateTime.now(),
@@ -182,49 +75,46 @@ class SyncDao extends DatabaseAccessor<AppDatabase> with _$SyncDaoMixin {
     );
   }
 
-  /// Konflikt als gelöst markieren
-  Future<bool> resolveConflict(String id) async {
-    final updated = await (update(syncConflicts)..where((t) => t.id.equals(id))).write(
-      const SyncConflictsCompanion(
-        resolved: Value(true),
-      ),
+  /// Holt alle ungelösten Konflikte
+  Future<List<SyncConflict>> getUnresolvedConflicts() {
+    return (select(syncConflicts)..where((t) => t.resolved.equals(false))).get();
+  }
+
+  /// Markiert einen Konflikt als gelöst
+  Future<void> resolveConflict(String conflictId) {
+    return (update(syncConflicts)..where((t) => t.id.equals(conflictId))).write(
+      const SyncConflictsCompanion(resolved: Value(true)),
     );
-    return updated > 0;
   }
 
-  /// Gelöste Konflikte löschen
-  Future<int> deleteResolvedConflicts() {
-    return (delete(syncConflicts)..where((t) => t.resolved.equals(true))).go();
+  /// Alle Tabellen für den Sync abrufen (für Delta-Sync)
+  /// Da die Sync-Logik generisch ist, brauchen wir Zugriff auf alle Entitäten
+  
+  Future<Note?> getNoteById(String id) {
+    return (select(notes)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
-  /// Alle Konflikte für eine Notiz löschen
-  Future<int> deleteConflictsForNote(String noteId) {
-    return (delete(syncConflicts)..where((t) => t.noteId.equals(noteId))).go();
+  Future<Folder?> getFolderById(String id) {
+    return (select(folders)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
-  // ==================== Hilfsmethoden ====================
-
-  /// Notiz zu JSON konvertieren
-  String _noteToJson(Note note) {
-    return jsonEncode({
-      'id': note.id,
-      'title': note.title,
-      'content': note.content,
-      'contentType': note.contentType,
-      'folderId': note.folderId,
-      'isPinned': note.isPinned,
-      'isArchived': note.isArchived,
-      'isTrashed': note.isTrashed,
-      'trashedAt': note.trashedAt?.toIso8601String(),
-      'mediaPath': note.mediaPath,
-      'drawingData': note.drawingData,
-      'createdAt': note.createdAt.toIso8601String(),
-      'updatedAt': note.updatedAt.toIso8601String(),
-    });
+  Future<Tag?> getTagById(String id) {
+    return (select(tags)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
-  /// JSON zu Notiz-Map konvertieren (für Provider-Nutzung)
-  static Map<String, dynamic> jsonToNoteMap(String json) {
-    return jsonDecode(json) as Map<String, dynamic>;
+  /// Hilfsmethode: Alles was seit dem letzten Sync geändert wurde
+  Future<List<Note>> getModifiedNotesSince(DateTime? lastSync) {
+    if (lastSync == null) return select(notes).get();
+    return (select(notes)..where((t) => t.updatedAt.isBiggerThanValue(lastSync))).get();
+  }
+
+  Future<List<Folder>> getModifiedFoldersSince(DateTime? lastSync) {
+    if (lastSync == null) return select(folders).get();
+    return (select(folders)..where((t) => t.updatedAt.isBiggerThanValue(lastSync))).get();
+  }
+
+  Future<List<Tag>> getModifiedTagsSince(DateTime? lastSync) {
+    if (lastSync == null) return select(tags).get();
+    return (select(tags)..where((t) => t.createdAt.isBiggerThanValue(lastSync))).get();
   }
 }

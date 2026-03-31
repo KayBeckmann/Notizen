@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -37,9 +36,6 @@ class SyncService extends ChangeNotifier {
   bool _syncOnlyOnWifi = true;
   Timer? _autoSyncTimer;
 
-  // Queue für Offline-Änderungen
-  final Queue<SyncChange> _pendingChanges = Queue();
-
   // Sync-Log (max. 100 Einträge)
   final List<SyncLogEntry> _syncLog = [];
   static const int _maxLogEntries = 100;
@@ -61,8 +57,6 @@ class SyncService extends ChangeNotifier {
   bool get autoSyncEnabled => _autoSyncEnabled;
   int get autoSyncIntervalMinutes => _autoSyncIntervalMinutes;
   bool get syncOnlyOnWifi => _syncOnlyOnWifi;
-  int get pendingChangesCount => _pendingChanges.length;
-  bool get hasPendingChanges => _pendingChanges.isNotEmpty;
   List<SyncLogEntry> get syncLog => List.unmodifiable(_syncLog);
 
   /// Log-Eintrag hinzufügen
@@ -165,46 +159,51 @@ class SyncService extends ChangeNotifier {
     _notifySyncStart();
 
     try {
-      if (_provider != null && _provider!.supportsSyncAll) {
-        // Optimierter Delta-Sync für das eigene Backend
-        final localChanges = _pendingChanges.map((c) => {
-          'id': c.id,
-          'type': c.type,
-          'action': c.action.name,
-          'updated_at': c.timestamp.millisecondsSinceEpoch,
-          'data': c.data != null ? jsonEncode(c.data) : null,
-        }).toList();
+      // 1. Lokale Änderungen sammeln
+      final notes = await db.syncDao.getModifiedNotesSince(_lastSyncTime);
+      final folders = await db.syncDao.getModifiedFoldersSince(_lastSyncTime);
+      final tags = await db.syncDao.getModifiedTagsSince(_lastSyncTime);
 
-        final response = await _provider!.syncAll(
-          lastSyncTimestamp: _lastSyncTime?.millisecondsSinceEpoch ?? 0,
-          localChanges: localChanges,
-        );
+      final localChanges = [
+        ...notes.map((n) => {
+          'id': n.id,
+          'type': 'note',
+          'updated_at': n.updatedAt.millisecondsSinceEpoch,
+          'data': jsonEncode(n.toJson()),
+          'deleted': n.isTrashed, // Oder ein separates deleted-Feld
+        }),
+        ...folders.map((f) => {
+          'id': f.id,
+          'type': 'folder',
+          'updated_at': f.updatedAt.millisecondsSinceEpoch,
+          'data': jsonEncode(f.toJson()),
+          'deleted': false,
+        }),
+        ...tags.map((t) => {
+          'id': t.id,
+          'type': 'tag',
+          'updated_at': t.createdAt.millisecondsSinceEpoch, // Tags haben nur createdAt im Schema
+          'data': jsonEncode(t.toJson()),
+          'deleted': false,
+        }),
+      ];
 
-        final serverChanges = response['changes'] as List;
-        final newTimestamp = response['timestamp'] as int;
+      // 2. Sync mit Provider
+      final response = await _provider!.syncAll(
+        lastSyncTimestamp: _lastSyncTime?.millisecondsSinceEpoch ?? 0,
+        localChanges: localChanges,
+      );
 
-        // Remote-Änderungen lokal anwenden
-        await _applyRemoteChanges(serverChanges);
+      final serverChanges = response['changes'] as List;
+      final newTimestamp = response['timestamp'] as int;
 
-        _pendingChanges.clear();
-        _lastSyncTime = DateTime.fromMillisecondsSinceEpoch(newTimestamp);
-        _status = SyncStatus.success;
-        _log(SyncLogLevel.success, 'Synchronisation erfolgreich', 
-            '${localChanges.length} hochgeladen, ${serverChanges.length} heruntergeladen');
-      } else {
-        // Klassischer Sync für andere Provider (WebDAV etc.)
-        if (_pendingChanges.isNotEmpty) {
-          _log(SyncLogLevel.info, 'Lade ${_pendingChanges.length} lokale Änderungen hoch...');
-        }
-        await _uploadPendingChanges();
+      // 3. Remote-Änderungen lokal anwenden
+      await _applyRemoteChanges(serverChanges);
 
-        _log(SyncLogLevel.info, 'Hole Remote-Änderungen...');
-        final result = await _provider!.sync();
-        _status = result.status;
-        if (result.status == SyncStatus.success) {
-          _lastSyncTime = result.timestamp;
-        }
-      }
+      _lastSyncTime = DateTime.fromMillisecondsSinceEpoch(newTimestamp);
+      _status = SyncStatus.success;
+      _log(SyncLogLevel.success, 'Synchronisation erfolgreich', 
+          '${localChanges.length} hochgeladen, ${serverChanges.length} heruntergeladen');
 
       await _saveLastSyncTime();
       notifyListeners();
@@ -224,130 +223,54 @@ class SyncService extends ChangeNotifier {
 
   /// Remote-Änderungen lokal anwenden
   Future<void> _applyRemoteChanges(List<dynamic> changes) async {
-    for (final change in changes) {
-      final map = change as Map<String, dynamic>;
-      final id = map['id'] as String;
-      final type = map['type'] as String;
-      final isDeleted = map['deleted'] as bool;
-      final dataStr = map['data'] as String;
-      final data = jsonDecode(dataStr) as Map<String, dynamic>;
+    await db.transaction(() async {
+      for (final change in changes) {
+        try {
+          if (change == null) continue;
+          final map = change as Map<String, dynamic>;
+          final id = map['id'] as String?;
+          final type = map['type'] as String?;
+          final isDeleted = map['deleted'] as bool? ?? false;
+          
+          if (id == null || type == null) {
+            _log(SyncLogLevel.warning, 'Ungültiges Sync-Item übersprungen', 'ID oder Typ fehlt');
+            continue;
+          }
+          
+          final dataStr = map['data'] as String?;
+          if (!isDeleted && dataStr == null) {
+            _log(SyncLogLevel.warning, 'Ungültiges Sync-Item übersprungen', 'Daten fehlen für $id');
+            continue;
+          }
+          
+          final data = dataStr != null ? jsonDecode(dataStr) as Map<String, dynamic> : null;
 
-      if (isDeleted) {
-        // Lokal löschen
-        if (type == 'note') {
-          await (db.delete(db.notes)..where((t) => t.id.equals(id))).go();
-        } else if (type == 'folder') {
-          await (db.delete(db.folders)..where((t) => t.id.equals(id))).go();
-        } else if (type == 'tag') {
-          await (db.delete(db.tags)..where((t) => t.id.equals(id))).go();
-        }
-        continue;
-      }
-
-      // Upsert (Insert or Replace)
-      if (type == 'note') {
-        await db.into(db.notes).insertOnConflictUpdate(Note.fromJson(data));
-      } else if (type == 'folder') {
-        await db.into(db.folders).insertOnConflictUpdate(Folder.fromJson(data));
-      } else if (type == 'tag') {
-        await db.into(db.tags).insertOnConflictUpdate(Tag.fromJson(data));
-      }
-    }
-  }
-
-  /// Notiz zur Sync-Queue hinzufügen
-  void queueNoteChange(Note note, SyncChangeType action) {
-    _pendingChanges.add(SyncChange(
-      id: note.id,
-      type: 'note',
-      action: action,
-      timestamp: DateTime.now(),
-      data: note.toJson(),
-    ));
-    notifyListeners();
-  }
-
-  /// Notiz-Löschung zur Sync-Queue hinzufügen
-  void queueNoteDeletion(String noteId) {
-    _pendingChanges.add(SyncChange(
-      id: noteId,
-      type: 'note',
-      action: SyncChangeType.deleted,
-      timestamp: DateTime.now(),
-    ));
-    notifyListeners();
-  }
-
-  /// Löschung zur Sync-Queue hinzufügen
-  void queueDeletion(String id, String type) {
-    _pendingChanges.add(SyncChange(
-      id: id,
-      type: type,
-      action: SyncChangeType.deleted,
-      timestamp: DateTime.now(),
-    ));
-    notifyListeners();
-  }
-
-  /// Ordner zur Sync-Queue hinzufügen
-  void queueFolderChange(Folder folder, SyncChangeType action) {
-    _pendingChanges.add(SyncChange(
-      id: folder.id,
-      type: 'folder',
-      action: action,
-      timestamp: DateTime.now(),
-      data: folder.toJson(),
-    ));
-    notifyListeners();
-  }
-
-  /// Tag zur Sync-Queue hinzufügen
-  void queueTagChange(Tag tag, SyncChangeType action) {
-    _pendingChanges.add(SyncChange(
-      id: tag.id,
-      type: 'tag',
-      action: action,
-      timestamp: DateTime.now(),
-      data: tag.toJson(),
-    ));
-    notifyListeners();
-  }
-
-  /// Ausstehende Änderungen hochladen
-  Future<void> _uploadPendingChanges() async {
-    if (_provider == null || !_provider!.isConnected) return;
-
-    while (_pendingChanges.isNotEmpty) {
-      final change = _pendingChanges.first;
-
-      bool success = false;
-      
-      // REST API Abwärtskompatibilität für Notizen
-      if (change.type == 'note') {
-        switch (change.action) {
-          case SyncChangeType.created:
-          case SyncChangeType.updated:
-            if (change.data != null) {
-              success = await _provider!.uploadNote(Note.fromJson(change.data!));
+          if (isDeleted) {
+            if (type == 'note') {
+              await (db.delete(db.notes)..where((t) => t.id.equals(id))).go();
+            } else if (type == 'folder') {
+              await (db.delete(db.folders)..where((t) => t.id.equals(id))).go();
+            } else if (type == 'tag') {
+              await (db.delete(db.tags)..where((t) => t.id.equals(id))).go();
             }
-            break;
-          case SyncChangeType.deleted:
-            success = await _provider!.deleteNote(change.id);
-            break;
-        }
-      } else {
-        // Andere Typen (Folder, Tag) werden über syncAll abgeglichen
-        // Bis das voll integriert ist, markieren wir es als Erfolg
-        success = true;
-      }
+            continue;
+          }
 
-      if (success) {
-        _pendingChanges.removeFirst();
-      } else {
-        break;
+          if (data == null) continue;
+
+          if (type == 'note') {
+            await db.into(db.notes).insertOnConflictUpdate(Note.fromJson(data));
+          } else if (type == 'folder') {
+            await db.into(db.folders).insertOnConflictUpdate(Folder.fromJson(data));
+          } else if (type == 'tag') {
+            await db.into(db.tags).insertOnConflictUpdate(Tag.fromJson(data));
+          }
+        } catch (e) {
+          _log(SyncLogLevel.error, 'Fehler beim Anwenden einer Änderung', e.toString());
+          rethrow;
+        }
       }
-    }
-    notifyListeners();
+    });
   }
 
   /// Konflikt auflösen
@@ -438,9 +361,6 @@ class SyncService extends ChangeNotifier {
   /// Auto-Sync durchführen
   Future<void> _performAutoSync() async {
     if (_status == SyncStatus.syncing) return;
-
-    // TODO: WLAN-Check implementieren wenn syncOnlyOnWifi aktiviert
-
     await sync();
   }
 
